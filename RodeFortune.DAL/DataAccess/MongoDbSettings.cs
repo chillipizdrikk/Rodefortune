@@ -1,8 +1,5 @@
-﻿
-namespace RodeFortune.DAL.DataAccess
+﻿public class MongoDbSettings
 {
-    public class MongoDbSettings
-    {
-    }
+    public string ConnectionString { get; set; } = null!;
+    public string DatabaseName { get; set; } = null!;
 }
- 

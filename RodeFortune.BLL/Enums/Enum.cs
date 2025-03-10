@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace RodeFortune.BLL.Enums
 {
-    internal class Enum
+    public enum Enum
     {
     }
 }
