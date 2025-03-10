@@ -1,5 +1,8 @@
-﻿using MongoDB.Driver;
+﻿using MongoDB.Bson;
+using MongoDB.Driver;
 using RodeFortune.DAL.Models;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace RodeFortune.DAL.Repositories
 {
@@ -7,22 +10,36 @@ namespace RodeFortune.DAL.Repositories
     {
         private readonly IMongoCollection<House> _houses;
 
-        public HouseRepository(MongoDbContext dbContext)
+        public HouseRepository(IMongoDatabase database)
         {
-            _houses = dbContext.Houses;
+            _houses = database.GetCollection<House>("houses");
         }
 
-        public async Task<List<House>> GetAllAsync() => await _houses.Find(_ => true).ToListAsync();
+        public async Task<List<House>> GetAllAsync()
+        {
+            return await _houses.Find(_ => true).ToListAsync();
+        }
 
-        public async Task<House?> GetByIdAsync(string id) =>
-            await _houses.Find(house => house.Id == id).FirstOrDefaultAsync();
+        public async Task<House> GetByIdAsync(ObjectId id)
+        {
+            return await _houses.Find(h => h.Id == id).FirstOrDefaultAsync();
+        }
 
-        public async Task CreateAsync(House house) => await _houses.InsertOneAsync(house);
+        public async Task CreateAsync(House house)
+        {
+            await _houses.InsertOneAsync(house);
+        }
 
-        public async Task UpdateAsync(string id, House house) =>
-            await _houses.ReplaceOneAsync(h => h.Id == id, house);
+        public async Task<bool> UpdateAsync(House house)
+        {
+            var result = await _houses.ReplaceOneAsync(h => h.Id == house.Id, house);
+            return result.ModifiedCount > 0;
+        }
 
-        public async Task DeleteAsync(string id) =>
-            await _houses.DeleteOneAsync(h => h.Id == id);
+        public async Task<bool> DeleteAsync(ObjectId id)
+        {
+            var result = await _houses.DeleteOneAsync(h => h.Id == id);
+            return result.DeletedCount > 0;
+        }
     }
 }

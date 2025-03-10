@@ -1,28 +1,52 @@
-﻿using MongoDB.Driver;
+﻿using MongoDB.Bson;
+using MongoDB.Driver;
 using RodeFortune.DAL.Models;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace RodeFortune.DAL.Repositories
 {
     public class DestinyMatrixRepository
     {
-        private readonly IMongoCollection<DestinyMatrix> _destinyMatrices;
+        private readonly IMongoCollection<DestinyMatrix> _collection;
 
-        public DestinyMatrixRepository(MongoDbContext dbContext)
+        public DestinyMatrixRepository(IMongoDatabase database)
         {
-            _destinyMatrices = dbContext.DestinyMatrices;
+            _collection = database.GetCollection<DestinyMatrix>("destiny_matrices");
         }
 
-        public async Task<List<DestinyMatrix>> GetAllAsync() => await _destinyMatrices.Find(_ => true).ToListAsync();
+        public async Task<List<DestinyMatrix>> GetAllAsync()
+        {
+            return await _collection.Find(_ => true).ToListAsync();
+        }
 
-        public async Task<DestinyMatrix?> GetByIdAsync(string id) =>
-            await _destinyMatrices.Find(destinyMatrix => destinyMatrix.Id == id).FirstOrDefaultAsync();
+        public async Task<DestinyMatrix> GetByIdAsync(ObjectId id)
+        {
+            return await _collection.Find(dm => dm.Id == id).FirstOrDefaultAsync();
+        }
 
-        public async Task CreateAsync(DestinyMatrix destinyMatrix) => await _destinyMatrices.InsertOneAsync(destinyMatrix);
+        public async Task<List<DestinyMatrix>> GetByUserIdAsync(ObjectId userId)
+        {
+            return await _collection.Find(dm => dm.UserId == userId).ToListAsync();
+        }
 
-        public async Task UpdateAsync(string id, DestinyMatrix destinyMatrix) =>
-            await _destinyMatrices.ReplaceOneAsync(d => d.Id == id, destinyMatrix);
+        public async Task CreateAsync(DestinyMatrix destinyMatrix)
+        {
+            await _collection.InsertOneAsync(destinyMatrix);
+        }
 
-        public async Task DeleteAsync(string id) =>
-            await _destinyMatrices.DeleteOneAsync(d => d.Id == id);
+        public async Task<bool> UpdateContentAsync(ObjectId id, string content)
+        {
+            var update = Builders<DestinyMatrix>.Update.Set(dm => dm.Content, content);
+            var result = await _collection.UpdateOneAsync(dm => dm.Id == id, update);
+            return result.ModifiedCount > 0;
+        }
+
+        public async Task<bool> DeleteAsync(ObjectId id)
+        {
+            var result = await _collection.DeleteOneAsync(dm => dm.Id == id);
+            return result.DeletedCount > 0;
+        }
     }
 }
