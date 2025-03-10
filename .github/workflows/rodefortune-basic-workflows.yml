@@ -24,11 +24,17 @@ jobs:
       with:
         dotnet-version: '8.0.x'
 
+    - name: Install Roslynator
+      run: dotnet tool install roslynator.dotnet.cli
+
     - name: Restore Dependencies
       run: dotnet restore
 
     - name: Build Solution
       run: dotnet build
+
+    - name: Run Roslynator analysis
+      run: dotnet roslynator analyze RodeFortune.sln --verbosity detailed || true
 
     - name: Run Tests
       run: dotnet test --no-build --verbosity normal
