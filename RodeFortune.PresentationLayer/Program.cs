@@ -7,30 +7,26 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 
-try
-{
-    // Load .env file
     Env.Load();
 
     var builder = WebApplication.CreateBuilder(args);
 
-    // Налаштування Serilog з appsettings.json
     builder.Host.UseSerilog((context, services, configuration) => configuration
         .ReadFrom.Configuration(context.Configuration)
         .ReadFrom.Services(services));
 
-    // Get MongoDB settings from .env file
+
     var connectionString = Environment.GetEnvironmentVariable("MONGODB_CONNECTION_STRING");
     var databaseName = Environment.GetEnvironmentVariable("MONGODB_DATABASE_NAME");
 
-    // Configure MongoDB settings manually
+
     builder.Services.Configure<MongoDbSettings>(options =>
     {
         options.ConnectionString = connectionString;
         options.DatabaseName = databaseName;
     });
 
-    // Register MongoDB client and database
+
     builder.Services.AddSingleton<IMongoClient>(sp =>
     {
         var settings = sp.GetRequiredService<IOptions<MongoDbSettings>>();
@@ -44,7 +40,6 @@ try
         return client.GetDatabase(settings.Value.DatabaseName);
     });
 
-    // Add services to the container.
     builder.Services.AddControllersWithViews();
 
     var app = builder.Build();
@@ -57,7 +52,6 @@ try
         app.UseHsts();
     }
 
-    // Додаємо Serilog request logging
     app.UseSerilogRequestLogging();
 
     app.UseHttpsRedirection();
@@ -70,13 +64,5 @@ try
         pattern: "{controller=Home}/{action=Index}/{id?}");
 
     app.Run();
-}
-catch (Exception ex)
-{
-    Log.Fatal(ex, "Програма завершилась з помилкою");
-}
-finally
-{
-    // Додаємо обробку помилок при завершенні програми
+
     Log.CloseAndFlush();
-}
