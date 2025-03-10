@@ -7,8 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RodeFortune.BLL", "RodeFort
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RodeFortune.DAL", "RodeFortune.DAL\RodeFortune.DAL.csproj", "{F169BE43-2584-4093-909F-0DC66996B2EE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RodeFortune.Logging", "RodeFortune.Logging\RodeFortune.Logging.csproj", "{F212A73E-F3AA-4B9D-A3F5-D244FEE482E8}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RodeFortune.UnitTests", "RodeFortune.UnitTests\RodeFortune.UnitTests.csproj", "{CC739AA4-3FF9-4FEC-9E03-289A13A122F4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RodeFortune.PresentationLayer", "RodeFortune.PresentationLayer\RodeFortune.PresentationLayer.csproj", "{FBB3DD76-22D9-499C-87C1-22C211B9883F}"
@@ -27,10 +25,6 @@ Global
 		{F169BE43-2584-4093-909F-0DC66996B2EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F169BE43-2584-4093-909F-0DC66996B2EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F169BE43-2584-4093-909F-0DC66996B2EE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F212A73E-F3AA-4B9D-A3F5-D244FEE482E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F212A73E-F3AA-4B9D-A3F5-D244FEE482E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F212A73E-F3AA-4B9D-A3F5-D244FEE482E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F212A73E-F3AA-4B9D-A3F5-D244FEE482E8}.Release|Any CPU.Build.0 = Release|Any CPU
 		{CC739AA4-3FF9-4FEC-9E03-289A13A122F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{CC739AA4-3FF9-4FEC-9E03-289A13A122F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CC739AA4-3FF9-4FEC-9E03-289A13A122F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
