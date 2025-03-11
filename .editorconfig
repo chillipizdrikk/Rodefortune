@@ -20,3 +20,7 @@ dotnet_diagnostic.CS8601.severity = none
 dotnet_diagnostic.CS8603.severity = none
 # CS8612: Type or member is obsolete
 dotnet_diagnostic.CS8612.severity = none
+# CS8625: Cannot convert null literal to non-nullable reference type.
+dotnet_diagnostic.CS8625.severity = none
+# S3903: Types should be defined in named namespaces.
+dotnet_diagnostic.S3903.severity = none
