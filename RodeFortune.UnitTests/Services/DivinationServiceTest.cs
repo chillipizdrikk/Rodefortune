@@ -1,64 +1,49 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using MongoDB.Bson;
-using MongoDB.Driver;
+﻿using MongoDB.Driver;
 using Moq;
 using NUnit.Framework;
 using RodeFortune.BLL.Services.Implementations;
 using RodeFortune.DAL.Models;
+using RodeFortune.DAL.Repositories.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using MongoDB.Bson;
 
-namespace RodeFortune.Tests.BLL.Services
+
+namespace RodeFortune.UnitTests.Services
 {
     [TestFixture]
-    public class DivisionServiceTests
+    public class DivinationServiceTests
     {
-        private DivinationService _divisionService;
-        private Mock<IMongoDatabase> _mockDatabase;
-        private Mock<IMongoCollection<TarotCard>> _mockCollection;
+        private DivinationService _divinationService;
+        private Mock<ITarotCardRepository> _mockTarotCardRepository;
         private Mock<ILogger<DivinationService>> _mockLogger;
         private List<TarotCard> _testCards;
 
         [SetUp]
         public void Setup()
         {
+            _mockTarotCardRepository = new Mock<ITarotCardRepository>();
+            _mockLogger = new Mock<ILogger<DivinationService>>();
+
             _testCards = new List<TarotCard>
             {
                 new TarotCard { Id = ObjectId.GenerateNewId(), Name = "Колесо Фортуни", Arcana = "Major" },
                 new TarotCard { Id = ObjectId.GenerateNewId(), Name = "Маг", Arcana = "Major" }
             };
 
-            _mockCollection = new Mock<IMongoCollection<TarotCard>>();
-            var mockCursor = new Mock<IAsyncCursor<TarotCard>>();
-            mockCursor.Setup(c => c.Current).Returns(_testCards);
-            mockCursor
-                .SetupSequence(c => c.MoveNextAsync(default))
-                .ReturnsAsync(true)
-                .ReturnsAsync(false);
+            _mockTarotCardRepository.Setup(repo => repo.GetAllAsync()).ReturnsAsync(_testCards);
+            _divinationService = new DivinationService(_mockTarotCardRepository.Object, _mockLogger.Object);
 
-            _mockCollection
-                .Setup(c => c.FindAsync(
-                    It.IsAny<FilterDefinition<TarotCard>>(),
-                    It.IsAny<FindOptions<TarotCard, TarotCard>>(),
-                    default))
-                .ReturnsAsync(mockCursor.Object);
-
-            _mockDatabase = new Mock<IMongoDatabase>();
-            _mockDatabase
-                .Setup(d => d.GetCollection<TarotCard>("TarotCards", null))
-                .Returns(_mockCollection.Object);
-
-            // Додаємо мок для ILogger
-            _mockLogger = new Mock<ILogger<DivinationService>>();
-
-            // Створюємо екземпляр сервісу з моками бази даних і логера
-            _divisionService = new DivinationService(_mockDatabase.Object, _mockLogger.Object);
         }
 
         [Test]
         public async Task GetYesNoReadingAsync_ShouldReturnValidCard()
         {
-            var result = await _divisionService.GetYesNoReadingAsync();
+            var result = await _divinationService.GetYesNoReadingAsync();
             Assert.That(result.Card, Is.Not.Null, "Повинна повертатись карта");
             Assert.That(result.Card.Name, Is.AnyOf("Колесо Фортуни", "Маг"),
                 "Назва карти повинна бути однією з тестових карт");
@@ -67,12 +52,13 @@ namespace RodeFortune.Tests.BLL.Services
         [Test]
         public async Task GetYesNoReadingAsync_ShouldReturnCardWithCorrectProperties()
         {
-            var result = await _divisionService.GetYesNoReadingAsync();
+            var result = await _divinationService.GetYesNoReadingAsync();
             Assert.That(result.Card, Is.Not.Null, "Повинна повертатись карта");
             Assert.That(result.Card.Arcana, Is.EqualTo("Major"),
                 "Карта повинна належати до Старших Арканів");
             Assert.That(result.IsReversed, Is.AnyOf(true, false),
                 "Карта має бути перевернутою або ні");
         }
+
     }
 }
