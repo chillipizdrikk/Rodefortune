@@ -6,25 +6,23 @@ using MongoDB.Bson;
 using RodeFortune.DAL.Models;
 using RodeFortune.DAL.Repositories.Interfaces;
 using Microsoft.Extensions.Logging;
+using RodeFortune.BLL.Services.Interfaces;
 
 namespace RodeFortune.BLL.Services.Implementations
 {
-    public class DivinationService
+    public class DivinationService : IDivinationService
     {
-        private readonly IMongoCollection<TarotCard> _tarotCards;
-        private readonly Random _random;
-        private Dictionary<string, (string CardId, bool IsReversed)> _dailyCards;
         private readonly ITarotCardRepository _tarotCardRepository;
         private readonly ILogger<DivinationService> _logger;
+        private readonly Random _random;
+        private Dictionary<string, (string CardId, bool IsReversed)> _dailyCards;
 
-        public DivinationService(IMongoDatabase database, ILogger<DivinationService> logger)
+        public DivinationService(ITarotCardRepository tarotCardRepository, ILogger<DivinationService> logger)
         {
-            _tarotCards = database.GetCollection<TarotCard>("TarotCards");
+            _tarotCardRepository = tarotCardRepository;
+            _logger = logger;
             _random = new Random();
             _dailyCards = new Dictionary<string, (string, bool)>();
-            _logger = logger;
-
-            _logger.LogInformation("DivinationService ініціалізовано");
         }
 
         public async Task<(TarotCard Card, bool IsReversed)> GetYesNoReadingAsync()
@@ -32,23 +30,23 @@ namespace RodeFortune.BLL.Services.Implementations
             _logger.LogDebug("Запит на Yes/No гадання");
             var card = await GetRandomCardAsync();
             bool isReversed = _random.Next(2) == 1;
-
             return (card, isReversed);
         }
 
         public async Task<List<(TarotCard Card, bool IsReversed, string Position)>> GetPastPresentFutureReadingAsync()
         {
-            var allCards = await _tarotCards.Find(_ => true).ToListAsync();
+            var allCards = await _tarotCardRepository.GetAllAsync();
             var result = new List<(TarotCard, bool, string)>();
             var positions = new[] { "Минуле", "Теперішнє", "Майбутнє" };
 
+            var availableCards = allCards.ToList();
+
             for (int i = 0; i < 3; i++)
             {
-                int index = _random.Next(allCards.Count);
+                int index = _random.Next(availableCards.Count);
                 bool isReversed = _random.Next(2) == 1;
-
-                result.Add((allCards[index], isReversed, positions[i]));
-                allCards.RemoveAt(index);
+                result.Add((availableCards[index], isReversed, positions[i]));
+                availableCards.RemoveAt(index);
             }
 
             return result;
@@ -63,12 +61,15 @@ namespace RodeFortune.BLL.Services.Implementations
 
             var newCard = await GetRandomCardAsync();
             bool isReversed = _random.Next(2) == 1;
-
             _dailyCards[key] = (newCard.Id.ToString(), isReversed);
+
             return (newCard, isReversed, true);
         }
 
-        private async Task<TarotCard> GetRandomCardAsync() =>
-        (await _tarotCards.Find(_ => true).ToListAsync()).OrderBy(_ => _random.Next()).First();
+        private async Task<TarotCard> GetRandomCardAsync()
+        {
+            var cards = await _tarotCardRepository.GetAllAsync();
+            return cards.OrderBy(_ => _random.Next()).First();
+        }
     }
 }
