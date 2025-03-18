@@ -7,6 +7,9 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using RodeFortune.BLL.Services.Implementations;
+using RodeFortune.DAL.Repositories.Implementations;
+using RodeFortune.DAL.Repositories.Interfaces;
+using RodeFortune.BLL.Services.Interfaces;
 
 Env.Load();
 
@@ -16,8 +19,8 @@ Env.Load();
         .ReadFrom.Configuration(context.Configuration)
         .ReadFrom.Services(services));
 
-    var connectionString = Environment.GetEnvironmentVariable("MONGODB_CONNECTION_STRING");
-    var databaseName = Environment.GetEnvironmentVariable("MONGODB_DATABASE_NAME");
+var connectionString = Environment.GetEnvironmentVariable("MONGODB_CONNECTION_STRING");
+var databaseName = Environment.GetEnvironmentVariable("MONGODB_DATABASE_NAME");
 
     builder.Services.Configure<MongoDbSettings>(options =>
     {
@@ -38,10 +41,11 @@ Env.Load();
         return client.GetDatabase(settings.Value.DatabaseName);
     });
 
-    builder.Services.AddControllersWithViews();
 
-//ÄÎÄÀËÀ ÄËß Â²ÄÎÁÐÀÆÅÍÍß VIEW Ç DivinationService
+builder.Services.AddScoped<ITarotCardRepository, TarotCardRepository>();
 builder.Services.AddScoped<DivinationService>();
+builder.Services.AddScoped<HoroscopeRepository>();
+builder.Services.AddScoped<IHoroscopeService, HoroscopeService>();
 
 builder.Services.AddControllersWithViews();
 var app = builder.Build();

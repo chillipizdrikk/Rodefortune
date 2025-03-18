@@ -1,0 +1,184 @@
+﻿@using RodeFortune.DAL.Models
+@model (TarotCard PresentCard, bool PresentIsReversed, TarotCard PastCard, bool PastIsReversed, TarotCard FutureCard, bool FutureIsReversed)
+
+@{
+    ViewData["Title"] = "Ворожіння Теперішнє/Минулe/Майбутнє";
+
+    string GetOrientation(bool isReversed) => isReversed ? "перевернута" : "пряма";
+
+    string GetImagePath(TarotCard card)
+    {
+        if (card.Name.Contains("Wheel of Fortune"))
+        {
+            return "/images/tarot/RWS_Tarot_10_Wheel_of_Fortune.jpg";
+        }
+        else if (card.Name.Contains("World"))
+        {
+            return "/images/tarot/RWS_Tarot_21_World.jpg";
+        }
+        else if (card.ImageUrl != null && card.ImageUrl.Length > 0)
+        {
+            return $"data:image/jpeg;base64,{Convert.ToBase64String(card.ImageUrl)}";
+        }
+        else
+        {
+            return "/images/tarot/RWS_Tarot_10_Wheel_of_Fortune.jpg";
+        }
+    }
+}
+
+<div class="container-fluid tarot-container">
+    <div class="row">
+        <div class="col-12 text-center mb-4">
+            <h1 class="display-4">Теперішнє, Минулe, Майбутнє</h1>
+            <p class="lead">Ворожіння на три карти</p>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-md-12">
+            <div class="row g-4">
+                @foreach (var cardTuple in new[] {
+                ("Теперішнє", Model.PresentCard, Model.PresentIsReversed),
+                ("Минулe", Model.PastCard, Model.PastIsReversed),
+                ("Майбутнє", Model.FutureCard, Model.FutureIsReversed)
+                })
+                {
+                    var (timeFrame, card, isReversed) = cardTuple;
+                    <div class="col-md-4">
+                        <div class="tarot-reading-card">
+                            <div class="card-header text-center">
+                                <h2>@timeFrame</h2>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="row g-0">
+                                    <div class="col-12 tarot-card-col">
+                                        <div class="tarot-card-container @(isReversed ? "reversed" : "")">
+                                            <img src="@GetImagePath(card)" class="tarot-card-image" alt="@card.Name">
+                                        </div>
+                                    </div>
+                                    <div class="col-12 p-4">
+                                        <h3 class="card-name">@card.Name</h3>
+                                        <div class="card-orientation">@GetOrientation(isReversed)</div>
+
+                                        @if (!string.IsNullOrEmpty(card.Motto))
+                                        {
+                                            <div class="card-motto mt-2">
+                                                <i>@card.Motto</i>
+                                            </div>
+                                        }
+
+                                        <div class="card-meaning mt-3">
+                                            <h4>Значення:</h4>
+                                            <p>@card.Meaning</p>
+                                        </div>
+
+                                        <div class="card-arcana mt-3">
+                                            <p><strong>Аркана:</strong> @card.Arcana</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+            <div class="card-footer text-center p-3 mt-4">
+                <a href="@Url.Action("PresentPastFuture", "Divination")" class="btn btn-primary btn-lg">Нове ворожіння</a>
+                <a href="@Url.Action("Index", "Divination")" class="btn btn-outline-secondary btn-lg ms-2">Інші ворожіння</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .tarot-container {
+        background-color: #f5f2f8;
+        min-height: 100vh;
+        padding: 2rem 0;
+    }
+
+    .tarot-reading-card {
+        background-color: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .card-header {
+        background-color: #f9f7fc;
+        padding: 1.5rem 0;
+        border-bottom: 1px solid #eee;
+    }
+
+    .tarot-card-col {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #f0ebf7;
+        padding: 2rem;
+    }
+
+    .tarot-card-container {
+        transition: transform 0.5s ease;
+        max-width: 240px;
+        margin: 0 auto;
+        box-shadow: 0 15px 25px rgba(0, 0, 0, 0.2);
+        border-radius: 10px;
+    }
+
+        .tarot-card-container.reversed {
+            transform: rotate(180deg);
+        }
+
+    .tarot-card-image {
+        width: 100%;
+        height: auto;
+        border-radius: 10px;
+    }
+
+    .card-name {
+        font-size: 1.5rem;
+        color: #4a2c82;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+
+    .card-orientation {
+        font-size: 1rem;
+        color: #8a7da0;
+        margin-bottom: 1rem;
+        font-style: italic;
+    }
+
+    .card-motto {
+        color: #6a3cb5;
+        font-size: 1rem;
+    }
+
+    .card-meaning h4 {
+        color: #4a2c82;
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .card-arcana {
+        font-size: 1rem;
+    }
+
+    .card-footer {
+        background-color: #f9f7fc;
+        border-top: 1px solid #eee;
+        padding: 1rem 0;
+    }
+
+    .btn-primary {
+        background-color: #6a3cb5;
+        border-color: #6a3cb5;
+    }
+
+        .btn-primary:hover {
+            background-color: #542e91;
+            border-color: #542e91;
+        }
+</style>

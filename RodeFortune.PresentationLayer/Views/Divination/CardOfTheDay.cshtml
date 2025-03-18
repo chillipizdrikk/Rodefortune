@@ -1,0 +1,257 @@
+﻿@using RodeFortune.DAL.Models
+@model (TarotCard Card, bool IsReversed)
+
+@{
+    ViewData["Title"] = "Карта дня";
+    string orientation = Model.IsReversed ? "перевернута" : "пряма";
+
+    string imagePath = "";
+    if (Model.Card.ImageUrl != null && Model.Card.ImageUrl.Length > 0)
+    {
+        imagePath = $"data:image/jpeg;base64,{Convert.ToBase64String(Model.Card.ImageUrl)}";
+    }
+    else if (Model.Card.Name.Contains("Блазень"))
+    {
+        imagePath = "/images/tarot/RWS_Tarot_00_Fool.jpg";
+    }
+    else if (Model.Card.Name.Contains("Magician"))
+    {
+        imagePath = "/images/tarot/RWS_Tarot_01_Magician.jpg";
+    }
+    else
+    {
+        imagePath = "/images/tarot/RWS_Tarot_21_World.jpg";
+    }
+}
+
+<div class="container-fluid tarot-container">
+    <div class="row">
+        <div class="col-12 text-center mb-4">
+            <h1 class="display-4">Карта дня</h1>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="tarot-reading-card">
+                <div class="card-header text-center">
+                    <div class="daily-date">
+                        <span>@DateTime.Now.ToString("dd MMMM yyyy")</span>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="row g-0">
+                        <div class="col-md-5 tarot-card-col">
+                            <div class="tarot-card-container @(Model.IsReversed ? "reversed" : "")">
+                                @if (imagePath.StartsWith("data:"))
+                                {
+                                    <img src="@imagePath" class="tarot-card-image" alt="@Model.Card.Name">
+                                }
+                                else
+                                {
+                                    <img src="@imagePath" class="tarot-card-image" alt="@Model.Card.Name">
+                                }
+                            </div>
+                        </div>
+                        <div class="col-md-7 p-4">
+                            <h2 class="card-name">@Model.Card.Name</h2>
+                            <div class="card-orientation">@orientation</div>
+
+                            @if (!string.IsNullOrEmpty(Model.Card.Motto))
+                            {
+                                <div class="card-motto mt-2">
+                                    <i>@Model.Card.Motto</i>
+                                </div>
+                            }
+
+                            <div class="card-meaning mt-3">
+                                <h4>Значення:</h4>
+                                <p>
+                                    @Model.Card.Meaning
+                                </p>
+                            </div>
+
+                            <div class="card-advice mt-3">
+                                <h4>Порада на сьогодні:</h4>
+                                <p>
+                                    @(Model.IsReversed ? GetReversedAdvice(Model.Card) : GetUprightAdvice(Model.Card))
+                                </p>
+                            </div>
+
+                            <div class="card-arcana mt-3">
+                                <p><strong>Аркана:</strong> @Model.Card.Arcana</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer text-center p-3">
+                    <a href="@Url.Action("Index", "Divination")" class="btn btn-outline-secondary btn-lg">Інші ворожіння</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    string GetUprightAdvice(TarotCard card)
+    {
+        if (card.Arcana == "Старші Аркани")
+        {
+            return "Довіртеся процесу змін і не чиніть опору тому, що відбувається. Сьогодні день для духовного зростання та самопізнання.";
+        }
+        else if (card.Arcana == "Молодші Аркани" && card.Name.Contains("Жезли"))
+        {
+            return "Сьогодні день для ініціативи і творчості. Дійте рішуче і не бійтеся проявляти свою енергію.";
+        }
+        else if (card.Arcana == "Молодші Аркани" && card.Name.Contains("Кубки"))
+        {
+            return "День емоційного зцілення. Приділіть увагу своїм почуттям і відносинам з близькими людьми.";
+        }
+        else if (card.Arcana == "Молодші Аркани" && card.Name.Contains("Мечі"))
+        {
+            return "Ясність думки і чіткість намірів допоможуть вам сьогодні. Аналізуйте інформацію критично.";
+        }
+        else if (card.Arcana == "Молодші Аркани" && card.Name.Contains("Пентаклі"))
+        {
+            return "Зверніть увагу на матеріальні аспекти життя. Сьогодні сприятливий день для фінансових справ і практичних рішень.";
+        }
+
+        return "Використайте енергію дня для того, щоб зосередитися на своїх цілях і намірах. Будьте відкриті до нових можливостей.";
+    }
+
+    string GetReversedAdvice(TarotCard card)
+    {
+        if (card.Arcana == "Старші Аркани")
+        {
+            return "Зверніть увагу на внутрішні блоки і обмеження. Сьогодні день для роботи над подоланням своїх страхів.";
+        }
+        else if (card.Arcana == "Молодші Аркани" && card.Name.Contains("Жезли"))
+        {
+            return "Не розпорошуйте свою енергію. Сьогодні важливо зосередитися на одній справі і завершити її.";
+        }
+        else if (card.Arcana == "Молодші Аркани" && card.Name.Contains("Кубки"))
+        {
+            return "Уникайте емоційних драм. День для внутрішньої роботи і розуміння своїх справжніх потреб.";
+        }
+        else if (card.Arcana == "Молодші Аркани" && card.Name.Contains("Мечі"))
+        {
+            return "Будьте обережні з висловлюваннями. Сьогодні краще двічі подумати перед тим, як щось сказати або вирішити.";
+        }
+        else if (card.Arcana == "Молодші Аркани" && card.Name.Contains("Пентаклі"))
+        {
+            return "Перегляньте свої матеріальні цілі. Можливо, вам потрібно змінити підхід до фінансів або роботи.";
+        }
+
+        return "Прислухайтесь до свого внутрішнього голосу. Сьогодні день для переоцінки пріоритетів і планів.";
+    }
+}
+
+<style>
+    .tarot-container {
+        background-color: #f5f2f8;
+        min-height: 100vh;
+        padding: 2rem 0;
+    }
+
+    .tarot-reading-card {
+        background-color: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+
+    .card-header {
+        position: relative;
+        background-color: #f9f7fc;
+        padding: 2rem 0 1rem;
+        border-bottom: 1px solid #eee;
+    }
+
+    .daily-date {
+        display: inline-block;
+        padding: 0.5rem 2rem;
+        font-size: 1.5rem;
+        font-weight: bold;
+        border-radius: 50px;
+        margin-bottom: 1rem;
+        background-color: #e9d5ff;
+        color: #6a3cb5;
+    }
+
+    .tarot-card-col {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #f0ebf7;
+        padding: 2rem;
+    }
+
+    .tarot-card-container {
+        transition: transform 0.5s ease;
+        max-width: 240px;
+        margin: 0 auto;
+        box-shadow: 0 15px 25px rgba(0, 0, 0, 0.2);
+        border-radius: 10px;
+    }
+
+        .tarot-card-container.reversed {
+            transform: rotate(180deg);
+        }
+
+    .tarot-card-image {
+        width: 100%;
+        height: auto;
+        border-radius: 10px;
+    }
+
+    .card-name {
+        font-size: 1.8rem;
+        color: #4a2c82;
+        font-weight: bold;
+        margin-bottom: 0;
+    }
+
+    .card-orientation {
+        font-size: 1.1rem;
+        color: #8a7da0;
+        margin-bottom: 1rem;
+        font-style: italic;
+    }
+
+    .card-motto {
+        color: #6a3cb5;
+        font-size: 1.1rem;
+    }
+
+    .card-meaning h4, .card-advice h4 {
+        color: #4a2c82;
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .card-footer {
+        background-color: #f9f7fc;
+        border-top: 1px solid #eee;
+    }
+
+    .btn-primary {
+        background-color: #6a3cb5;
+        border-color: #6a3cb5;
+    }
+
+        .btn-primary:hover {
+            background-color: #542e91;
+            border-color: #542e91;
+        }
+
+    @@media (max-width: 767px) {
+        .tarot-card-col {
+            padding: 2rem 3rem;
+        }
+
+        .tarot-card-container {
+            max-width: 180px;
+        }
+    }
+</style>
