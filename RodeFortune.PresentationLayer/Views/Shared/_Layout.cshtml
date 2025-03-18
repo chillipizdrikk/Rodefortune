@@ -7,12 +7,25 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/RodeFortune.PresentationLayer.styles.css" asp-append-version="true" />
+    <style>
+        .btn-purple {
+            color: #fff;
+            background-color: #6f42c1;
+            border-color: #6f42c1;
+        }
+
+            .btn-purple:hover {
+                color: #fff;
+                background-color: #5e35b1;
+                border-color: #5e35b1;
+            }
+    </style>
 </head>
 <body>
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">RodeFortune.PresentationLayer</a>
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">RodeFortune</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -20,10 +33,19 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link btn btn-purple text-white mx-1" asp-controller="Divination" asp-action="YesNo">Ворожіння Так/Ні</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link btn btn-purple text-white mx-1" asp-controller="Divination" asp-action="PresentPastFuture">Ворожіння Минуле, Теперішнє, Майбутнє</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link btn btn-purple text-white mx-1" asp-controller="Divination" asp-action="CardOfTheDay">Карта дня</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link btn btn-purple text-white mx-1" asp-controller="Divination" asp-action="Cards">Карти Таро</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link btn btn-purple text-white mx-1" asp-controller="Horoscope" asp-action="Index">Гороскоп</a>
                         </li>
                     </ul>
                 </div>
@@ -35,7 +57,6 @@
             @RenderBody()
         </main>
     </div>
-
     <footer class="border-top footer text-muted">
         <div class="container">
             &copy; 2025 - RodeFortune.PresentationLayer - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
