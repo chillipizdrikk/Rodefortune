@@ -2,13 +2,22 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-    <a asp-controller="Divination" asp-action="YesNo" class="btn btn-primary">Перейти до Yes/No</a>
-    <br>
-    <a asp-controller="Divination" asp-action="PresentPastFuture" class="btn btn-primary mt-2">Перейти до Present/Past/Future</a>
-    <a asp-controller="Divination" asp-action="CardOfTheDay" class="btn btn-primary">Перейти до CardOfTheDay</a>
-    <a href="@Url.Action("Cards", "Divination")" class="btn btn-outline-primary">Перегляд карт Таро</a>
-    <a href="@Url.Action("Index", "Horoscope")" class="btn btn-outline-primary">Перегляд Гороскопу</a>
+<style>
+    .centered-logo {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 4rem;
+        color: #6f42c1;
+    }
+
+    .content-container {
+        position: relative;
+        height: 100vh;
+    }
+</style>
+
+<div class="content-container">
+    <div class="centered-logo">RodeFortune</div>
 </div>

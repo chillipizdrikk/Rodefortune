@@ -17,6 +17,8 @@ html {
   min-height: 100%;
 }
 
+
 body {
-  margin-bottom: 60px;
+    background-color: #EDE0FF;
+    margin-bottom: 60px;
 }
