@@ -71,5 +71,28 @@ namespace RodeFortune.BLL.Services.Implementations
             var cards = await _tarotCardRepository.GetAllAsync();
             return cards.OrderBy(_ => _random.Next()).First();
         }
+
+        public async Task<List<TarotCard>> GetCardsAsync(string searchTerm = null, string arcana = null)
+        {
+            var allCards = await _tarotCardRepository.GetAllAsync();
+
+            var filteredCards = allCards.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                filteredCards = filteredCards.Where(c =>
+                    c.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                    (c.Meaning != null && c.Meaning.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
+                    (c.Motto != null && c.Motto.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)));
+            }
+
+            if (!string.IsNullOrWhiteSpace(arcana))
+            {
+                filteredCards = filteredCards.Where(c =>
+                    c.Arcana != null && c.Arcana.Equals(arcana, StringComparison.OrdinalIgnoreCase));
+            }
+
+            return filteredCards.ToList();
+        }
     }
 }

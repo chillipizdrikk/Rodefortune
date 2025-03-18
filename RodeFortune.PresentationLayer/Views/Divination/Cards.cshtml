@@ -1,0 +1,353 @@
+@model List<RodeFortune.DAL.Models.TarotCard>
+
+@{
+    ViewData["Title"] = "Перегляд карт Таро";
+}
+
+<div class="container-fluid tarot-container">
+    <div class="row">
+        <div class="col-12 text-center mb-4">
+            <h1 class="display-4">Карти Таро</h1>
+            <p class="lead">Перегляд та вивчення карт Таро</p>
+        </div>
+    </div>
+
+    <div class="row justify-content-center mb-4">
+        <div class="col-lg-8 col-md-10">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h3 class="mb-0">Пошук та фільтрація</h3>
+                </div>
+                <div class="card-body">
+                    <form method="get" action="@Url.Action("Cards", "Divination")" class="row g-3">
+                        <div class="col-md-6">
+                            <label for="searchTerm" class="form-label">Пошук за назвою або значенням</label>
+                            <input type="text" class="form-control" id="searchTerm" name="searchTerm" value="@ViewBag.SearchTerm">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="arcana" class="form-label">Аркана</label>
+                            <select class="form-select" id="arcana" name="arcana">
+                                <option value="">Усі Аркани</option>
+                                @if (ViewBag.Arcana == "Major")
+                                {
+                                    <option value="Major" selected="selected">Старші Аркани</option>
+                                }
+                                else
+                                {
+                                    <option value="Major">Старші Аркани</option>
+                                }
+                                
+                                @if (ViewBag.Arcana == "Minor")
+                                {
+                                    <option value="Minor" selected="selected">Молодші Аркани</option>
+                                }
+                                else
+                                {
+                                    <option value="Minor">Молодші Аркани</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100">Фільтрувати</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            @if (Model.Count == 0)
+            {
+                <div class="alert alert-info text-center">
+                    <h4>Карт не знайдено</h4>
+                    <p>Спробуйте змінити параметри пошуку</p>
+                </div>
+            }
+            else
+            {
+                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                    @foreach (var card in Model)
+                    {
+                        <div class="col">
+                            <div class="tarot-card-item">
+                                <div class="card h-100">
+                                    <div class="card-img-wrapper">
+                                        @{
+                                            string imagePath = "";
+                                            if (card.Name.Contains("Wheel of Fortune"))
+                                            {
+                                                imagePath = "/images/tarot/RWS_Tarot_10_Wheel_of_Fortune.jpg";
+                                            }
+                                            else if (card.Name.Contains("World"))
+                                            {
+                                                imagePath = "/images/tarot/RWS_Tarot_21_World.jpg";
+                                            }
+                                            else if (card.ImageUrl != null && card.ImageUrl.Length > 0)
+                                            {
+                                                imagePath = $"data:image/jpeg;base64,{Convert.ToBase64String(card.ImageUrl)}";
+                                            }
+                                            else
+                                            {
+                                                imagePath = "/images/tarot/RWS_Tarot_10_Wheel_of_Fortune.jpg";
+                                            }
+                                        }
+
+                                        @if (imagePath.StartsWith("data:"))
+                                        {
+                                            <img src="@imagePath" class="card-img-top" alt="@card.Name">
+                                        }
+                                        else
+                                        {
+                                            <img src="@imagePath" class="card-img-top" alt="@card.Name">
+                                        }
+                                    </div>
+                                    <div class="card-body">
+                                        <h5 class="card-title">@card.Name</h5>
+                                        @if (!string.IsNullOrEmpty(card.Motto))
+                                        {
+                                            <div class="card-motto">
+                                                <i>@card.Motto</i>
+                                            </div>
+                                        }
+                                        <p class="card-text card-arcana">
+                                            <strong>Аркана:</strong> @(card.Arcana == "Major" ? "Старші Аркани" : "Молодші Аркани")
+                                        </p>
+                                        <div class="d-flex justify-content-between">
+                                            <a href="#" class="btn btn-outline-primary btn-sm view-card-details" data-card-id="@card.Id">Детальніше</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Modal for card details -->
+<div class="modal fade" id="cardDetailsModal" tabindex="-1" aria-labelledby="cardDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cardDetailsModalLabel">Деталі карти</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-5 text-center">
+                        <div id="modalCardImage" class="mb-3"></div>
+                        <h4 id="modalCardName"></h4>
+                        <div id="modalCardArcana" class="text-muted"></div>
+                        <div id="modalCardMotto" class="fst-italic mt-2"></div>
+                        <div class="mt-3">
+                            <button id="cardReverseBtn" class="btn btn-secondary">Перевернути</button>
+                        </div>
+                    </div>
+                    <div class="col-md-7">
+                        <div class="mb-3">
+                            <ul class="nav nav-tabs" id="cardMeaningTabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab" aria-controls="general" aria-selected="true">Загальне</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="love-tab" data-bs-toggle="tab" data-bs-target="#love" type="button" role="tab" aria-controls="love" aria-selected="false">Кохання</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="finance-tab" data-bs-toggle="tab" data-bs-target="#finance" type="button" role="tab" aria-controls="finance" aria-selected="false">Фінанси</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="health-tab" data-bs-toggle="tab" data-bs-target="#health" type="button" role="tab" aria-controls="health" aria-selected="false">Здоров'я</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="advice-tab" data-bs-toggle="tab" data-bs-target="#advice" type="button" role="tab" aria-controls="advice" aria-selected="false">Порада</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="future-tab" data-bs-toggle="tab" data-bs-target="#future" type="button" role="tab" aria-controls="future" aria-selected="false">Майбутнє</button>
+                                </li>
+                            </ul>
+                            <div class="tab-content p-3 border border-top-0 rounded-bottom" id="cardMeaningTabsContent">
+                                <div class="tab-pane fade show active" id="general" role="tabpanel" aria-labelledby="general-tab">
+                                    <div id="modalCardMeaning"></div>
+                                </div>
+                                <div class="tab-pane fade" id="love" role="tabpanel" aria-labelledby="love-tab">
+                                    <div id="modalCardLove">Інформація про кохання буде додана пізніше</div>
+                                </div>
+                                <div class="tab-pane fade" id="finance" role="tabpanel" aria-labelledby="finance-tab">
+                                    <div id="modalCardFinance">Інформація про фінанси буде додана пізніше</div>
+                                </div>
+                                <div class="tab-pane fade" id="health" role="tabpanel" aria-labelledby="health-tab">
+                                    <div id="modalCardHealth">Інформація про здоров'я буде додана пізніше</div>
+                                </div>
+                                <div class="tab-pane fade" id="advice" role="tabpanel" aria-labelledby="advice-tab">
+                                    <div id="modalCardAdvice">Поради будуть додані пізніше</div>
+                                </div>
+                                <div class="tab-pane fade" id="future" role="tabpanel" aria-labelledby="future-tab">
+                                    <div id="modalCardFuture">Інформація про майбутнє буде додана пізніше</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрити</button>
+                <a id="modalAllCards" href="@Url.Action("Cards", "Divination")" class="btn btn-outline-primary">Всі карти</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .tarot-container {
+        background-color: #f5f2f8;
+        min-height: 100vh;
+        padding: 2rem 0;
+    }
+
+    .tarot-card-item {
+        transition: transform 0.3s ease;
+    }
+
+    .tarot-card-item:hover {
+        transform: translateY(-5px);
+    }
+
+    .card-img-wrapper {
+        height: 280px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f0ebf7;
+    }
+
+    .card-img-wrapper img {
+        max-height: 100%;
+        object-fit: contain;
+    }
+
+    .card-motto {
+        color: #6a3cb5;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+
+    .card-arcana {
+        font-size: 0.9rem;
+        color: #666;
+    }
+
+    .btn-primary {
+        background-color: #6a3cb5;
+        border-color: #6a3cb5;
+    }
+
+    .btn-primary:hover {
+        background-color: #542e91;
+        border-color: #542e91;
+    }
+
+    .btn-outline-primary {
+        color: #6a3cb5;
+        border-color: #6a3cb5;
+    }
+
+    .btn-outline-primary:hover {
+        background-color: #6a3cb5;
+        border-color: #6a3cb5;
+    }
+    
+    #modalCardImage img {
+        max-height: 300px;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        transition: transform 0.5s ease;
+    }
+    
+    #modalCardImage img.reversed {
+        transform: rotate(180deg);
+    }
+    
+    .nav-tabs .nav-link {
+        color: #6a3cb5;
+    }
+    
+    .nav-tabs .nav-link.active {
+        color: #542e91;
+        font-weight: bold;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Card is reversed state
+            let isCardReversed = false;
+            
+            // Handle click on "Details" button
+            $('.view-card-details').click(function(e) {
+                e.preventDefault();
+                var cardId = $(this).data('card-id');
+                
+                // Reset reversed state
+                isCardReversed = false;
+                
+                // Make AJAX request to get card details
+                $.ajax({
+                    url: '/Divination/GetCardDetails/' + cardId,
+                    type: 'GET',
+                    success: function(response) {
+                        // Fill modal with card details
+                        $('#modalCardName').text(response.name);
+                        $('#modalCardArcana').text('Аркана: ' + (response.arcana == "Major" ? "Старші Аркани" : "Молодші Аркани"));
+                        
+                        if (response.motto) {
+                            $('#modalCardMotto').text(response.motto).show();
+                        } else {
+                            $('#modalCardMotto').hide();
+                        }
+                        
+                        $('#modalCardMeaning').text(response.meaning || 'Немає опису');
+                        
+                        // Set image
+                        var imagePath = '';
+                        if (response.name.includes('Wheel of Fortune')) {
+                            imagePath = '/images/tarot/RWS_Tarot_10_Wheel_of_Fortune.jpg';
+                        } else if (response.name.includes('World')) {
+                            imagePath = '/images/tarot/RWS_Tarot_21_World.jpg';
+                        } else if (response.imageUrl) {
+                            imagePath = 'data:image/jpeg;base64,' + response.imageUrl;
+                        } else {
+                            imagePath = '/images/tarot/RWS_Tarot_10_Wheel_of_Fortune.jpg';
+                        }
+                        
+                        $('#modalCardImage').html('<img src="' + imagePath + '" class="img-fluid">');
+                        
+                        // Set up "Use for reading" link
+                        $('#modalUseCardForReading').attr('href', '/Divination/CustomReading?cardId=' + response.id);
+                        
+                        // Show modal
+                        $('#cardDetailsModal').modal('show');
+                    },
+                    error: function() {
+                        alert('Помилка отримання даних карти');
+                    }
+                });
+            });
+            
+            // Handle card reversal
+            $('#cardReverseBtn').click(function() {
+                isCardReversed = !isCardReversed;
+                if (isCardReversed) {
+                    $('#modalCardImage img').addClass('reversed');
+                } else {
+                    $('#modalCardImage img').removeClass('reversed');
+                }
+            });
+        });
+    </script>
+}

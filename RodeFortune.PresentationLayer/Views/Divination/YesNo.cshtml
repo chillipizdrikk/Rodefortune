@@ -5,12 +5,10 @@
     ViewData["Title"] = "Ворожіння Так/Ні";
     string orientation = Model.IsReversed ? "перевернута" : "пряма";
 
-    // Визначаємо відповідь Так/Ні
     string yesNoAnswer = GetYesNoAnswer(Model.Card, Model.IsReversed);
     string answerClass = yesNoAnswer.Contains("Так") ? "yes-answer" :
                          yesNoAnswer.Contains("Ні") ? "no-answer" : "maybe-answer";
 
-    // Визначаємо шлях до зображення
     string imagePath = "";
     if (Model.Card.Name.Contains("Wheel of Fortune"))
     {
@@ -22,12 +20,10 @@
     }
     else if (Model.Card.ImageUrl != null && Model.Card.ImageUrl.Length > 0)
     {
-        // Використовуємо зображення з бази даних, якщо є
         imagePath = $"data:image/jpeg;base64,{Convert.ToBase64String(Model.Card.ImageUrl)}";
     }
     else
     {
-        // Якщо карта не відповідає жодному з варіантів, використовуємо першу карту як дефолтну
         imagePath = "/images/tarot/RWS_Tarot_10_Wheel_of_Fortune.jpg";
     }
 }
@@ -98,7 +94,6 @@
 @functions {
     string GetYesNoAnswer(TarotCard card, bool isReversed)
     {
-        // Визначаємо відповідь на основі карти
         if (card.Name.Contains("Wheel of Fortune"))
         {
             return isReversed ? "Скоріше так" : "Так";
