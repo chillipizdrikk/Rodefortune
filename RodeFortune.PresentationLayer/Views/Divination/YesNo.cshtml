@@ -9,23 +9,7 @@
     string answerClass = yesNoAnswer.Contains("Так") ? "yes-answer" :
                          yesNoAnswer.Contains("Ні") ? "no-answer" : "maybe-answer";
 
-    string imagePath = "";
-    if (Model.Card.Name.Contains("Wheel of Fortune"))
-    {
-        imagePath = "/images/tarot/RWS_Tarot_10_Wheel_of_Fortune.jpg";
-    }
-    else if (Model.Card.Name.Contains("World"))
-    {
-        imagePath = "/images/tarot/RWS_Tarot_21_World.jpg";
-    }
-    else if (Model.Card.ImageUrl != null && Model.Card.ImageUrl.Length > 0)
-    {
-        imagePath = $"data:image/jpeg;base64,{Convert.ToBase64String(Model.Card.ImageUrl)}";
-    }
-    else
-    {
-        imagePath = "/images/tarot/RWS_Tarot_10_Wheel_of_Fortune.jpg";
-    }
+    string imagePath = $"/images/tarot/{Model.Card.Name.ToLower()}.jpg";
 }
 
 <div class="container-fluid tarot-container">

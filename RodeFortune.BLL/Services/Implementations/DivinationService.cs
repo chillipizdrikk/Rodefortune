@@ -49,7 +49,44 @@ namespace RodeFortune.BLL.Services.Implementations
             return result;
         }
 
-        //Перевірити string - перевірила, логи українською 
+        public async Task<List<(TarotCard Card, bool IsReversed, string Position)>> GetCaseActionResultReadingAsync()
+        {
+            var allCards = await _tarotCardRepository.GetAllAsync();
+            var result = new List<(TarotCard, bool, string)>();
+            var positions = new[] { "Ситуація", "Дія", "Результат" };
+
+            var availableCards = allCards.ToList();
+
+            for (int i = 0; i < 3; i++)
+            {
+                int index = _random.Next(availableCards.Count);
+                bool isReversed = _random.Next(2) == 1;
+                result.Add((availableCards[index], isReversed, positions[i]));
+                availableCards.RemoveAt(index);
+            }
+
+            return result;
+        }
+
+        public async Task<List<(TarotCard Card, bool IsReversed, string Position)>> GetDreamReviewReadingAsync()
+        {
+            var allCards = await _tarotCardRepository.GetAllAsync();
+            var result = new List<(TarotCard, bool, string)>();
+            var positions = new[] { "Символ", "Значення", "Порада" };
+
+            var availableCards = allCards.ToList();
+
+            for (int i = 0; i < 3; i++)
+            {
+                int index = _random.Next(availableCards.Count);
+                bool isReversed = _random.Next(2) == 1;
+                result.Add((availableCards[index], isReversed, positions[i]));
+                availableCards.RemoveAt(index);
+            }
+
+            return result;
+        }
+
         public async Task<Result<(TarotCard Card, bool IsReversed, bool IsNew)>> GetCardOfTheDayAsync(string userId)
         {
             if (string.IsNullOrWhiteSpace(userId))

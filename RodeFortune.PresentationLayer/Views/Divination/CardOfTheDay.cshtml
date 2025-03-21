@@ -5,23 +5,7 @@
     ViewData["Title"] = "Карта дня";
     string orientation = Model.IsReversed ? "перевернута" : "пряма";
 
-    string imagePath = "";
-    if (Model.Card.ImageUrl != null && Model.Card.ImageUrl.Length > 0)
-    {
-        imagePath = $"data:image/jpeg;base64,{Convert.ToBase64String(Model.Card.ImageUrl)}";
-    }
-    else if (Model.Card.Name.Contains("Fool"))
-    {
-        imagePath = "/images/tarot/RWS_Tarot_00_Fool.jpg";
-    }
-    else if (Model.Card.Name.Contains("Magician"))
-    {
-        imagePath = "/images/tarot/RWS_Tarot_01_Magician.jpg";
-    }
-    else
-    {
-        imagePath = "/images/tarot/RWS_Tarot_21_World.jpg";
-    }
+    string imagePath = $"/images/tarot/{Model.Card.Name.ToLower()}.jpg";
 }
 
 <div class="container-fluid tarot-container">

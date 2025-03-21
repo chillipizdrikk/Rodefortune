@@ -59,7 +59,7 @@ builder.Services.AddScoped<BloggingService>();
 builder.Services.AddControllersWithViews();
 var app = builder.Build();
 
-//Дозволяє не робити всюди try-catch, перехоплює помилки і показує сторінку Error з HomeController
+//пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ try-catch, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ Error пїЅ HomeController
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();

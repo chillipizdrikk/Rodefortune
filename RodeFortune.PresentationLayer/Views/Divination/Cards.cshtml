@@ -75,23 +75,7 @@
                                 <div class="card h-100">
                                     <div class="card-img-wrapper">
                                         @{
-                                            string imagePath = "";
-                                            if (card.Name.Contains("Wheel of Fortune"))
-                                            {
-                                                imagePath = "/images/tarot/RWS_Tarot_10_Wheel_of_Fortune.jpg";
-                                            }
-                                            else if (card.Name.Contains("World"))
-                                            {
-                                                imagePath = "/images/tarot/RWS_Tarot_21_World.jpg";
-                                            }
-                                            else if (card.ImageUrl != null && card.ImageUrl.Length > 0)
-                                            {
-                                                imagePath = $"data:image/jpeg;base64,{Convert.ToBase64String(card.ImageUrl)}";
-                                            }
-                                            else
-                                            {
-                                                imagePath = "/images/tarot/RWS_Tarot_10_Wheel_of_Fortune.jpg";
-                                            }
+                                            string imagePath = $"/images/tarot/{card.Name.ToLower()}.jpg";
                                         }
 
                                         @if (imagePath.StartsWith("data:"))
@@ -128,7 +112,6 @@
     </div>
 </div>
 
-<!-- Modal for card details -->
 <div class="modal fade" id="cardDetailsModal" tabindex="-1" aria-labelledby="cardDetailsModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -313,24 +296,11 @@
                         
                         $('#modalCardMeaning').text(response.meaning || 'Немає опису');
                         
-                        // Set image
-                        var imagePath = '';
-                        if (response.name.includes('Wheel of Fortune')) {
-                            imagePath = '/images/tarot/RWS_Tarot_10_Wheel_of_Fortune.jpg';
-                        } else if (response.name.includes('World')) {
-                            imagePath = '/images/tarot/RWS_Tarot_21_World.jpg';
-                        } else if (response.imageUrl) {
-                            imagePath = 'data:image/jpeg;base64,' + response.imageUrl;
-                        } else {
-                            imagePath = '/images/tarot/RWS_Tarot_10_Wheel_of_Fortune.jpg';
-                        }
-                        
+                        var imagePath = '/images/tarot/' + response.name.toLowerCase() + '.jpg';
                         $('#modalCardImage').html('<img src="' + imagePath + '" class="img-fluid">');
                         
-                        // Set up "Use for reading" link
                         $('#modalUseCardForReading').attr('href', '/Divination/CustomReading?cardId=' + response.id);
-                        
-                        // Show modal
+                    
                         $('#cardDetailsModal').modal('show');
                     },
                     error: function() {

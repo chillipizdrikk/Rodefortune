@@ -53,7 +53,6 @@ namespace RodeFortune.PresentationLayer.Controllers
                 ViewBag.SearchTerm = searchTerm;
                 ViewBag.Arcana = arcana;
 
-                // Get unique arcana values for filter dropdown
                 var allCards = await _divinationService.GetCardsAsync();
                 var arcanaOptions = allCards
                     .Select(c => c.Arcana)
@@ -107,8 +106,7 @@ namespace RodeFortune.PresentationLayer.Controllers
                 return StatusCode(500, "Внутрішня помилка сервера");
             }
         }
-
-        //Приклад методу без try-catch, але з Result.  
+ 
         public async Task<IActionResult> CardOfTheDay()
         {
             _logger.LogInformation("Запит на ворожіння Карта Дня");
@@ -140,10 +138,10 @@ namespace RodeFortune.PresentationLayer.Controllers
             {
                 var result = await _divinationService.GetPastPresentFutureReadingAsync();
                 var model = (
-                    PresentCard: result.First(x => x.Position == "Теперішнє").Card,
-                    PresentIsReversed: result.First(x => x.Position == "Теперішнє").IsReversed,
                     PastCard: result.First(x => x.Position == "Минуле").Card,
                     PastIsReversed: result.First(x => x.Position == "Минуле").IsReversed,
+                    PresentCard: result.First(x => x.Position == "Теперішнє").Card,
+                    PresentIsReversed: result.First(x => x.Position == "Теперішнє").IsReversed,
                     FutureCard: result.First(x => x.Position == "Майбутнє").Card,
                     FutureIsReversed: result.First(x => x.Position == "Майбутнє").IsReversed
                 );
@@ -157,6 +155,46 @@ namespace RodeFortune.PresentationLayer.Controllers
                 _logger.LogError(ex, "Помилка при виконанні ворожіння Present/Past/Future");
                 return View("Error");
             }
+        }
+
+        public async Task<IActionResult> CaseActionResult()
+        {
+            _logger.LogInformation("Запит на ворожіння Case/Action/Result");
+            
+            var result = await _divinationService.GetCaseActionResultReadingAsync();
+            var model = (
+                CaseCard: result.First(x => x.Position == "Ситуація").Card,
+                CaseIsReversed: result.First(x => x.Position == "Ситуація").IsReversed,
+                ActionCard: result.First(x => x.Position == "Дія").Card,
+                ActionIsReversed: result.First(x => x.Position == "Дія").IsReversed,
+                ResultCard: result.First(x => x.Position == "Результат").Card,
+                ResultIsReversed: result.First(x => x.Position == "Результат").IsReversed
+            );
+
+            _logger.LogInformation("Ворожіння Case/Action/Result виконано: {CaseCardName}, {ActionCardName}, {ResultCardName}",
+                model.CaseCard.Name, model.ActionCard.Name, model.ResultCard.Name);
+            
+            return View(model);
+        }
+        
+        public async Task<IActionResult> DreamReview()
+        {
+            _logger.LogInformation("Запит на ворожіння Аналіз Сновидіння");
+            
+            var result = await _divinationService.GetDreamReviewReadingAsync();
+            var model = (
+                SymbolCard: result.First(x => x.Position == "Символ").Card,
+                SymbolIsReversed: result.First(x => x.Position == "Символ").IsReversed,
+                MeaningCard: result.First(x => x.Position == "Значення").Card,
+                MeaningIsReversed: result.First(x => x.Position == "Значення").IsReversed,
+                AdviceCard: result.First(x => x.Position == "Порада").Card,
+                AdviceIsReversed: result.First(x => x.Position == "Порада").IsReversed
+            );
+            
+            _logger.LogInformation("Ворожіння Аналіз Сновидіння виконано: {SymbolCardName}, {MeaningCardName}, {AdviceCardName}",
+                model.SymbolCard.Name, model.MeaningCard.Name, model.AdviceCard.Name);
+            
+            return View(model);
         }
     }
 }

@@ -1,8 +1,8 @@
-﻿@using RodeFortune.DAL.Models
-@model (TarotCard PresentCard, bool PresentIsReversed, TarotCard PastCard, bool PastIsReversed, TarotCard FutureCard, bool FutureIsReversed)
+@using RodeFortune.DAL.Models
+@model (TarotCard CaseCard, bool CaseIsReversed, TarotCard ActionCard, bool ActionIsReversed, TarotCard ResultCard, bool ResultIsReversed)
 
 @{
-    ViewData["Title"] = "Ворожіння Минуле/Теперішнє/Майбутнє";
+    ViewData["Title"] = "Ворожіння Ситуація/Дія/Результат";
 
     string GetOrientation(bool isReversed) => isReversed ? "перевернута" : "пряма";
 
@@ -10,13 +10,28 @@
     {
         return $"/images/tarot/{card.Name.ToLower()}.jpg";
     }
+    
+    string GetDescription(string position)
+    {
+        switch (position)
+        {
+            case "Ситуація":
+                return "Представляє поточні обставини, з якими ви стикаєтесь";
+            case "Дія":
+                return "Пропонує найкращий підхід або дію, яку варто вжити";
+            case "Результат":
+                return "Показує можливий результат, якщо слідувати запропонованій дії";
+            default:
+                return "";
+        }
+    }
 }
 
 <div class="container-fluid tarot-container">
     <div class="row">
         <div class="col-12 text-center mb-4">
-            <h1 class="display-4">Минулe, Теперішнє, Майбутнє</h1>
-            <p class="lead">Ворожіння на три карти</p>
+            <h1 class="display-4">Ситуація, Дія, Результат</h1>
+            <p class="lead">Ворожіння для прийняття рішень</p>
         </div>
     </div>
 
@@ -24,22 +39,25 @@
         <div class="col-lg-10 col-md-12">
             <div class="row g-4">
                 @foreach (var cardTuple in new[] {
-                ("Минулe", Model.PastCard, Model.PastIsReversed),
-                ("Теперішнє", Model.PresentCard, Model.PresentIsReversed),
-                ("Майбутнє", Model.FutureCard, Model.FutureIsReversed)
+                ("Ситуація", Model.CaseCard, Model.CaseIsReversed),
+                ("Дія", Model.ActionCard, Model.ActionIsReversed),
+                ("Результат", Model.ResultCard, Model.ResultIsReversed)
                 })
                 {
-                    var (timeFrame, card, isReversed) = cardTuple;
+                    var (position, card, isReversed) = cardTuple;
                     <div class="col-md-4">
                         <div class="tarot-reading-card">
                             <div class="card-header text-center">
-                                <h2>@timeFrame</h2>
+                                <h2>@position</h2>
+                                <p class="position-description">@GetDescription(position)</p>
                             </div>
                             <div class="card-body p-0">
                                 <div class="row g-0">
                                     <div class="col-12 tarot-card-col">
                                         <div class="tarot-card-container @(isReversed ? "reversed" : "")">
-                                            <img src="@GetImagePath(card)" class="tarot-card-image" alt="@card.Name">
+                                            <div class="card-image-wrapper">
+                                                <img src="@GetImagePath(card)" class="tarot-card-image" alt="@card.Name">
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="col-12 p-4">
@@ -69,7 +87,7 @@
                 }
             </div>
             <div class="card-footer text-center p-3 mt-4">
-                <a href="@Url.Action("PresentPastFuture", "Divination")" class="btn btn-primary btn-lg">Нове ворожіння</a>
+                <a href="@Url.Action("CaseActionResult", "Divination")" class="btn btn-primary btn-lg">Нове ворожіння</a>
                 <a href="@Url.Action("Index", "Divination")" class="btn btn-outline-secondary btn-lg ms-2">Інші ворожіння</a>
             </div>
         </div>
@@ -88,12 +106,21 @@
         border-radius: 15px;
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         overflow: hidden;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
     }
 
     .card-header {
         background-color: #f9f7fc;
         padding: 1.5rem 0;
         border-bottom: 1px solid #eee;
+    }
+
+    .position-description {
+        color: #8a7da0;
+        font-size: 0.95rem;
+        margin-top: 0.5rem;
     }
 
     .tarot-card-col {
@@ -107,18 +134,32 @@
     .tarot-card-container {
         transition: transform 0.5s ease;
         max-width: 240px;
+        width: 100%;
         margin: 0 auto;
         box-shadow: 0 15px 25px rgba(0, 0, 0, 0.2);
         border-radius: 10px;
     }
 
-        .tarot-card-container.reversed {
-            transform: rotate(180deg);
-        }
+    .card-image-wrapper {
+        /* Fixed aspect ratio container */
+        position: relative;
+        width: 100%;
+        padding-top: 170%; /* This creates a 10:17 aspect ratio typical for tarot cards */
+        overflow: hidden;
+        border-radius: 10px;
+    }
+
+    .tarot-card-container.reversed .card-image-wrapper {
+        transform: rotate(180deg);
+    }
 
     .tarot-card-image {
+        position: absolute;
+        top: 0;
+        left: 0;
         width: 100%;
-        height: auto;
+        height: 100%;
+        object-fit: cover; /* This ensures the image covers the entire container */
         border-radius: 10px;
     }
 
