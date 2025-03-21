@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
-using MongoDB.Bson;
+using RodeFortune.BLL.Models;
+using RodeFortune.BLL.Services.Interfaces;
 using RodeFortune.DAL.Models;
 using RodeFortune.DAL.Repositories.Interfaces;
-using Microsoft.Extensions.Logging;
-using RodeFortune.BLL.Services.Interfaces;
-using RodeFortune.BLL.Models;
 
 namespace RodeFortune.BLL.Services.Implementations
 {
