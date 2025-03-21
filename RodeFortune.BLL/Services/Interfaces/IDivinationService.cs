@@ -1,4 +1,5 @@
-﻿using RodeFortune.DAL.Models;
+﻿using RodeFortune.BLL.Models;
+using RodeFortune.DAL.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,10 +10,10 @@ namespace RodeFortune.BLL.Services.Interfaces
 {
     public interface IDivinationService
     {
-            public Task<(TarotCard Card, bool IsReversed)> GetYesNoReadingAsync();
-            public Task<List<(TarotCard Card, bool IsReversed, string Position)>> GetPastPresentFutureReadingAsync();
-            public Task<(TarotCard Card, bool IsReversed, bool IsNew)> GetCardOfTheDayAsync(string userId);
-            public Task<List<TarotCard>> GetCardsAsync(string searchTerm = null, string arcana = null);
+        public Task<(TarotCard Card, bool IsReversed)> GetYesNoReadingAsync();
+        public Task<List<(TarotCard Card, bool IsReversed, string Position)>> GetPastPresentFutureReadingAsync();
+        public Task<Result<(TarotCard Card, bool IsReversed, bool IsNew)>> GetCardOfTheDayAsync(string userId);
+        public Task<List<TarotCard>> GetCardsAsync(string? searchTerm = null, string? arcana = null);
  
     }
 }

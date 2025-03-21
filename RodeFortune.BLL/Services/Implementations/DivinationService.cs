@@ -7,6 +7,7 @@ using RodeFortune.DAL.Models;
 using RodeFortune.DAL.Repositories.Interfaces;
 using Microsoft.Extensions.Logging;
 using RodeFortune.BLL.Services.Interfaces;
+using RodeFortune.BLL.Models;
 
 namespace RodeFortune.BLL.Services.Implementations
 {
@@ -52,18 +53,68 @@ namespace RodeFortune.BLL.Services.Implementations
             return result;
         }
 
-        public async Task<(TarotCard Card, bool IsReversed, bool IsNew)> GetCardOfTheDayAsync(string userId)
+        //Перевірити string - перевірила, логи українською 
+        public async Task<Result<(TarotCard Card, bool IsReversed, bool IsNew)>> GetCardOfTheDayAsync(string userId)
         {
-            string key = $"{userId}_{DateTime.Today:yyyyMMdd}";
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                _logger.LogWarning("User ID cannot be null or empty");
+                return new Result<(TarotCard, bool, bool)>(false,
+                    "User ID cannot be null or empty"
+                );
+            }
 
-            if (_dailyCards.TryGetValue(key, out var cardInfo))
-                return (await _tarotCardRepository.GetCardByIdAsync(cardInfo.CardId), cardInfo.IsReversed, false);
+            try
+            {
+                _logger.LogDebug($"Attempting to retrieve card for user {userId}");
+                string key = $"{userId}_{DateTime.Today:yyyyMMdd}";
 
-            var newCard = await GetRandomCardAsync();
-            bool isReversed = _random.Next(2) == 1;
-            _dailyCards[key] = (newCard.Id.ToString(), isReversed);
+                if (_dailyCards.TryGetValue(key, out var cardInfo))
+                {
+                    _logger.LogDebug($"Found cached card info for user {userId}");
+                    var card = await _tarotCardRepository.GetCardByIdAsync(cardInfo.CardId);
 
-            return (newCard, isReversed, true);
+                    if (card == null)
+                    {
+                        _logger.LogWarning($"Failed to retrieve card with ID {cardInfo.CardId} from repository");
+                        return new Result<(TarotCard, bool, bool)>(false, "Failed to retrieve card from repository");
+                    }
+
+                    _logger.LogInformation($"Successfully retrieved daily card for user {userId}");
+                    return new Result<(TarotCard, bool, bool)>(
+                        true,
+                        "Successfully retrieved daily card",
+                        (card, cardInfo.IsReversed, false)
+                    );
+                }
+
+                _logger.LogDebug($"No cached card found for user {userId}, generating new card");
+                var newCard = await GetRandomCardAsync();
+
+                if (newCard == null)
+                {
+                    _logger.LogWarning("Failed to generate random card");
+                    return new Result<(TarotCard, bool, bool)>(false, "Failed to generate random card");
+                }
+
+                bool isReversed = _random.Next(2) == 1;
+                _dailyCards[key] = (newCard.Id.ToString(), isReversed);
+
+                _logger.LogInformation($"Successfully generated new daily card for user {userId}");
+                return new Result<(TarotCard, bool, bool)>(
+                    true,
+                    "Successfully generated new daily card",
+                    (newCard, isReversed, true)
+                );
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error retrieving card of the day for user {userId}");
+                return new Result<(TarotCard, bool, bool)>(
+                    false,
+                    $"Error retrieving card of the day: {ex.Message}"
+                );
+            }
         }
 
         private async Task<TarotCard> GetRandomCardAsync()
@@ -72,7 +123,7 @@ namespace RodeFortune.BLL.Services.Implementations
             return cards.OrderBy(_ => _random.Next()).First();
         }
 
-        public async Task<List<TarotCard>> GetCardsAsync(string searchTerm = null, string arcana = null)
+        public async Task<List<TarotCard>> GetCardsAsync(string? searchTerm = null, string? arcana = null)
         {
             var allCards = await _tarotCardRepository.GetAllAsync();
 

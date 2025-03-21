@@ -1,13 +1,14 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Driver;
 using RodeFortune.DAL.Models;
+using RodeFortune.DAL.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace RodeFortune.DAL.Repositories.Implementations
 {
-    public class HoroscopeRepository
+    public class HoroscopeRepository : IHoroscopeRepository
     {
         private readonly IMongoCollection<Horoscope> _collection;
 

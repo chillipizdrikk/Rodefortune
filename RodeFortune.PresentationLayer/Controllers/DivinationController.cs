@@ -3,8 +3,10 @@ using Microsoft.Extensions.Logging;
 using RodeFortune.BLL.Services.Implementations;
 using RodeFortune.DAL.Models;
 using RodeFortune.DAL.Repositories.Interfaces;
+using RodeFortune.PresentationLayer.Models;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -25,7 +27,6 @@ namespace RodeFortune.PresentationLayer.Controllers
 
         public IActionResult Index()
         {
-            _logger.LogInformation("Відображення головної сторінки ворожінь");
             return View();
         }
 
@@ -46,7 +47,7 @@ namespace RodeFortune.PresentationLayer.Controllers
             }
         }
 
-        public async Task<IActionResult> Cards(string searchTerm = null, string arcana = null)
+        public async Task<IActionResult> Cards(string? searchTerm = null, string? arcana = null)
         {
             try
             {
@@ -113,17 +114,29 @@ namespace RodeFortune.PresentationLayer.Controllers
             }
         }
 
+        //Приклад методу без try-catch, але з Result.  
         public async Task<IActionResult> CardOfTheDay()
         {
             _logger.LogInformation("Запит на ворожіння Карта Дня");
             string userId = "user";
 
-            var result = await _divinationService.GetCardOfTheDayAsync(userId);
+            var resultObject = await _divinationService.GetCardOfTheDayAsync(userId);
+
+            if (!resultObject.Success)
+            {
+                _logger.LogWarning("Помилка при отриманні Карти Дня: {ErrorMessage}", resultObject.Message);
+                return View("Error", new ErrorViewModel
+                {
+                    RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier,
+                });
+            }
+
+            var cardResult = resultObject.Data;
 
             _logger.LogInformation("Карта Дня ворожіння виконано: {CardName} {Orientation}",
-                result.Card.Name, result.IsReversed ? "перевернута" : "пряма");
+                cardResult.Card.Name, cardResult.IsReversed ? "перевернута" : "пряма");
 
-            return View((result.Card, result.IsReversed));
+            return View((cardResult.Card, cardResult.IsReversed));
         }
 
         public async Task<IActionResult> PresentPastFuture()

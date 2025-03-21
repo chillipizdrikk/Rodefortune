@@ -1,16 +1,11 @@
-﻿using MongoDB.Driver;
+﻿using Microsoft.Extensions.Logging;
+using MongoDB.Bson;
+using MongoDB.Driver;
 using Moq;
 using NUnit.Framework;
 using RodeFortune.BLL.Services.Implementations;
 using RodeFortune.DAL.Models;
 using RodeFortune.DAL.Repositories.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using MongoDB.Bson;
 
 
 namespace RodeFortune.UnitTests.Services
@@ -22,7 +17,6 @@ namespace RodeFortune.UnitTests.Services
         private Mock<ITarotCardRepository> _mockTarotCardRepository;
         private Mock<ILogger<DivinationService>> _mockLogger;
         private List<TarotCard> _testCards;
-        private Dictionary<string, (string CardId, bool IsReversed)> _dailyCards;
 
 
         [SetUp]
@@ -86,32 +80,26 @@ namespace RodeFortune.UnitTests.Services
             var firstCardId = "";
             bool firstCardIsReversed = false;
 
-            var firstResult = await _divinationService.GetCardOfTheDayAsync(userId);
+            var firstResultObject = await _divinationService.GetCardOfTheDayAsync(userId);
+
+            Assert.That(firstResultObject.Success, Is.True, "Перший запит має бути успішним");
+
+            var firstResult = firstResultObject.Data;
             firstCardId = firstResult.Card.Name;
             firstCardIsReversed = firstResult.IsReversed;
 
             _mockTarotCardRepository.Setup(repo => repo.GetCardByIdAsync(It.IsAny<string>()))
                 .ReturnsAsync(firstResult.Card);
 
-            var secondResult = await _divinationService.GetCardOfTheDayAsync(userId);
+            var secondResultObject = await _divinationService.GetCardOfTheDayAsync(userId);
 
+            Assert.That(secondResultObject.Success, Is.True, "Другий запит має бути успішним");
+
+            var secondResult = secondResultObject.Data;
             Assert.That(secondResult.IsNew, Is.False, "Другий запит має повернути існуючу карту");
             Assert.That(secondResult.Card.Name, Is.EqualTo(firstCardId), "Карта має бути такою ж");
             Assert.That(secondResult.IsReversed, Is.EqualTo(firstCardIsReversed), "Орієнтація карти має бути такою ж");
         }
 
-        [Test]
-        public async Task GetCardOfTheDayAsync_ReturnsCardWithCorrectReversedState()
-        {
-            string userId = "user2";
-
-            var firstResult = await _divinationService.GetCardOfTheDayAsync(userId);
-            bool firstIsReversed = firstResult.IsReversed;
-
-            var secondResult = await _divinationService.GetCardOfTheDayAsync(userId);
-
-            Assert.That(secondResult.IsReversed, Is.EqualTo(firstIsReversed),
-                "Стан карти має залишатися незмінним протягом дня. ");
-        }
     }
 }
