@@ -1,12 +1,13 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Driver;
 using RodeFortune.DAL.Models;
+using RodeFortune.DAL.Repositories.Interfaces;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace RodeFortune.DAL.Repositories.Implementations
 {
-    public class PostRepository
+    public class PostRepository : IPostRepository
     {
         private readonly IMongoCollection<Post> _posts;
 
@@ -15,11 +16,10 @@ namespace RodeFortune.DAL.Repositories.Implementations
             _posts = database.GetCollection<Post>("posts");
         }
 
-        public async Task<List<Post>> GetAllAsync()
+        public async Task<List<Post>> GetAllPostsAsync()
         {
             return await _posts.Find(_ => true).ToListAsync();
         }
-
         public async Task<Post> GetByIdAsync(ObjectId id)
         {
             return await _posts.Find(p => p.Id == id).FirstOrDefaultAsync();

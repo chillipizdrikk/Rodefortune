@@ -1,10 +1,6 @@
-﻿using System;
-using System.Threading.Tasks;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using RodeFortune.BLL.Dto;
 using RodeFortune.BLL.Mappers;
-using RodeFortune.DAL.Models;
-using MongoDB.Bson;
 
 namespace RodeFortune.UnitTests.Services
 {

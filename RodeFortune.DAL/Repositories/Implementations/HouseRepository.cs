@@ -1,12 +1,11 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Driver;
 using RodeFortune.DAL.Models;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using RodeFortune.DAL.Repositories.Interfaces;
 
 namespace RodeFortune.DAL.Repositories.Implementations
 {
-    public class HouseRepository
+    public class HouseRepository : IHouseRepository
     {
         private readonly IMongoCollection<House> _houses;
 

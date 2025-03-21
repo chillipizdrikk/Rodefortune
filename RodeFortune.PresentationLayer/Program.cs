@@ -44,21 +44,33 @@ var databaseName = Environment.GetEnvironmentVariable("MONGODB_DATABASE_NAME");
 
 builder.Services.AddScoped<ITarotCardRepository, TarotCardRepository>();
 builder.Services.AddScoped<DivinationService>();
-builder.Services.AddScoped<HoroscopeRepository>();
+builder.Services.AddScoped<IHoroscopeRepository,HoroscopeRepository>();
 builder.Services.AddScoped<IHoroscopeService, HoroscopeService>();
+builder.Services.AddScoped<HoroscopeRepository>();
+builder.Services.AddScoped<IPostRepository, PostRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IDestinyMatrixRepository, DestinyMatrixRepository>();
+builder.Services.AddScoped<IReadingRepository, ReadingRepository>();
+builder.Services.AddScoped<INatalChartRepository, NatalChartRepository>();
+builder.Services.AddScoped<BloggingService>();
+
+
 
 builder.Services.AddControllersWithViews();
 var app = builder.Build();
 
-    // Configure the HTTP request pipeline.
-    if (!app.Environment.IsDevelopment())
-    {
-        app.UseExceptionHandler("/Home/Error");
-        // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-        app.UseHsts();
-    }
+//Дозволяє не робити всюди try-catch, перехоплює помилки і показує сторінку Error з HomeController
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+}
+else
+{
+    app.UseExceptionHandler("/Home/Error");
+    app.UseHsts();
+}
 
-    app.UseSerilogRequestLogging();
+app.UseSerilogRequestLogging();
 
     app.UseHttpsRedirection();
     app.UseStaticFiles();

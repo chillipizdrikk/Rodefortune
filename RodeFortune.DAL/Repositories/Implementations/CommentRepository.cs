@@ -1,13 +1,11 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Driver;
 using RodeFortune.DAL.Models;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using RodeFortune.DAL.Repositories.Interfaces;
 
 namespace RodeFortune.DAL.Repositories.Implementations
 {
-    public class CommentRepository
+    public class CommentRepository : ICommentRepository
     {
         private readonly IMongoCollection<Comment> _comments;
 
