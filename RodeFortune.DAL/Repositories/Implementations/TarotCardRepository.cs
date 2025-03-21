@@ -1,8 +1,6 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Driver;
 using RodeFortune.DAL.Models;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using RodeFortune.DAL.Repositories.Interfaces;
 
 namespace RodeFortune.DAL.Repositories.Implementations
@@ -21,7 +19,7 @@ namespace RodeFortune.DAL.Repositories.Implementations
             return await _tarotCards.Find(_ => true).ToListAsync();
         }
 
-       
+
         public async Task<TarotCard> GetCardByIdAsync(string id)
         {
             var objectId = ObjectId.Parse(id);

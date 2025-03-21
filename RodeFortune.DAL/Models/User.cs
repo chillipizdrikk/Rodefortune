@@ -1,7 +1,5 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using System;
-using System.ComponentModel.DataAnnotations;
 
 namespace RodeFortune.DAL.Models
 {
@@ -34,7 +32,7 @@ namespace RodeFortune.DAL.Models
         [BsonRequired]
         [BsonElement("created_at")]
         public DateTime CreatedAt { get; set; }
-        
+
         [BsonElement("zodiac_sign")]
         public string ZodiacSign { get; set; }
 

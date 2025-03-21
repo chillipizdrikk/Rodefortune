@@ -2,9 +2,6 @@
 using MongoDB.Driver;
 using RodeFortune.DAL.Models;
 using RodeFortune.DAL.Repositories.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace RodeFortune.DAL.Repositories.Implementations
 {
@@ -40,7 +37,7 @@ namespace RodeFortune.DAL.Repositories.Implementations
                 Builders<Horoscope>.Filter.Gte(h => h.Date, startDate),
                 Builders<Horoscope>.Filter.Lte(h => h.Date, endDate)
             );
-            
+
             return await _collection.Find(filter).ToListAsync();
         }
 

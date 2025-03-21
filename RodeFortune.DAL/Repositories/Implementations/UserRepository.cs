@@ -2,12 +2,10 @@
 using MongoDB.Driver;
 using RodeFortune.DAL.Models;
 using RodeFortune.DAL.Repositories.Interfaces;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace RodeFortune.DAL.Repositories.Implementations
 {
-    public class UserRepository: IUserRepository
+    public class UserRepository : IUserRepository
     {
         private readonly IMongoCollection<User> _users;
 

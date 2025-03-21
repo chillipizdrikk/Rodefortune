@@ -1,7 +1,4 @@
 using RodeFortune.BLL.Dto;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace RodeFortune.BLL.Services.Interfaces
 {

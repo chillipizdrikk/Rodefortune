@@ -3,12 +3,7 @@ using MongoDB.Bson;
 using RodeFortune.BLL.Dto;
 using RodeFortune.BLL.Mappers;
 using RodeFortune.BLL.Services.Interfaces;
-using RodeFortune.DAL.Models;
 using RodeFortune.DAL.Repositories.Implementations;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace RodeFortune.BLL.Services.Implementations
 {
@@ -79,10 +74,10 @@ namespace RodeFortune.BLL.Services.Implementations
             try
             {
                 _logger.LogInformation("Отримання гороскопів за датою: {Date}", date.ToShortDateString());
-                
+
                 var startDate = date.Date;
                 var endDate = startDate.AddDays(1).AddTicks(-1);
-                
+
                 var horoscopes = await _horoscopeRepository.GetByDateRangeAsync(startDate, endDate);
                 return horoscopes.Select(h => h.ToDto()).ToList();
             }
@@ -120,7 +115,7 @@ namespace RodeFortune.BLL.Services.Implementations
                 }
 
                 _logger.LogInformation("Оновлення гороскопу з ID: {Id}", id);
-                
+
                 var existingHoroscope = await _horoscopeRepository.GetByIdAsync(objectId);
                 if (existingHoroscope == null)
                 {
@@ -130,7 +125,7 @@ namespace RodeFortune.BLL.Services.Implementations
 
                 var updatedHoroscope = horoscopeDto.ToEntity();
                 updatedHoroscope.Id = objectId;
-                
+
                 await _horoscopeRepository.UpdateAsync(objectId, updatedHoroscope);
                 return updatedHoroscope.ToDto();
             }

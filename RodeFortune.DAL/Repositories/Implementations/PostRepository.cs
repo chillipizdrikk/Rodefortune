@@ -2,8 +2,6 @@
 using MongoDB.Driver;
 using RodeFortune.DAL.Models;
 using RodeFortune.DAL.Repositories.Interfaces;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace RodeFortune.DAL.Repositories.Implementations
 {

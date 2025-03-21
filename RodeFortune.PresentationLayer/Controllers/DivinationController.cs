@@ -1,14 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using RodeFortune.BLL.Services.Implementations;
-using RodeFortune.DAL.Models;
 using RodeFortune.DAL.Repositories.Interfaces;
 using RodeFortune.PresentationLayer.Models;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace RodeFortune.PresentationLayer.Controllers
 {
@@ -20,7 +14,7 @@ namespace RodeFortune.PresentationLayer.Controllers
 
         public DivinationController(DivinationService divinationService, ILogger<DivinationController> logger, ITarotCardRepository tarotCardRepository)
         {
-            _divinationService = divinationService;
+            _divinationService = sdivinationService;
             _tarotCardRepository = tarotCardRepository;
             _logger = logger;
         }
