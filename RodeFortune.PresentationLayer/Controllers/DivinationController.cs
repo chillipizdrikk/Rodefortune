@@ -14,7 +14,7 @@ namespace RodeFortune.PresentationLayer.Controllers
 
         public DivinationController(DivinationService divinationService, ILogger<DivinationController> logger, ITarotCardRepository tarotCardRepository)
         {
-            _divinationService = sdivinationService;
+            _divinationService = divinationService;
             _tarotCardRepository = tarotCardRepository;
             _logger = logger;
         }
