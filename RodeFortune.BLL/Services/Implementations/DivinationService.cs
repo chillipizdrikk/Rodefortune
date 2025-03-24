@@ -37,8 +37,9 @@ namespace RodeFortune.BLL.Services.Implementations
             var positions = new[] { "Минуле", "Теперішнє", "Майбутнє" };
 
             var availableCards = allCards.ToList();
+            var cardsCount = 3;
 
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < cardsCount; i++)
             {
                 int index = _random.Next(availableCards.Count);
                 bool isReversed = _random.Next(2) == 1;
@@ -56,8 +57,9 @@ namespace RodeFortune.BLL.Services.Implementations
             var positions = new[] { "Ситуація", "Дія", "Результат" };
 
             var availableCards = allCards.ToList();
+            var cardsCount = 3;
 
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < cardsCount; i++)
             {
                 int index = _random.Next(availableCards.Count);
                 bool isReversed = _random.Next(2) == 1;
@@ -75,8 +77,29 @@ namespace RodeFortune.BLL.Services.Implementations
             var positions = new[] { "Символ", "Значення", "Порада" };
 
             var availableCards = allCards.ToList();
+            var cardsCount = 3;
 
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < cardsCount; i++)
+            {
+                int index = _random.Next(availableCards.Count);
+                bool isReversed = _random.Next(2) == 1;
+                result.Add((availableCards[index], isReversed, positions[i]));
+                availableCards.RemoveAt(index);
+            }
+
+            return result;
+        }
+
+        public async Task<List<(TarotCard Card, bool IsReversed, string Position)>> GetProblemSolutionReadingAsync()
+        {
+            var allCards = await _tarotCardRepository.GetAllAsync();
+            var result = new List<(TarotCard, bool, string)>();
+            var positions = new[] { "Проблема", "Вирішення" };
+
+            var availableCards = allCards.ToList();
+            var cardsCount = 2;
+
+            for (int i = 0; i < cardsCount; i++)
             {
                 int index = _random.Next(availableCards.Count);
                 bool isReversed = _random.Next(2) == 1;
@@ -178,5 +201,7 @@ namespace RodeFortune.BLL.Services.Implementations
 
             return filteredCards.ToList();
         }
+
+
     }
 }

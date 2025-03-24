@@ -1,0 +1,272 @@
+﻿@model RodeFortune.DAL.Models.TarotCard
+@{
+    ViewData["Title"] = "Яка ви карта Таро за датою народження";
+    bool showResult = ViewBag.ShowResult == true;
+}
+
+<div class="container">
+    @if (!showResult)
+    {
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="card shadow">
+                    <div class="card-header" style="background-color: #6f42c1; color: white;">
+                        <h2 class="card-title text-center mb-0">Ваша карта Таро за датою народження</h2>
+                    </div>
+                    <div class="card-body">
+                        <p class="lead text-center mb-4">
+                            Дізнайтеся, яка карта Таро відповідає вашій даті народження і що це означає для вашої особистості та життєвого шляху.
+                        </p>
+
+                        <form asp-action="BirthDateTarot" method="post">
+                            <div class="form-group mb-4">
+                                <label for="birthDate" class="form-label">Виберіть вашу дату народження:</label>
+                                <div class="input-group">
+                                    <input type="date" id="birthDate" name="birthDate" class="form-control" required />
+                                </div>
+                            </div>
+
+                            <div class="d-grid mt-4">
+                                <button type="submit" class="btn btn-lg" style="background-color: #6f42c1; color: white;">Дізнатися свою карту Таро</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="card-footer text-center text-muted">
+                        <small>Інтерпретація базується на класичних принципах таро та нумерології</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <!-- Оновлений дизайн з центрованою, збільшеною картою -->
+        <div class="tarot-result-container">
+            <!-- Заголовок -->
+            <div class="tarot-header">
+                <h2>Ваша карта Таро за датою народження</h2>
+            </div>
+
+            <!-- Основний контент -->
+            <div class="tarot-content">
+                <div class="row">
+                    <!-- Колонка з картою - центрована -->
+                    <div class="col-lg-5 mb-4 order-lg-1 d-flex align-items-center justify-content-center">
+                        @if (Model != null)
+                        {
+                            <div class="tarot-card-container text-center @(Model.Reversal ? "card-reversed" : "")">
+                                @{
+                                    var imageName = "";
+                                    if (!string.IsNullOrEmpty(Model.Name))
+                                    {
+                                        imageName = Model.Name.ToLower();
+                                    }
+                                }
+                                <img src="~/images/tarot/@(imageName).jpg"
+                                     alt="@Model.Name"
+                                     class="tarot-card-img"
+                                     onerror="this.onerror=null; this.src='/images/tarot/placeholder.jpg';" />
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="card-placeholder">
+                                <p>Карта не знайдена</p>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Колонка з інформацією -->
+                    <div class="col-lg-7 order-lg-2">
+                        @if (Model != null)
+                        {
+                            <h3>@Model.Name @(Model.Reversal ? "(Перевернута)" : "")</h3>
+                            <p class="arcana-text">Аркан: @Model.Arcana</p>
+
+                            @if (!string.IsNullOrEmpty(Model.Motto))
+                            {
+                                <div class="motto-section">
+                                    <p class="motto-label">Девіз:</p>
+                                    <p class="motto-text">"@Model.Motto"</p>
+                                </div>
+                            }
+
+                            <div class="meaning-section">
+                                <h4>Значення в контексті вашої дати народження:</h4>
+                                <p>@ViewBag.PersonalizedMessage</p>
+                            </div>
+
+                            @if (!string.IsNullOrEmpty(Model.Meaning))
+                            {
+                                <div class="general-meaning-section">
+                                    <h4>Загальне значення карти:</h4>
+                                    <p>@Model.Meaning</p>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="alert alert-warning">
+                                Не вдалося знайти відповідну карту Таро для вашої дати народження.
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Футер -->
+            <div class="tarot-footer">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="birthdate-text">Дата народження: @(ViewBag.BirthDate != null ? ((DateTime)ViewBag.BirthDate).ToString("dd.MM.yyyy") : "")</span>
+                    <a asp-action="BirthDateTarot" class="btn try-again-btn">Спробувати іншу дату</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    /* Стилі для центрованої карти */
+    .tarot-result-container {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        margin: 2rem auto;
+        max-width: 900px;
+        overflow: hidden;
+    }
+
+    .tarot-header {
+        background-color: #6f42c1;
+        color: white;
+        padding: 15px;
+        text-align: center;
+    }
+
+        .tarot-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+    .tarot-content {
+        padding: 30px;
+    }
+
+    .tarot-footer {
+        padding: 15px 25px;
+        background-color: #f9f9f9;
+        border-top: 1px solid #eee;
+    }
+
+    .tarot-card-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        max-width: 100%;
+        margin: 0 auto;
+        padding: 10px;
+    }
+
+    .tarot-card-img {
+        width: auto;
+        max-width: 100%;
+        height: auto;
+        max-height: 550px; /* Збільшена висота */
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        margin: 0 auto;
+    }
+
+    .card-reversed .tarot-card-img {
+        transform: rotate(180deg);
+    }
+
+    .arcana-text {
+        color: #6b737c;
+        margin-bottom: 20px;
+    }
+
+    .motto-section {
+        border-left: 4px solid #6f42c1;
+        padding-left: 15px;
+        margin: 20px 0;
+        background-color: #f8f9fa;
+        padding: 10px 15px;
+    }
+
+    .motto-label {
+        font-weight: bold;
+        margin-bottom: 0;
+        display: inline;
+    }
+
+    .motto-text {
+        font-style: italic;
+        display: inline;
+    }
+
+    .meaning-section, .general-meaning-section {
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+
+    h3 {
+        color: #333;
+        font-size: 1.5rem;
+        margin-top: 0;
+    }
+
+    h4 {
+        color: #333;
+        font-size: 1.2rem;
+        margin-bottom: 10px;
+    }
+
+    .birthdate-text {
+        color: #6b737c;
+    }
+
+    .try-again-btn {
+        background-color: #6f42c1;
+        color: white;
+        border: none;
+    }
+
+        .try-again-btn:hover {
+            background-color: #5d35a5;
+            color: white;
+        }
+
+    .card-placeholder {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        height: 450px;
+        width: 300px;
+        max-width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+
+    /* Адаптивні стилі */
+    @@media (max-width: 991px) {
+        .order-lg-1
+
+    {
+        order: 2;
+    }
+
+    .order-lg-2 {
+        order: 1;
+    }
+
+    .tarot-card-img {
+        max-height: 450px;
+        margin-top: 20px;
+    }
+
+    }
+</style>

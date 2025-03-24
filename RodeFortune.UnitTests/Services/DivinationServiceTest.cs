@@ -7,7 +7,6 @@ using RodeFortune.BLL.Services.Implementations;
 using RodeFortune.DAL.Models;
 using RodeFortune.DAL.Repositories.Interfaces;
 
-
 namespace RodeFortune.UnitTests.Services
 {
     [TestFixture]
@@ -99,6 +98,30 @@ namespace RodeFortune.UnitTests.Services
             Assert.That(secondResult.IsNew, Is.False, "Другий запит має повернути існуючу карту");
             Assert.That(secondResult.Card.Name, Is.EqualTo(firstCardId), "Карта має бути такою ж");
             Assert.That(secondResult.IsReversed, Is.EqualTo(firstCardIsReversed), "Орієнтація карти має бути такою ж");
+        }
+
+        [Test]
+        public async Task GetProblemSolutionReadingAsync_ShouldReturnTwoCards()
+        {
+            var result = await _divinationService.GetProblemSolutionReadingAsync();
+            Assert.That(result, Is.Not.Null, "Результат не може бути null");
+            Assert.That(result.Count, Is.EqualTo(2), "Повинно бути повернуто 2 карти");
+        }
+
+        [Test]
+        public async Task GetProblemSolutionReadingAsync_ShouldReturnCorrectPositions()
+        {
+            var result = await _divinationService.GetProblemSolutionReadingAsync();
+            var positions = result.Select(card => card.Position).ToList();
+            Assert.That(positions, Is.EquivalentTo(new[] { "Проблема", "Вирішення" }), "Позиції мають бути правильними");
+        }
+
+        [Test]
+        public async Task GetProblemSolutionReadingAsync_ShouldReturnUniqueCards()
+        {
+            var result = await _divinationService.GetProblemSolutionReadingAsync();
+            var uniqueCardNames = result.Select(card => card.Card.Name).Distinct().Count();
+            Assert.That(uniqueCardNames, Is.EqualTo(2), "Всі карти мають бути унікальними");
         }
 
     }

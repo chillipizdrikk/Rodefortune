@@ -43,6 +43,7 @@ var databaseName = Environment.GetEnvironmentVariable("MONGODB_DATABASE_NAME");
 
 
 builder.Services.AddScoped<ITarotCardRepository, TarotCardRepository>();
+builder.Services.AddScoped<IConstantDivinationService, TarotService>();
 builder.Services.AddScoped<DivinationService>();
 builder.Services.AddScoped<IHoroscopeRepository,HoroscopeRepository>();
 builder.Services.AddScoped<IHoroscopeService, HoroscopeService>();
@@ -54,12 +55,10 @@ builder.Services.AddScoped<IReadingRepository, ReadingRepository>();
 builder.Services.AddScoped<INatalChartRepository, NatalChartRepository>();
 builder.Services.AddScoped<BloggingService>();
 
-
-
 builder.Services.AddControllersWithViews();
 var app = builder.Build();
 
-//�������� �� ������ ����� try-catch, ���������� ������� � ������ ������� Error � HomeController
+
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();

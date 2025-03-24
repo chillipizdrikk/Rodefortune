@@ -196,5 +196,29 @@ namespace RodeFortune.PresentationLayer.Controllers
             
             return View(model);
         }
+
+        public async Task<IActionResult> ProblemSolution()
+        {
+            _logger.LogInformation("Запит на ворожіння Проблема та Вирішення");
+            try
+            {
+                var result = await _divinationService.GetProblemSolutionReadingAsync();
+                var model = (
+                    ProblemCard: result.First(x => x.Position == "Проблема").Card,
+                    ProblemIsReversed: result.First(x => x.Position == "Проблема").IsReversed,
+                    SolutionCard: result.First(x => x.Position == "Вирішення").Card,
+                    SolutionIsReversed: result.First(x => x.Position == "Вирішення").IsReversed
+                );
+
+                _logger.LogInformation("Ворожіння Проблема та Вирішення виконано: {ProblemCardName}, {SolutionCardName}",
+                    model.ProblemCard.Name, model.SolutionCard.Name);
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Помилка при виконанні ворожіння Проблема та Вирішення");
+                return View("Error");
+            }
+        }
     }
 }
