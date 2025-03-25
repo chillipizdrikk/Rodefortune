@@ -54,6 +54,8 @@ builder.Services.AddScoped<IDestinyMatrixRepository, DestinyMatrixRepository>();
 builder.Services.AddScoped<IReadingRepository, ReadingRepository>();
 builder.Services.AddScoped<INatalChartRepository, NatalChartRepository>();
 builder.Services.AddScoped<BloggingService>();
+builder.Services.AddScoped<AdminPanelService>();
+
 
 builder.Services.AddControllersWithViews();
 var app = builder.Build();

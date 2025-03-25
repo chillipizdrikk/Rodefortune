@@ -1,0 +1,233 @@
+﻿@model IEnumerable<RodeFortune.PresentationLayer.Models.TarotCardViewModel>
+@{
+    ViewData["Title"] = "Карти Таро";
+}
+<div class="admin-container">
+    <div class="admin-header">
+        <h1>Карти Таро</h1>
+        <div class="admin-tabs">
+            <a asp-action="Index" class="admin-menu-item">Адмін-панель</a>
+        </div>
+    </div>
+
+    <div class="tarot-list">
+        @foreach (var item in Model)
+        {
+            <div class="tarot-item">
+                <div class="tarot-name">@item.Name</div>
+                <div class="tarot-actions">
+                    <a asp-action="EditTarotCard" asp-route-id="@item.Name" class="edit-btn">Редагувати</a>
+                    <form asp-action="DeleteTarotCard" asp-route-id="@item.Name" method="post" class="delete-form">
+                        @Html.AntiForgeryToken()
+                        <form asp-controller="Admin" asp-action="DeleteTarotCard" method="post">
+                            <input type="hidden" name="tarotCardName" value="@item.Name" />
+                            <button type="submit" class="delete-btn" onclick="return confirm('Ви впевнені, що хочете видалити цю карту?');">
+                                Видалити
+                            </button>
+                        </form>
+                    </form>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="add-new-container">
+        <a asp-action="CreateTarotCard" class="add-new-btn">Додати нову карту</a>
+    </div>
+
+
+</div>
+<style>
+    .admin-container {
+        max-width: 800px;
+        margin: 0 auto;
+        background-color: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .admin-header {
+        background-color: #f9f7fc;
+        padding: 15px;
+        border-bottom: 1px solid #eee;
+    }
+
+        .admin-header h1 {
+            margin-bottom: 20px;
+            font-size: 4rem;
+            color: #6f42c1;
+            position: center;
+        }
+
+    .admin-title {
+        margin: 0;
+        color: #6a3cb5;
+        font-size: 24px;
+    }
+
+    .admin-menu {
+        display: flex;
+        background-color: #e9d5ff;
+        padding: 10px;
+    }
+
+    .admin-menu-item {
+        background-color: #6f42c1;
+        color: white;
+        text-decoration: none;
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        border-radius: 3px;
+    }
+
+        .admin-menu-item:hover {
+            background-color: #5e35b1;
+            text-decoration: none;
+            color: white;
+        }
+
+    .card-management {
+        padding: 20px;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #e0d6eb;
+        border-radius: 5px;
+    }
+
+    .tarot-list {
+        margin-bottom: 20px;
+    }
+
+    .tarot-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #f0ebf7;
+        margin-bottom: 10px;
+        padding: 10px;
+        border-radius: 5px;
+    }
+
+    .tarot-actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    .btn {
+        text-decoration: none;
+        padding: 5px 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .add-card-btn {
+        display: block;
+        width: 100%;
+        padding: 10px;
+        text-align: center;
+        background-color: #6a3cb5;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+    }
+
+    .btn-edit, .btn-delete {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 6px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .edit-btn {
+        background-color: #9FA5ED; 
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        text-transform: none;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        text-decoration: none;
+    }
+
+    .edit-btn:hover {
+        background-color: #6D95AF; /* Трохи темніший відтінок при наведенні */
+        text-decoration: none;
+        color: white;
+   }
+
+    .edit-btn:link,
+    .edit-btn:visited,
+    .edit-btn:active {
+        text-decoration: none;
+        color: white;
+    }
+
+    .delete-btn {
+        background-color: #D15658; 
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        text-transform: none; 
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    .delete-btn:hover {
+        background-color: #C03B3E; 
+    }
+
+    .add-new-container {
+        display: flex;
+        justify-content: center; 
+        align-items: center; 
+        padding: 15px; 
+        background-color: #f5f2f8; 
+    }
+
+    .add-new-btn {
+        background-color: #2E6F40;
+        color: white;
+        text-decoration: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        display: inline-block;
+        border: none;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        text-align: center; /* Центрує текст всередині кнопки */
+        max-width: 100%; /* Не дає кнопці вийти за межі контейнера */
+    }
+
+        .add-new-btn:hover {
+            background-color: #257A36;
+            color: white;
+        }
+
+
+    .add-new-btn:link,
+    .add-new-btn:visited,
+    .add-new-btn:active {
+        text-decoration: none;
+        color: white;
+    }
+
+
+</style>

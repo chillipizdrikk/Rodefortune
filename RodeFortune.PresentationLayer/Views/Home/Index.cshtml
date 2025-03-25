@@ -3,21 +3,38 @@
 }
 
 <style>
-    .centered-logo {
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-        font-size: 4rem;
-        color: #6f42c1;
-    }
-
     .content-container {
         position: relative;
         height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+    .centered-logo {
+        font-size: 4rem;
+        color: #6f42c1;
+        margin-bottom: 15px;
+    }
+    .admin-panel-btn {
+        background-color: #6f42c1;
+        color: white;
+        text-decoration: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+    .admin-panel-btn:hover {
+        background-color: #5e35b1;
+        text-decoration: none;
+        color: white;
     }
 </style>
 
 <div class="content-container">
     <div class="centered-logo">RodeFortune</div>
+    <a asp-controller="Admin" asp-action="Index" class="admin-panel-btn">Адмін-панель</a>
 </div>

@@ -1,0 +1,48 @@
+﻿@{
+    ViewData["Title"] = "Адмін-панель";
+}
+
+<div class="admin-container">
+    <h1 class="admin-title">Адмін-панель</h1>
+
+    <div class="admin-menu">
+        <a asp-action="TarotCards" class="admin-menu-item">Карти Таро</a>
+    </div>
+
+</div>
+
+<style>
+    .admin-title {
+        margin-bottom: 20px;
+        font-size: 4rem;
+        color: #6f42c1;
+    }
+    .admin-menu-item {
+        background-color: #6f42c1; 
+        color: white;
+        text-decoration: none;
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        border-radius: 3px;
+
+    }
+
+    .admin-menu-item:hover {
+            background-color: #5e35b1;
+            text-decoration: none;
+            color: white;
+    }
+    
+    .admin-container {
+        position: relative;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+        
+</style>

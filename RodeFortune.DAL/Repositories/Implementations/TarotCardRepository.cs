@@ -40,5 +40,21 @@ namespace RodeFortune.DAL.Repositories.Implementations
         {
             await _tarotCards.DeleteOneAsync(card => card.Id == id);
         }
+
+        public async Task DeleteAsync(string id)
+        {
+            var objectId = ObjectId.Parse(id);
+            await _tarotCards.DeleteOneAsync(card => card.Id == objectId);
+        }
+
+        public async Task<TarotCard?> GetCardByNameAsync(string name)
+        {
+            return await _tarotCards.Find(card => card.Name == name).FirstOrDefaultAsync();
+        }
+
+        public async Task DeleteByNameAsync(string name)
+        {
+            await _tarotCards.DeleteOneAsync(card => card.Name == name);
+        }
     }
 }

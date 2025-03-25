@@ -4,6 +4,7 @@ using RodeFortune.BLL.Models;
 using RodeFortune.BLL.Services.Interfaces;
 using RodeFortune.DAL.Models;
 using RodeFortune.DAL.Repositories.Interfaces;
+using System.Runtime.CompilerServices;
 
 namespace RodeFortune.BLL.Services.Implementations
 {
@@ -13,7 +14,7 @@ namespace RodeFortune.BLL.Services.Implementations
         private readonly ILogger<DivinationService> _logger;
         private readonly Random _random;
         private Dictionary<string, (string CardId, bool IsReversed)> _dailyCards;
-
+        private const int NUMBER_OF_CARDS = 3;
         public DivinationService(ITarotCardRepository tarotCardRepository, ILogger<DivinationService> logger)
         {
             _tarotCardRepository = tarotCardRepository;
@@ -37,9 +38,8 @@ namespace RodeFortune.BLL.Services.Implementations
             var positions = new[] { "Минуле", "Теперішнє", "Майбутнє" };
 
             var availableCards = allCards.ToList();
-            var cardsCount = 3;
 
-            for (int i = 0; i < cardsCount; i++)
+            for (int i = 0; i < NUMBER_OF_CARDS; i++)
             {
                 int index = _random.Next(availableCards.Count);
                 bool isReversed = _random.Next(2) == 1;
@@ -77,9 +77,8 @@ namespace RodeFortune.BLL.Services.Implementations
             var positions = new[] { "Символ", "Значення", "Порада" };
 
             var availableCards = allCards.ToList();
-            var cardsCount = 3;
 
-            for (int i = 0; i < cardsCount; i++)
+            for (int i = 0; i < NUMBER_OF_CARDS; i++)
             {
                 int index = _random.Next(availableCards.Count);
                 bool isReversed = _random.Next(2) == 1;
