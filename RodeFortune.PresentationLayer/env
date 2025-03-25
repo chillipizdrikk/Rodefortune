@@ -1,3 +1,0 @@
-MONGODB_CONNECTION_STRING=mongodb+srv://oleksandrabernikova:jnO9EkQooaQJpwXF@rodefortunecluster.ou2cz.mongodb.net/
-MONGODB_DATABASE_NAME=RodeFortune
-SEQ_URL=http://localhost:5341/
