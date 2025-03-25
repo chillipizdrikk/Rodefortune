@@ -61,7 +61,7 @@
                             </div>
 
                             <div class="card-arcana mt-3">
-                                <p><strong>Аркана:</strong> @Model.Card.Arcana</p>
+                                <strong>Аркана:</strong> @(Model.Card.Arcana == "Major" ? "Старші Аркани" : "Молодші Аркани")
                             </div>
                         </div>
                     </div>

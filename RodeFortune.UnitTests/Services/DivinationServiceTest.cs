@@ -123,6 +123,37 @@ namespace RodeFortune.UnitTests.Services
             var uniqueCardNames = result.Select(card => card.Card.Name).Distinct().Count();
             Assert.That(uniqueCardNames, Is.EqualTo(2), "Всі карти мають бути унікальними");
         }
+        
+        [Test]
+        public async Task GetCaseActionResultReadingAsync_ShouldReturnThreeCards()
+        {
+            var result = await _divinationService.GetCaseActionResultReadingAsync();
+            Assert.That(result, Is.Not.Null, "Результат не може бути null");
+            Assert.That(result.Count, Is.EqualTo(3), "Повинно бути повернуто 3 карти");
+        }
 
+        [Test]
+        public async Task GetCaseActionResultReadingAsync_ShouldReturnUniqueCards()
+        {
+            var result = await _divinationService.GetCaseActionResultReadingAsync();
+            var uniqueCardNames = result.Select(card => card.Card.Name).Distinct().Count();
+            Assert.That(uniqueCardNames, Is.EqualTo(3), "Всі карти мають бути унікальними");
+        }
+        
+        [Test]
+        public async Task GetDreamReviewReadingAsync_ShouldReturnThreeCards()
+        {
+            var result = await _divinationService.GetDreamReviewReadingAsync();
+            Assert.That(result, Is.Not.Null, "Результат не може бути null");
+            Assert.That(result.Count, Is.EqualTo(3), "Повинно бути повернуто 3 карти");
+        }
+
+        [Test]
+        public async Task GetDreamReviewReadingAsync_ShouldReturnUniqueCards()
+        {
+            var result = await _divinationService.GetDreamReviewReadingAsync();
+            var uniqueCardNames = result.Select(card => card.Card.Name).Distinct().Count();
+            Assert.That(uniqueCardNames, Is.EqualTo(3), "Всі карти мають бути унікальними");
+        }
     }
 }

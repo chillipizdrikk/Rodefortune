@@ -81,7 +81,7 @@
                         @if (Model != null)
                         {
                             <h3>@Model.Name @(Model.Reversal ? "(Перевернута)" : "")</h3>
-                            <p class="arcana-text">Аркан: @Model.Arcana</p>
+                            <strong>Аркана:</strong> @(Model.Arcana == "Major" ? "Старші Аркани" : "Молодші Аркани")
 
                             @if (!string.IsNullOrEmpty(Model.Motto))
                             {

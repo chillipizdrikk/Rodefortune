@@ -19,8 +19,8 @@ Env.Load();
         .ReadFrom.Configuration(context.Configuration)
         .ReadFrom.Services(services));
 
-var connectionString = Environment.GetEnvironmentVariable("MONGODB_CONNECTION_STRING");
-var databaseName = Environment.GetEnvironmentVariable("MONGODB_DATABASE_NAME");
+var connectionString = "mongodb+srv://oleksandrabernikova:jnO9EkQooaQJpwXF@rodefortunecluster.ou2cz.mongodb.net/";
+var databaseName = "RodeFortune";
 
     builder.Services.Configure<MongoDbSettings>(options =>
     {

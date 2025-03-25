@@ -16,7 +16,7 @@
     <div class="row">
         <div class="col-12 text-center mb-4">
             <h1 class="display-4">Минулe, Теперішнє, Майбутнє</h1>
-            <p class="lead">Ворожіння на три карти</p>
+            <p class="lead">Ворожіння для аналізу вашого минулого, теперішнього та майбутнього</p>
         </div>
     </div>
 
@@ -59,7 +59,7 @@
                                         </div>
 
                                         <div class="card-arcana mt-3">
-                                            <p><strong>Аркана:</strong> @card.Arcana</p>
+                                            <strong>Аркана:</strong> @(card.Arcana == "Major" ? "Старші Аркани" : "Молодші Аркани")
                                         </div>
                                     </div>
                                 </div>

@@ -74,7 +74,7 @@
                                         </div>
 
                                         <div class="card-arcana mt-3">
-                                            <p><strong>Аркана:</strong> @card.Arcana</p>
+                                            <strong>Аркана:</strong> @(card.Arcana == "Major" ? "Старші Аркани" : "Молодші Аркани")
                                         </div>
                                     </div>
                                 </div>
@@ -138,10 +138,9 @@
     }
 
     .card-image-wrapper {
-        /* Fixed aspect ratio container */
         position: relative;
         width: 100%;
-        padding-top: 170%; /* This creates a 10:17 aspect ratio typical for tarot cards */
+        padding-top: 170%;
         overflow: hidden;
         border-radius: 10px;
     }
@@ -156,7 +155,7 @@
         left: 0;
         width: 100%;
         height: 100%;
-        object-fit: cover; /* This ensures the image covers the entire container */
+        object-fit: cover;
         border-radius: 10px;
     }
 
