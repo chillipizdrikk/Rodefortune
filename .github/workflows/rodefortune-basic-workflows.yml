@@ -4,13 +4,11 @@ on:
   push:
       branches:
         - main
-        - sprint-6
-        - sprint-6-bonus
+        - sprint-7
   pull_request:
       branches: 
         - main
-        - sprint-6
-        - sprint-6-bonus
+        - sprint-7
   workflow_dispatch:
 
 jobs:
