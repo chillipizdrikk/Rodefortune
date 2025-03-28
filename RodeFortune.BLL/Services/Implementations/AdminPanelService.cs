@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using MongoDB.Bson;
 using RodeFortune.BLL.Models;
 using RodeFortune.BLL.Services.Interfaces;
 using RodeFortune.DAL.Models;
@@ -17,6 +18,107 @@ namespace RodeFortune.BLL.Services.Implementations
             _tarotRepository = tarotRepository;
             _horoscopeRepository = horoscopeRepository;
             _logger = logger;
+        }
+
+        public async Task<Result<Horoscope>> CreateHoroscopeAsync(string zodiacSign, string motto, string content, DateTime date)
+        {
+            if (string.IsNullOrWhiteSpace(zodiacSign))
+            {
+                _logger.LogInformation($"Tarot card name was empty or null");
+                return new Result<Horoscope>(false, "Tarot card name  was empty or null", null);
+            }
+            if (string.IsNullOrWhiteSpace(motto))
+            {
+                _logger.LogInformation($"Tarot card name was empty or null");
+                return new Result<Horoscope>(false, "Tarot card name  was empty or null", null);
+            }
+            if (string.IsNullOrWhiteSpace(content))
+            {
+                _logger.LogInformation($"Tarot card name was empty or null");
+                return new Result<Horoscope>(false, "Tarot card name  was empty or null", null);
+            }
+
+            try
+            {
+                var horoscope = new Horoscope
+                {
+                    ZodiacSign = zodiacSign,
+                    Motto = motto,
+                    Content = content,
+                    Date = DateTime.SpecifyKind(date.Date, DateTimeKind.Utc)
+                };
+
+                await _horoscopeRepository.CreateAsync(horoscope);
+
+                _logger.LogInformation($"Horoscope created successfully for {zodiacSign} on {date}");
+                return new Result<Horoscope>(true, "Horoscope created successfully", horoscope);
+            }
+            catch (Exception ex)
+            {
+                return new Result<Horoscope>(false, $"Error while creating horoscope: {ex.Message}", null);
+            }
+        }
+
+        public async Task<Result<Horoscope>> UpdateHoroscopeAsync(ObjectId id, string? zodiacSign = null, string? motto = null, string? content = null, DateTime? date = null)
+        {
+            try
+            {
+                var existingHoroscope = await _horoscopeRepository.GetByIdAsync(id);
+
+                if (existingHoroscope == null)
+                {
+                    _logger.LogWarning($"Horoscope with ID {id} not found");
+                    return new Result<Horoscope>(false, "Horoscope not found", null);
+                }
+
+                if (!string.IsNullOrWhiteSpace(zodiacSign))
+                    existingHoroscope.ZodiacSign = zodiacSign.Trim();
+
+                if (!string.IsNullOrWhiteSpace(motto))
+                    existingHoroscope.Motto = motto.Trim();
+
+                if (!string.IsNullOrWhiteSpace(content))
+                    existingHoroscope.Content = content.Trim();
+
+                if (date.HasValue)
+                {
+                    existingHoroscope.Date = DateTime.SpecifyKind(date.Value, DateTimeKind.Utc);
+                }
+
+                await _horoscopeRepository.UpdateAsync(id, existingHoroscope);
+
+                _logger.LogInformation($"Horoscope {id} updated successfully");
+                return new Result<Horoscope>(true, "Horoscope updated successfully", existingHoroscope);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error while updating horoscope {id}");
+                return new Result<Horoscope>(false, $"Error while updating horoscope: {ex.Message}", null);
+            }
+        }
+
+        public async Task<Result<bool>> DeleteHoroscopeAsync(ObjectId id)
+        {
+            try
+            {
+                var existingHoroscope = await _horoscopeRepository.GetByIdAsync(id);
+
+                if (existingHoroscope == null)
+                {
+                    _logger.LogWarning($"Horoscope with ID {id} not found for deletion");
+                    return new Result<bool>(false, "Horoscope not found", false);
+                }
+
+                await _horoscopeRepository.DeleteAsync(id);
+
+                _logger.LogInformation($"Horoscope {id} deleted successfully");
+                return new Result<bool>(true, "Horoscope deleted successfully", true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error while deleting horoscope {id}");
+                return new Result<bool>(false, $"Error while deleting horoscope: {ex.Message}", false);
+            }
         }
 
         public async Task<Result<TarotCard>> CreateTarotCardAsync(string name, string arcana, string motto,
@@ -103,59 +205,5 @@ namespace RodeFortune.BLL.Services.Implementations
                 return new Result<bool>(false, $"Error while deleting tarot card: {ex.Message}", false);
             }
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        //public async Task<Result<TarotCard>> EditTarotCardAsync(string existingName, string newName, string arcana, string motto, string meaning, bool reversal, byte[]? imageUrl = null)
-        //{
-        //    if (string.IsNullOrWhiteSpace(existingName))
-        //    {
-        //        _logger.LogInformation("Existing tarot card name was empty or null");
-        //        return new Result<TarotCard>(false, "Existing tarot card name was empty or null", null);
-        //    }
-
-        //    try
-        //    {
-        //        var tarotCard = await _tarotRepository.GetCardByNameAsync(existingName);
-
-        //        if (tarotCard == null)
-        //        {
-        //            _logger.LogInformation("Tarot card with name {ExistingName} not found", existingName);
-        //            return new Result<TarotCard>(false, "Tarot card not found", null);
-        //        }
-
-        //        tarotCard.Name = !string.IsNullOrWhiteSpace(newName) ? newName : tarotCard.Name;
-        //        tarotCard.Arcana = !string.IsNullOrWhiteSpace(arcana) ? arcana : tarotCard.Arcana;
-        //        tarotCard.Motto = !string.IsNullOrWhiteSpace(motto) ? motto : tarotCard.Motto;
-        //        tarotCard.Meaning = !string.IsNullOrWhiteSpace(meaning) ? meaning : tarotCard.Meaning;
-        //        tarotCard.Reversal = reversal;  
-        //        tarotCard.ImageUrl = imageUrl ?? tarotCard.ImageUrl; 
-
-        //        await _tarotRepository.UpdateAsync(tarotCard.Id, tarotCard);
-
-        //        _logger.LogInformation("Updated tarot card: {ExistingName} -> {NewName}", existingName, newName);
-
-        //        return new Result<TarotCard>(true, "Tarot card updated successfully", tarotCard);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError(ex, "Error updating tarot card with name {ExistingName}", existingName);
-        //        return new Result<TarotCard>(false, $"Error while updating tarot card: {ex.Message}", null);
-        //    }
-        //}
     }
 }

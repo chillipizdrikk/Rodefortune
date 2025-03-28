@@ -11,8 +11,6 @@ namespace RodeFortune.PresentationLayer.Models
         [Required(ErrorMessage = "Необхідно додати текст допису")]
         [Display(Name = "Текст допису")]
         public string Content { get; set; }
-
-        // Опціональні посилання на ворожіння
         public string ReferencedReadingId { get; set; }
         public string ReferencedHoroscopeId { get; set; }
         public string ReferencedNatalChartId { get; set; }

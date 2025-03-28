@@ -1,30 +1,32 @@
-﻿@model IEnumerable<RodeFortune.PresentationLayer.Models.TarotCardViewModel>
+﻿@model IEnumerable<RodeFortune.PresentationLayer.Models.CreateHoroscopeViewModel>
 @{
-    ViewData["Title"] = "Карти Таро";
+    ViewData["Title"] = "Гороскопи";
 }
 <div class="admin-container">
     <div class="admin-header">
-        <h1>Карти Таро</h1>
+        <h1>Гороскопи</h1>
         <div class="admin-tabs">
             <a asp-action="Index" class="admin-menu-item">Адмін-панель</a>
         </div>
     </div>
 
-    <div class="tarot-list">
+    <div class="horoscope-list">
         @foreach (var item in Model)
         {
-            <div class="tarot-item">
-                <div class="tarot-name">@item.Name</div>
-                <div class="tarot-actions">
-                    <a asp-action="UpdateTarotCard" asp-route-id="@item.Name" class="edit-btn">Редагувати</a>
-                    <form asp-action="DeleteTarotCard" asp-route-id="@item.Name" method="post" class="delete-form">
+            <div class="horoscope-item">
+                <div class="horoscope-details">
+                    <div class="horoscope-id">ID: @item.Id</div>
+                    <div class="horoscope-sign">Знак зодіаку: @item.ZodiacSign</div>
+                    <div class="horoscope-date">Дата: @item.Date.ToString("dd.MM.yyyy")</div>
+                </div>
+                <div class="horoscope-actions">
+                    <a asp-action="UpdateHoroscope" asp-route-id="@item.Id" class="edit-btn">Редагувати</a>
+                    <form asp-action="DeleteHoroscope" asp-route-id="@item.Id" method="post" class="delete-form">
                         @Html.AntiForgeryToken()
-                        <form asp-controller="Admin" asp-action="DeleteTarotCard" method="post">
-                            <input type="hidden" name="tarotCardName" value="@item.Name" />
-                            <button type="submit" class="delete-btn" onclick="return confirm('Ви впевнені, що хочете видалити цю карту?');">
-                                Видалити
-                            </button>
-                        </form>
+                        <input type="hidden" name="horoscopeId" value="@item.Id" />
+                        <button type="submit" class="delete-btn" onclick="return confirm('Ви впевнені, що хочете видалити цей гороскоп?');">
+                            Видалити
+                        </button>
                     </form>
                 </div>
             </div>
@@ -32,12 +34,13 @@
     </div>
 
     <div class="add-new-container">
-        <a asp-action="CreateTarotCard" class="add-new-btn">Додати нову карту</a>
+        <a asp-action="CreateHoroscope" class="add-new-btn">Додати новий гороскоп</a>
     </div>
-
-
 </div>
+
 <style>
+
+
     .admin-menu-item {
         background-color: #6f42c1;
         color: white;
@@ -70,11 +73,11 @@
             text-align: center;
         }
 
-    .tarot-list {
+    .horoscope-list {
         margin-bottom: 20px;
     }
 
-    .tarot-item {
+    .horoscope-item {
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -84,27 +87,27 @@
         border-radius: 5px;
     }
 
-    .tarot-details {
+    .horoscope-details {
         flex-grow: 1;
     }
 
-    .tarot-id {
+    .horoscope-id {
         font-weight: bold;
         color: #6a3cb5;
         margin-bottom: 5px;
     }
 
-    .tarot-name {
+    .horoscope-sign {
         color: #333;
         margin-bottom: 5px;
     }
 
-    .tarot-date {
+    .horoscope-date {
         color: #666;
         font-size: 0.9em;
     }
 
-    .tarot-actions {
+    .horoscope-actions {
         display: flex;
         gap: 10px;
     }
@@ -171,5 +174,4 @@
             background-color: #257A36;
             color: white;
         }
-
-</style>
+</style> 

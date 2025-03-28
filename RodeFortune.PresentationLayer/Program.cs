@@ -82,6 +82,7 @@ app.UseSerilogRequestLogging();
         name: "default",
         pattern: "{controller=Home}/{action=Index}/{id?}");
 
-    app.Run();
+  
+app.Run();
 
     Log.CloseAndFlush();

@@ -1,7 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson;
 using RodeFortune.BLL.Services.Implementations;
+using RodeFortune.BLL.Services.Interfaces;
+using RodeFortune.DAL.Models;
 using RodeFortune.DAL.Repositories.Interfaces;
 using RodeFortune.PresentationLayer.Models;
+using System.Diagnostics;
 
 namespace RodeFortune.PresentationLayer.Controllers
 {
@@ -37,6 +41,21 @@ namespace RodeFortune.PresentationLayer.Controllers
             }).ToList();
 
             return View(divinationViewModels);
+        }
+
+        public async Task<IActionResult> Horoscopes()
+        {
+            var horoscopes = await _horoscopeRepository.GetAllAsync();
+            var horoscopeViewModels = horoscopes.Select(hr => new CreateHoroscopeViewModel
+            {
+               Id = hr.Id.ToString(),
+               ZodiacSign = hr.ZodiacSign,
+               Motto = hr.Motto,
+               Content = hr.Content,
+               Date = hr.Date
+            }).ToList();
+
+            return View(horoscopeViewModels);
         }
 
         [HttpGet]
@@ -84,35 +103,152 @@ namespace RodeFortune.PresentationLayer.Controllers
             return View(model);
         }
 
+
+
+        [HttpGet]
+        public IActionResult CreateHoroscope()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateHoroscope(CreateHoroscopeViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var result = await _adminPanelService.CreateHoroscopeAsync(
+                model.ZodiacSign,
+                model.Motto,
+                model.Content,
+            model.Date);
+
+            if (result.Success)
+            {
+                return RedirectToAction("Horoscopes");
+            }
+            else
+            {
+                ModelState.AddModelError("", result.Message);
+            }
+            return View(model);
+
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> UpdateHoroscope(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                return RedirectToAction("Hocoscopes");
+            }
+
+            var horoscope = await _horoscopeRepository.GetByIdAsync(ObjectId.Parse(id));
+
+            if (horoscope == null)
+            {
+                return RedirectToAction("Hocoscopes");
+
+            }
+
+            var model = new UpdateHoroscopeViewModel
+            {
+                Id = id,
+                ZodiacSign = horoscope.ZodiacSign,
+                Motto = horoscope.Motto,
+                Content = horoscope.Content,
+                Date = horoscope.Date
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateHoroscope(UpdateHoroscopeViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var result = await _adminPanelService.UpdateHoroscopeAsync(
+                ObjectId.Parse(model.Id),
+                model.ZodiacSign,
+                model.Motto,
+                model.Content,
+                model.Date
+            );
+
+            if (result.Success)
+            {
+                return RedirectToAction("Horoscopes");
+            }
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteHoroscope(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                return RedirectToAction("Index");
+            }
+
+            var result = await _adminPanelService.DeleteHoroscopeAsync(ObjectId.Parse(id));
+
+            if (result.Success)
+            {
+                return RedirectToAction("Horoscopes");
+            }
+            else
+            {
+                return View("Error", new ErrorViewModel
+                {
+                    RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier,
+                });
+            }
+        }
+
+
         [HttpPost]
         public async Task<IActionResult> DeleteTarotCard(string tarotCardName)
         {
             if (string.IsNullOrWhiteSpace(tarotCardName))
             {
-                TempData["ErrorMessage"] = "Tarot card name cannot be empty.";
                 return RedirectToAction("Index");
             }
 
             var result = await _adminPanelService.DeleteTarotCardByNameAsync(tarotCardName);
 
-            if (!result.Success)
+            if (result.Success)
             {
-                TempData["ErrorMessage"] = result.Message;
-                return RedirectToAction("Index");
+                return RedirectToAction("TarotCards");
             }
-
-            TempData["SuccessMessage"] = "Tarot card deleted successfully!";
-            return RedirectToAction("Index");
+            else
+            {
+                return View("Error", new ErrorViewModel
+                {
+                    RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier,
+                });
+            }
         }
 
         [HttpGet]
-        public async Task<IActionResult> EditTarotCard(string id)
+        public async Task<IActionResult> UpdateTarotCard(string id)
         {
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                return RedirectToAction("TarotCards");
+            }
+            
             var existingCard = await _tarotRepository.GetCardByNameAsync(id);
 
             if (existingCard == null)
             {
-                TempData["ErrorMessage"] = "The card was not found.";
                 return RedirectToAction("TarotCards");
             }
 
@@ -128,70 +264,5 @@ namespace RodeFortune.PresentationLayer.Controllers
             return View(model);
 
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        //[HttpPost]
-        //public async Task<IActionResult> EditTarotCard(string tarotCardName, TarotCardViewModel model, IFormFile? imageFile)
-        //{
-        //    if (string.IsNullOrWhiteSpace(tarotCardName))
-        //    {
-        //        TempData["ErrorMessage"] = "Tarot card name cannot be empty.";
-        //        return RedirectToAction("Index");
-        //    }
-
-        //    if (!ModelState.IsValid)
-        //    {
-        //        var errors = ModelState.Values
-        //            .SelectMany(v => v.Errors)
-        //            .Select(e => e.ErrorMessage);
-
-        //        return View(model); 
-        //    }
-
-        //    ModelState.Clear();
-        //    byte[]? imageData = null;
-        //    if (imageFile != null)
-        //    {
-        //        using (var memoryStream = new MemoryStream())
-        //        {
-        //            await imageFile.CopyToAsync(memoryStream);
-        //            imageData = memoryStream.ToArray();
-        //        }
-        //    }
-
-
-
-        //    var result = await _adminPanelService.EditTarotCardAsync(
-        //        tarotCardName,
-        //        model.Name,
-        //        model.Arcana,
-        //        model.Motto,
-        //        model.Meaning,
-        //        model.Reversal,
-        //        imageData);
-
-        //    if (!result.Success)
-        //    {
-        //        TempData["ErrorMessage"] = result.Message;
-        //        return View(model);
-        //    }
-
-        //    TempData["SuccessMessage"] = "Tarot card edited successfully!";
-        //    return RedirectToAction("Index");
-        //}
-
     }
 }
