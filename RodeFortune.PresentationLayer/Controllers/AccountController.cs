@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Collections.Generic;
 using System.Security.Claims;
+using MongoDB.Bson;
 
 namespace RodeFortune.PresentationLayer.Controllers
 {
@@ -42,7 +43,7 @@ namespace RodeFortune.PresentationLayer.Controllers
             }
 
             _logger.LogInformation("Спроба реєстрації користувача: {Username}", registerDto.Username);
-            
+
             try
             {
                 var existingUser = await _userService.GetUserByEmailAsync(registerDto.Email);
@@ -66,9 +67,9 @@ namespace RodeFortune.PresentationLayer.Controllers
                 };
 
                 var user = await _userService.CreateUserAsync(userDto);
-                
+
                 _logger.LogInformation("Користувач успішно зареєстрований: {Username}", registerDto.Username);
-                
+
                 var claims = new List<Claim>
                 {
                     new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
@@ -76,24 +77,24 @@ namespace RodeFortune.PresentationLayer.Controllers
                     new Claim(ClaimTypes.Email, user.Email),
                     new Claim(ClaimTypes.Role, user.Role)
                 };
-                
+
                 var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                 var authProperties = new AuthenticationProperties
                 {
                     IsPersistent = true,
                     ExpiresUtc = DateTimeOffset.UtcNow.AddDays(7)
                 };
-                
+
                 await HttpContext.SignInAsync(
                     CookieAuthenticationDefaults.AuthenticationScheme,
                     new ClaimsPrincipal(claimsIdentity),
                     authProperties);
-                
+
                 HttpContext.Session.SetString("UserId", user.Id.ToString());
                 HttpContext.Session.SetString("Username", user.Username);
                 HttpContext.Session.SetString("UserEmail", user.Email);
                 HttpContext.Session.SetString("UserRole", user.Role);
-                
+
                 return RedirectToAction("Index", "Blog"); // Will be changed to profile after the addition of profile usecase
             }
             catch (Exception ex)
@@ -163,22 +164,22 @@ namespace RodeFortune.PresentationLayer.Controllers
             }
 
             _logger.LogInformation("Спроба входу користувача: {Email}", loginDto.Email);
-            
+
             try
             {
                 string hashedPassword = HashPassword(loginDto.Password);
-                
+
                 bool isValid = await _userService.ValidateUserCredentialsAsync(loginDto.Email, hashedPassword);
-                
+
                 if (!isValid)
                 {
                     _logger.LogWarning("Невдала спроба входу: {Email}", loginDto.Email);
                     ModelState.AddModelError("", "Неправильна електронна пошта або пароль");
                     return View(loginDto);
                 }
-            
+
                 var user = await _userService.GetUserByEmailAsync(loginDto.Email);
-                
+
                 var claims = new List<Claim>
                 {
                     new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
@@ -186,26 +187,26 @@ namespace RodeFortune.PresentationLayer.Controllers
                     new Claim(ClaimTypes.Email, user.Email),
                     new Claim(ClaimTypes.Role, user.Role)
                 };
-                
+
                 var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                 var authProperties = new AuthenticationProperties
                 {
                     IsPersistent = loginDto.RememberMe,
                     ExpiresUtc = DateTimeOffset.UtcNow.AddDays(7)
                 };
-                
+
                 await HttpContext.SignInAsync(
                     CookieAuthenticationDefaults.AuthenticationScheme,
                     new ClaimsPrincipal(claimsIdentity),
                     authProperties);
-                
+
                 HttpContext.Session.SetString("UserId", user.Id.ToString());
                 HttpContext.Session.SetString("Username", user.Username);
                 HttpContext.Session.SetString("UserEmail", user.Email);
                 HttpContext.Session.SetString("UserRole", user.Role);
-                
+
                 _logger.LogInformation("Користувач успішно увійшов: {Email}", loginDto.Email);
-                
+
                 return RedirectToAction("Index", "Blog"); // Will be changed to profile after the addition of profile usecase
             }
             catch (Exception ex)
@@ -220,11 +221,70 @@ namespace RodeFortune.PresentationLayer.Controllers
         public async Task<IActionResult> Logout()
         {
             _logger.LogInformation("Користувач виходить із системи: {Username}", HttpContext.Session.GetString("Username"));
-            
+
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             HttpContext.Session.Clear();
-            
+
             return RedirectToAction("Login", "Account");
+        }
+
+        [HttpGet]
+        public IActionResult PasswordRecovery()
+        {
+            _logger.LogInformation("Відображення форми відновлення паролю");
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> PasswordRecovery(PasswordRecoveryRequestDto model)
+        {
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Помилка валідації при відновленні паролю");
+                return View(model);
+            }
+
+            if (model.NewPassword != model.ConfirmPassword)
+            {
+                ModelState.AddModelError("ConfirmPassword", "Паролі не співпадають");
+                return View(model);
+            }
+
+            _logger.LogInformation("Спроба відновлення паролю для: {Email}", model.Email);
+
+            try
+            {
+                var user = await _userService.GetUserByEmailAsync(model.Email);
+                if (user == null)
+                {
+                    _logger.LogWarning("Спроба відновлення паролю для неіснуючого користувача: {Email}", model.Email);
+                    ModelState.AddModelError("Email", "Користувач з такою електронною поштою не знайдений");
+                    return View(model);
+                }
+
+                var userUpdateDto = new UserRequestDto
+                {
+                    Username = user.Username,
+                    Email = user.Email,
+                    PasswordHash = HashPassword(model.NewPassword),
+                    BirthDate = user.BirthDate,
+                    ZodiacSign = user.ZodiacSign,
+                    Role = user.Role,
+                    Avatar = user.Avatar
+                };
+
+                await _userService.UpdateUserAsync(user.Id.ToString(), userUpdateDto);
+
+                _logger.LogInformation("Пароль успішно відновлено для: {Email}", model.Email);
+                ViewBag.Message = "Ваш пароль було успішно змінено. Тепер ви можете увійти з новим паролем.";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Помилка при відновленні паролю для: {Email}", model.Email);
+                ModelState.AddModelError("", "Виникла помилка при відновленні паролю. Будь ласка, спробуйте пізніше.");
+            }
+
+            return View(model);
         }
     }
 }

@@ -30,5 +30,6 @@ namespace RodeFortune.BLL.Dto
         public List<ObjectId> SavedHoroscopes { get; set; }
         public ObjectId? NatalChart { get; set; }
         public ObjectId? DestinyMatrix { get; set; }
+        public string PasswordHash { get; set; } 
     }
 }
