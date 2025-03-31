@@ -4,6 +4,7 @@ using RodeFortune.DAL.Models;
 using RodeFortune.DAL.Repositories.Interfaces;
 using System;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
 namespace RodeFortune.PresentationLayer.Controllers
 {
@@ -17,12 +18,14 @@ namespace RodeFortune.PresentationLayer.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public IActionResult Index()
         {
             return RedirectToAction("BirthDateTarot");
         }
 
        [HttpGet]
+       [Authorize]
         public IActionResult BirthDateTarot()
         {
             ViewBag.ShowResult = false;
@@ -30,6 +33,7 @@ namespace RodeFortune.PresentationLayer.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> BirthDateTarot(DateTime birthDate)
         {
             if (!ModelState.IsValid)
@@ -47,7 +51,7 @@ namespace RodeFortune.PresentationLayer.Controllers
 
             return View(tarotCard);
         }
-
+        [Authorize]
         private string GeneratePersonalizedMessage(TarotCard card, DateTime birthDate)
         {
             string zodiacSign = GetZodiacSign(birthDate);
@@ -56,7 +60,7 @@ namespace RodeFortune.PresentationLayer.Controllers
                    $"Як людина зі знаком {zodiacSign}, ви маєте особливий зв'язок з цією картою. " +
                    $"{(string.IsNullOrEmpty(card.Motto) ? "" : $"'{card.Motto}' - це принцип, який супроводжує вас у житті.")} ";
         }
-
+        [Authorize]
         private string GetZodiacSign(DateTime birthDate)
         {
             int day = birthDate.Day;

@@ -13,6 +13,7 @@ namespace RodeFortune.BLL.Dto
         public DateTime BirthDate { get; set; }
         public string ZodiacSign { get; set; }
         public string Role { get; set; }
+        public byte[] Avatar { get; set; }
     }
 
     public class UserResponseDto

@@ -3,6 +3,7 @@ using RodeFortune.BLL.Services.Implementations;
 using RodeFortune.DAL.Repositories.Interfaces;
 using RodeFortune.PresentationLayer.Models;
 using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 
 namespace RodeFortune.PresentationLayer.Controllers
 {
@@ -106,7 +107,7 @@ namespace RodeFortune.PresentationLayer.Controllers
                 return StatusCode(500, "Внутрішня помилка сервера");
             }
         }
- 
+        [Authorize]
         public async Task<IActionResult> CardOfTheDay()
         {
             _logger.LogInformation("Запит на ворожіння Карта Дня");
@@ -156,7 +157,7 @@ namespace RodeFortune.PresentationLayer.Controllers
                 return View("Error");
             }
         }
-
+        [Authorize]
         public async Task<IActionResult> CaseActionResult()
         {
             _logger.LogInformation("Запит на ворожіння Case/Action/Result");
@@ -176,7 +177,7 @@ namespace RodeFortune.PresentationLayer.Controllers
             
             return View(model);
         }
-        
+        [Authorize]
         public async Task<IActionResult> DreamReview()
         {
             _logger.LogInformation("Запит на ворожіння Аналіз Сновидіння");
@@ -196,7 +197,7 @@ namespace RodeFortune.PresentationLayer.Controllers
             
             return View(model);
         }
-
+        [Authorize]
         public async Task<IActionResult> ProblemSolution()
         {
             _logger.LogInformation("Запит на ворожіння Проблема та Вирішення");

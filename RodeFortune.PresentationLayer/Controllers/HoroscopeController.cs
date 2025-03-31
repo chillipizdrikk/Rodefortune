@@ -4,6 +4,7 @@ using RodeFortune.BLL.Dto;
 using RodeFortune.BLL.Services.Interfaces;
 using System;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
 namespace RodeFortune.PresentationLayer.Controllers
 {
@@ -17,7 +18,7 @@ namespace RodeFortune.PresentationLayer.Controllers
             _horoscopeService = horoscopeService;
             _logger = logger;
         }
-
+        [Authorize]
         public async Task<IActionResult> Index(DateTime? date = null)
         {
             _logger.LogInformation("Відображення сторінки гороскопів за датою: {Date}", date?.ToShortDateString() ?? "поточна дата");
@@ -36,7 +37,7 @@ namespace RodeFortune.PresentationLayer.Controllers
                 return View("Error");
             }
         }
-
+        [Authorize]
         public async Task<IActionResult> BySign(string zodiacSign)
         {
             if (string.IsNullOrEmpty(zodiacSign))

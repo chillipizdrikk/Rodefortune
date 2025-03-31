@@ -1,16 +1,16 @@
 ﻿using MongoDB.Bson;
 using RodeFortune.DAL.Models;
+using System.Threading.Tasks;
 
 namespace RodeFortune.DAL.Repositories.Interfaces
 {
     public interface IUserRepository
     {
-
-        public Task<List<User>> GetAllAsync();
-        public Task<User> GetByIdAsync(ObjectId id);
-        public Task CreateAsync(User user);
-        public Task UpdateAsync(ObjectId id, User updatedUser);
-        public Task DeleteAsync(ObjectId id);
-        public Task<User> GetByEmailAsync(string email);
+        Task<User> GetByIdAsync(ObjectId id);
+        Task<User> GetByEmailAsync(string email);
+        Task<User> GetByUsernameAsync(string username);
+        Task CreateAsync(User user);
+        Task<bool> UpdateAsync(ObjectId id, User user);
+        Task<bool> DeleteAsync(ObjectId id);
     }
 }

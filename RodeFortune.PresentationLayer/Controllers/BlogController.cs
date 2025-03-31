@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using RodeFortune.BLL.Services.Implementations;
 using RodeFortune.DAL.Repositories.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace RodeFortune.PresentationLayer.Controllers
 {
@@ -34,7 +35,7 @@ namespace RodeFortune.PresentationLayer.Controllers
             _natalChartRepository = natalChartRepository;
             _destinyMatrixRepository = destinyMatrixRepository;
         }
-
+        [Authorize]
         public async Task<IActionResult> Index()
         {
             var posts = await _postRepository.GetAllPostsAsync();

@@ -1,0 +1,69 @@
+@model RodeFortune.BLL.Dto.RegisterRequestDto
+
+@{
+    ViewData["Title"] = "Реєстрація";
+}
+
+<div class="container-fluid min-vh-100 d-flex flex-column justify-content-center align-items-center" style="background-color: #d7c4e9;">
+    <div class="row w-100 justify-content-center">
+        <div class="col-md-6 col-lg-4">
+            <div class="text-center mb-4">
+                <h2 style="color: #5e4376;">Реєстрація</h2>
+            </div>
+
+            <form asp-action="Register" asp-controller="Account" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="form-group mb-3">
+                    <input asp-for="Username" class="form-control form-control-lg rounded-pill" placeholder="Ім'я користувача" style="background-color: #f2ebf7;" />
+                    <span asp-validation-for="Username" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <input asp-for="BirthDate" class="form-control form-control-lg rounded-pill" placeholder="Дата народження" style="background-color: #f2ebf7;" onfocus="(this.type='date')" onblur="if(!this.value)this.type='text'" />
+                    <span asp-validation-for="BirthDate" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <input asp-for="Email" class="form-control form-control-lg rounded-pill" placeholder="Електронна пошта" style="background-color: #f2ebf7;" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3 position-relative">
+                    <input asp-for="Password" class="form-control form-control-lg rounded-pill" type="password" placeholder="Пароль" style="background-color: #f2ebf7;" />
+                    <span class="position-absolute top-50 end-0 translate-middle-y me-3" style="cursor: pointer;">
+                        <i class="bi bi-eye"></i>
+                    </span>
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <button type="submit" class="btn btn-lg w-100 rounded-pill" style="background-color: #6a3cb5; border-color: #6a3cb5; color: white;">Зареєструватися</button>
+                </div>
+
+                <div class="form-group d-flex justify-content-between align-items-center">
+                    <small>Вже маєте акаунт?</small>
+                    <small><a asp-action="Login" asp-controller="Account" style="color: #6a3cb5;">Увійдіть</a></small>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function() {
+            $(".bi-eye").click(function() {
+                var input = $(this).closest(".form-group").find("input");
+                if (input.attr("type") === "password") {
+                    input.attr("type", "text");
+                    $(this).removeClass("bi-eye").addClass("bi-eye-slash");
+                } else {
+                    input.attr("type", "password");
+                    $(this).removeClass("bi-eye-slash").addClass("bi-eye");
+                }
+            });
+        });
+    </script>
+}

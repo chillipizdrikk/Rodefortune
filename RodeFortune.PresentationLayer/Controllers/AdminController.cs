@@ -1,11 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using MongoDB.Bson;
+﻿using MongoDB.Bson;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 using RodeFortune.BLL.Services.Implementations;
 using RodeFortune.BLL.Services.Interfaces;
 using RodeFortune.DAL.Models;
 using RodeFortune.DAL.Repositories.Interfaces;
 using RodeFortune.PresentationLayer.Models;
-using System.Diagnostics;
 
 namespace RodeFortune.PresentationLayer.Controllers
 {
@@ -22,12 +23,12 @@ namespace RodeFortune.PresentationLayer.Controllers
             _horoscopeRepository = horoscopeRepository;
             _adminPanelService = adminPanelService;
         }
-
+        [Authorize(Roles = "Admin")]
         public IActionResult Index()
         {
             return View();
         }
-
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> TarotCards()
         {
             var divinations = await _tarotRepository.GetAllAsync();
@@ -42,7 +43,7 @@ namespace RodeFortune.PresentationLayer.Controllers
 
             return View(divinationViewModels);
         }
-
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Horoscopes()
         {
             var horoscopes = await _horoscopeRepository.GetAllAsync();
@@ -59,6 +60,7 @@ namespace RodeFortune.PresentationLayer.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public IActionResult CreateTarotCard()
         {
             return View();
@@ -66,6 +68,7 @@ namespace RodeFortune.PresentationLayer.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateTarotCard(TarotCardViewModel model, IFormFile imageFile)
         {
             if (ModelState.IsValid)
@@ -106,6 +109,7 @@ namespace RodeFortune.PresentationLayer.Controllers
 
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public IActionResult CreateHoroscope()
         {
             return View();
@@ -113,6 +117,7 @@ namespace RodeFortune.PresentationLayer.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateHoroscope(CreateHoroscopeViewModel model)
         {
             if (!ModelState.IsValid)
@@ -139,6 +144,7 @@ namespace RodeFortune.PresentationLayer.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateHoroscope(string id)
         {
             if (string.IsNullOrWhiteSpace(id))
@@ -167,6 +173,7 @@ namespace RodeFortune.PresentationLayer.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateHoroscope(UpdateHoroscopeViewModel model)
         {
             if (!ModelState.IsValid)
@@ -191,6 +198,7 @@ namespace RodeFortune.PresentationLayer.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteHoroscope(string id)
         {
             if (string.IsNullOrWhiteSpace(id))
@@ -215,6 +223,7 @@ namespace RodeFortune.PresentationLayer.Controllers
 
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteTarotCard(string tarotCardName)
         {
             if (string.IsNullOrWhiteSpace(tarotCardName))
@@ -238,6 +247,7 @@ namespace RodeFortune.PresentationLayer.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateTarotCard(string id)
         {
             if (string.IsNullOrWhiteSpace(id))
