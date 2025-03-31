@@ -50,5 +50,9 @@ namespace RodeFortune.DAL.Models
 
         [BsonElement("destiny_matrix")]
         public ObjectId? DestinyMatrix { get; set; } = null;
+        [BsonElement("password_reset_token")]
+        public string PasswordResetToken { get; set; }
+        [BsonElement("password_reset_token_expiration")]
+        public DateTime? PasswordResetTokenExpiration { get; set; }
     }
 }

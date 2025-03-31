@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
+using MongoDB.Driver;
 using RodeFortune.BLL.Dto;
 using RodeFortune.BLL.Mappers;
 using RodeFortune.BLL.Services.Interfaces;
@@ -137,6 +138,105 @@ namespace RodeFortune.BLL.Services
             {
                 _logger.LogError(ex, "Помилка при валідації облікових даних: {Email}", email);
                 return false;
+            }
+        }
+
+        public async Task SavePasswordResetTokenAsync(string userId, string token, DateTime expirationDate)
+        {
+            try
+            {
+                var objectId = new ObjectId(userId);
+                var user = await _userRepository.GetByIdAsync(objectId);
+                
+                if (user == null)
+                {
+                    _logger.LogWarning("Користувача з ID {UserId} не знайдено при збереженні токена скидання пароля", userId);
+                    return;
+                }
+                
+                user.PasswordResetToken = token;
+                user.PasswordResetTokenExpiration = expirationDate;
+                
+                await _userRepository.UpdateAsync(objectId, user);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Помилка при збереженні токена скидання пароля: {UserId}", userId);
+                throw;
+            }
+        }
+
+        public async Task<bool> ValidatePasswordResetTokenAsync(string userId, string token)
+        {
+            try
+            {
+                var objectId = new ObjectId(userId);
+                var user = await _userRepository.GetByIdAsync(objectId);
+                
+                if (user == null)
+                    return false;
+                    
+                if (user.PasswordResetToken != token)
+                    return false;
+                    
+                if (user.PasswordResetTokenExpiration < DateTime.UtcNow)
+                    return false;
+                    
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Помилка при валідації токена скидання пароля: {UserId}", userId);
+                return false;
+            }
+        }
+
+        public async Task UpdateUserPasswordAsync(string userId, string newPasswordHash)
+        {
+            try
+            {
+                var objectId = new ObjectId(userId);
+                var user = await _userRepository.GetByIdAsync(objectId);
+                
+                if (user == null)
+                {
+                    _logger.LogWarning("Користувача з ID {UserId} не знайдено при оновленні пароля", userId);
+                    return;
+                }
+                
+                user.PasswordHash = newPasswordHash;
+                
+                await _userRepository.UpdateAsync(objectId, user);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Помилка при оновленні пароля користувача: {UserId}", userId);
+                throw;
+            }
+        }
+
+        public async Task InvalidatePasswordResetTokenAsync(string userId)
+        {
+            try
+            {
+                var objectId = new ObjectId(userId);
+                var user = await _userRepository.GetByIdAsync(objectId);
+                
+                if (user == null)
+                {
+                    _logger.LogWarning("Користувача з ID {UserId} не знайдено при видаленні токена скидання пароля", userId);
+                    return;
+                }
+                
+                user.PasswordResetToken = null;
+                user.PasswordResetTokenExpiration = null;
+                
+                await _userRepository.UpdateAsync(objectId, user);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Помилка при видаленні токена скидання пароля: {UserId}", userId);
+                throw;
             }
         }
     }

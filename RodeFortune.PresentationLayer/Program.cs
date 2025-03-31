@@ -70,6 +70,7 @@ builder.Services.AddScoped<IConstantDivinationService, TarotService>();
 builder.Services.AddScoped<DivinationService>();
 builder.Services.AddScoped<IHoroscopeRepository,HoroscopeRepository>();
 builder.Services.AddScoped<IHoroscopeService, HoroscopeService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<HoroscopeRepository>();
 builder.Services.AddScoped<IPostRepository, PostRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();

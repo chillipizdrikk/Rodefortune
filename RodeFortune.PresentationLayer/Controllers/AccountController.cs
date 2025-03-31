@@ -17,11 +17,13 @@ namespace RodeFortune.PresentationLayer.Controllers
     public class AccountController : Controller
     {
         private readonly IUserService _userService;
+        private readonly IEmailService _emailService;
         private readonly ILogger<AccountController> _logger;
 
-        public AccountController(IUserService userService, ILogger<AccountController> logger)
+        public AccountController(IUserService userService, IEmailService emailService, ILogger<AccountController> logger)
         {
             _userService = userService;
+            _emailService = emailService;
             _logger = logger;
         }
 
@@ -225,6 +227,148 @@ namespace RodeFortune.PresentationLayer.Controllers
             HttpContext.Session.Clear();
             
             return RedirectToAction("Login", "Account");
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            _logger.LogInformation("Запит на відновлення пароля для: {Email}", model.Email);
+
+            try
+            {
+                var user = await _userService.GetUserByEmailAsync(model.Email);
+                if (user == null)
+                {
+                    // Don't reveal that the user does not exist
+                    _logger.LogWarning("Запит на відновлення пароля для неіснуючого користувача: {Email}", model.Email);
+                    return RedirectToAction(nameof(ForgotPasswordConfirmation));
+                }
+
+                // Generate password reset token
+                var token = GenerateResetToken();
+                
+                // Store the token in database with expiration date
+                await _userService.SavePasswordResetTokenAsync(user.Id.ToString(), token, DateTime.UtcNow.AddHours(24));
+
+                // Generate callback URL
+                var callbackUrl = Url.Action(
+                    "ResetPassword",
+                    "Account",
+                    new { userId = user.Id, token = token },
+                    protocol: HttpContext.Request.Scheme);
+
+                // Send email
+                await _emailService.SendPasswordResetEmailAsync(model.Email, callbackUrl);
+                
+                _logger.LogInformation("Посилання для відновлення пароля надіслано: {Email}", model.Email);
+                
+                return RedirectToAction(nameof(ForgotPasswordConfirmation));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Помилка при обробці запиту на відновлення пароля: {Email}", model.Email);
+                ModelState.AddModelError("", "Виникла помилка при обробці запиту. Будь ласка, спробуйте пізніше.");
+                return View(model);
+            }
+        }
+
+        private string GenerateResetToken()
+        {
+            var randomNumber = new byte[32];
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(randomNumber);
+                return Convert.ToBase64String(randomNumber);
+            }
+        }
+
+        [HttpGet]
+        public IActionResult ForgotPasswordConfirmation()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ResetPassword(string userId, string token)
+        {
+            if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(token))
+            {
+                return RedirectToAction("Login");
+            }
+
+            try
+            {
+                var isValid = await _userService.ValidatePasswordResetTokenAsync(userId, token);
+                if (!isValid)
+                {
+                    _logger.LogWarning("Недійсний токен для відновлення пароля: {UserId}", userId);
+                    return RedirectToAction("Login");
+                }
+
+                var model = new ResetPasswordViewModel
+                {
+                    UserId = userId,
+                    Token = token
+                };
+                
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Помилка при перевірці токена відновлення пароля: {UserId}", userId);
+                return RedirectToAction("Login");
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            try
+            {
+                var isValid = await _userService.ValidatePasswordResetTokenAsync(model.UserId, model.Token);
+                if (!isValid)
+                {
+                    _logger.LogWarning("Спроба використання недійсного токена відновлення пароля: {UserId}", model.UserId);
+                    ModelState.AddModelError("", "Недійсний або застарілий токен для відновлення пароля.");
+                    return View(model);
+                }
+
+                string hashedPassword = HashPassword(model.Password);
+                await _userService.UpdateUserPasswordAsync(model.UserId, hashedPassword);
+                await _userService.InvalidatePasswordResetTokenAsync(model.UserId);
+                
+                _logger.LogInformation("Пароль успішно скинуто: {UserId}", model.UserId);
+                
+                return RedirectToAction(nameof(ResetPasswordConfirmation));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Помилка при скиданні пароля: {UserId}", model.UserId);
+                ModelState.AddModelError("", "Виникла помилка при скиданні пароля. Будь ласка, спробуйте пізніше.");
+                return View(model);
+            }
+        }
+
+        [HttpGet]
+        public IActionResult ResetPasswordConfirmation()
+        {
+            return View();
+        }
+        [HttpGet]
+        public IActionResult ForgotPassword()
+        {
+            return View();
         }
     }
 }

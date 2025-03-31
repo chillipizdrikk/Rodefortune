@@ -12,5 +12,9 @@ namespace RodeFortune.BLL.Services.Interfaces
         Task<UserResponseDto> UpdateUserAsync(string id, UserRequestDto userDto);
         Task<bool> DeleteUserAsync(string id);
         Task<bool> ValidateUserCredentialsAsync(string email, string passwordHash);
+        Task SavePasswordResetTokenAsync(string userId, string token, DateTime expirationDate);
+        Task<bool> ValidatePasswordResetTokenAsync(string userId, string token);
+        Task UpdateUserPasswordAsync(string userId, string newPasswordHash);
+        Task InvalidatePasswordResetTokenAsync(string userId);
     }
 }
