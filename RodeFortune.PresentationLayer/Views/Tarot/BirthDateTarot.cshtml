@@ -40,21 +40,18 @@
     }
     else
     {
-        <!-- Оновлений дизайн з центрованою, збільшеною картою -->
         <div class="tarot-result-container">
             <!-- Заголовок -->
             <div class="tarot-header">
                 <h2>Ваша карта Таро за датою народження</h2>
             </div>
 
-            <!-- Основний контент -->
             <div class="tarot-content">
                 <div class="row">
-                    <!-- Колонка з картою - центрована -->
                     <div class="col-lg-5 mb-4 order-lg-1 d-flex align-items-center justify-content-center">
                         @if (Model != null)
                         {
-                            <div class="tarot-card-container text-center @(Model.Reversal ? "card-reversed" : "")">
+                            <div class="tarot-card-container text-center @("card-straight")">
                                 @{
                                     var imageName = "";
                                     if (!string.IsNullOrEmpty(Model.Name))
@@ -76,11 +73,10 @@
                         }
                     </div>
 
-                    <!-- Колонка з інформацією -->
                     <div class="col-lg-7 order-lg-2">
                         @if (Model != null)
                         {
-                            <h3>@Model.Name @(Model.Reversal ? "(Перевернута)" : "")</h3>
+                            <h3>@Model.Name @("(Пряма)")</h3>
                             <strong>Аркана:</strong> @(Model.Arcana == "Major" ? "Старші Аркани" : "Молодші Аркани")
 
                             @if (!string.IsNullOrEmpty(Model.Motto))
@@ -126,7 +122,6 @@
 </div>
 
 <style>
-    /* Стилі для центрованої карти */
     .tarot-result-container {
         background-color: white;
         border-radius: 8px;

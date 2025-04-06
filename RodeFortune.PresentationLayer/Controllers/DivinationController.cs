@@ -31,8 +31,8 @@ namespace RodeFortune.PresentationLayer.Controllers
             try
             {
                 var result = await _divinationService.GetYesNoReadingAsync();
-                _logger.LogInformation("Yes/No ворожіння виконано: {CardName} {Orientation}",
-                    result.Card.Name, result.IsReversed ? "перевернута" : "пряма");
+                _logger.LogInformation("Yes/No ворожіння виконано: {CardName}",
+                    result.Card.Name);
                 return View(result);
             }
             catch (Exception ex)
@@ -94,8 +94,11 @@ namespace RodeFortune.PresentationLayer.Controllers
                     name = card.Name,
                     arcana = card.Arcana,
                     motto = card.Motto,
-                    meaning = card.Meaning,
-                    reversal = card.Reversal,
+                    Meaning = card.Meaning,
+                    ReversalMeaning = card.ReversalMeaning,
+                    RomanceMeaning = card.RomanceMeaning,
+                    FinanceMeaning = card.FinanceMeaning,
+                    HealthMeaning = card.HealthMeaning,
                     imageUrl = card.ImageUrl != null ? Convert.ToBase64String(card.ImageUrl) : null
                 };
 
@@ -126,8 +129,8 @@ namespace RodeFortune.PresentationLayer.Controllers
 
             var cardResult = resultObject.Data;
 
-            _logger.LogInformation("Карта Дня ворожіння виконано: {CardName} {Orientation}",
-                cardResult.Card.Name, cardResult.IsReversed ? "перевернута" : "пряма");
+            _logger.LogInformation("Карта Дня ворожіння виконано: {CardName}",
+                cardResult.Card.Name);
 
             return View((cardResult.Card, cardResult.IsReversed));
         }

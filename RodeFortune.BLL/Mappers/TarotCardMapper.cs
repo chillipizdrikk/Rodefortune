@@ -15,9 +15,12 @@ namespace RodeFortune.BLL.Mappers
                 Id = tarotCard.Id,
                 Name = tarotCard.Name,
                 Arcana = tarotCard.Arcana,
-                Reversal = tarotCard.Reversal,
                 Motto = tarotCard.Motto,
                 Meaning = tarotCard.Meaning,
+                ReversalMeaning = tarotCard.ReversalMeaning,
+                RomanceMeaning = tarotCard.RomanceMeaning,
+                FinanceMeaning = tarotCard.FinanceMeaning,
+                HealthMeaning = tarotCard.HealthMeaning,
                 ImageUrl = tarotCard.ImageUrl
             };
         }
@@ -30,9 +33,12 @@ namespace RodeFortune.BLL.Mappers
             {
                 Name = tarotCardRequestDto.Name,
                 Arcana = tarotCardRequestDto.Arcana,
-                Reversal = tarotCardRequestDto.Reversal,
                 Motto = tarotCardRequestDto.Motto,
                 Meaning = tarotCardRequestDto.Meaning,
+                ReversalMeaning = tarotCardRequestDto.ReversalMeaning,
+                RomanceMeaning = tarotCardRequestDto.RomanceMeaning,
+                FinanceMeaning = tarotCardRequestDto.FinanceMeaning,
+                HealthMeaning = tarotCardRequestDto.HealthMeaning,
                 ImageUrl = tarotCardRequestDto.ImageUrl
             };
         }

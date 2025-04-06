@@ -137,7 +137,7 @@
                                     <button class="nav-link active" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab" aria-controls="general" aria-selected="true">Загальне</button>
                                 </li>
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="love-tab" data-bs-toggle="tab" data-bs-target="#love" type="button" role="tab" aria-controls="love" aria-selected="false">Кохання</button>
+                                    <button class="nav-link" id="romance-tab" data-bs-toggle="tab" data-bs-target="#romance" type="button" role="tab" aria-controls="romance" aria-selected="false">Кохання</button>
                                 </li>
                                 <li class="nav-item" role="presentation">
                                     <button class="nav-link" id="finance-tab" data-bs-toggle="tab" data-bs-target="#finance" type="button" role="tab" aria-controls="finance" aria-selected="false">Фінанси</button>
@@ -145,31 +145,19 @@
                                 <li class="nav-item" role="presentation">
                                     <button class="nav-link" id="health-tab" data-bs-toggle="tab" data-bs-target="#health" type="button" role="tab" aria-controls="health" aria-selected="false">Здоров'я</button>
                                 </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="advice-tab" data-bs-toggle="tab" data-bs-target="#advice" type="button" role="tab" aria-controls="advice" aria-selected="false">Порада</button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="future-tab" data-bs-toggle="tab" data-bs-target="#future" type="button" role="tab" aria-controls="future" aria-selected="false">Майбутнє</button>
-                                </li>
                             </ul>
                             <div class="tab-content p-3 border border-top-0 rounded-bottom" id="cardMeaningTabsContent">
                                 <div class="tab-pane fade show active" id="general" role="tabpanel" aria-labelledby="general-tab">
                                     <div id="modalCardMeaning"></div>
                                 </div>
-                                <div class="tab-pane fade" id="love" role="tabpanel" aria-labelledby="love-tab">
-                                    <div id="modalCardLove">Інформація про кохання буде додана пізніше</div>
+                                <div class="tab-pane fade" id="romance" role="tabpanel" aria-labelledby="romance-tab">
+                                    <div id="modalCardRomance"></div>
                                 </div>
                                 <div class="tab-pane fade" id="finance" role="tabpanel" aria-labelledby="finance-tab">
-                                    <div id="modalCardFinance">Інформація про фінанси буде додана пізніше</div>
+                                    <div id="modalCardFinance"></div>
                                 </div>
                                 <div class="tab-pane fade" id="health" role="tabpanel" aria-labelledby="health-tab">
-                                    <div id="modalCardHealth">Інформація про здоров'я буде додана пізніше</div>
-                                </div>
-                                <div class="tab-pane fade" id="advice" role="tabpanel" aria-labelledby="advice-tab">
-                                    <div id="modalCardAdvice">Поради будуть додані пізніше</div>
-                                </div>
-                                <div class="tab-pane fade" id="future" role="tabpanel" aria-labelledby="future-tab">
-                                    <div id="modalCardFuture">Інформація про майбутнє буде додана пізніше</div>
+                                    <div id="modalCardHealth"></div>
                                 </div>
                             </div>
                         </div>
@@ -268,23 +256,21 @@
 @section Scripts {
     <script>
         $(document).ready(function() {
-            // Card is reversed state
             let isCardReversed = false;
+            let currentCard = null;
             
-            // Handle click on "Details" button
             $('.view-card-details').click(function(e) {
                 e.preventDefault();
                 var cardId = $(this).data('card-id');
                 
-                // Reset reversed state
                 isCardReversed = false;
                 
-                // Make AJAX request to get card details
                 $.ajax({
                     url: '/Divination/GetCardDetails/' + cardId,
                     type: 'GET',
                     success: function(response) {
-                        // Fill modal with card details
+                        currentCard = response;
+                        
                         $('#modalCardName').text(response.name);
                         $('#modalCardArcana').text('Аркана: ' + (response.arcana == "Major" ? "Старші Аркани" : "Молодші Аркани"));
                         
@@ -294,7 +280,20 @@
                             $('#modalCardMotto').hide();
                         }
                         
-                        $('#modalCardMeaning').text(response.meaning || 'Немає опису');
+                        const meaning = response.meaning || response.Meaning || '';
+                        const reversalMeaning = response.reversalMeaning || response.ReversalMeaning || '';
+                        const romanceMeaning = response.romanceMeaning || response.RomanceMeaning || '';
+                        const financeMeaning = response.financeMeaning || response.FinanceMeaning || '';
+                        const healthMeaning = response.healthMeaning || response.HealthMeaning || '';
+                        
+                        updateCardMeanings(
+                            isCardReversed, 
+                            meaning,
+                            reversalMeaning, 
+                            romanceMeaning,  
+                            financeMeaning, 
+                            healthMeaning  
+                        );
                         
                         var imagePath = '/images/tarot/' + response.name.toLowerCase() + '.jpg';
                         $('#modalCardImage').html('<img src="' + imagePath + '" class="img-fluid">');
@@ -309,15 +308,58 @@
                 });
             });
             
-            // Handle card reversal
+            $('#cardMeaningTabs .nav-link').on('click', function() {
+            });
+            
             $('#cardReverseBtn').click(function() {
                 isCardReversed = !isCardReversed;
-                if (isCardReversed) {
-                    $('#modalCardImage img').addClass('reversed');
-                } else {
-                    $('#modalCardImage img').removeClass('reversed');
+                
+                if (currentCard) {
+                    if (isCardReversed) {
+                        $('#modalCardImage img').addClass('reversed');
+                    } else {
+                        $('#modalCardImage img').removeClass('reversed');
+                    }
+                    
+                    const meaning = currentCard.meaning || currentCard.Meaning || '';
+                    const reversalMeaning = currentCard.reversalMeaning || currentCard.ReversalMeaning || '';
+                    const romanceMeaning = currentCard.romanceMeaning || currentCard.RomanceMeaning || '';
+                    const financeMeaning = currentCard.financeMeaning || currentCard.FinanceMeaning || '';
+                    const healthMeaning = currentCard.healthMeaning || currentCard.HealthMeaning || '';
+                    
+                    updateCardMeanings(
+                        isCardReversed, 
+                        meaning,
+                        reversalMeaning,
+                        romanceMeaning,
+                        financeMeaning,
+                        healthMeaning
+                    );
                 }
             });
+            
+            function updateCardMeanings(isCardReversed = false, meaning = '', reversalmeaning = '', romancemeaning = '', financemeaning = '', healthmeaning = '') {
+                if (isCardReversed) {
+                    $('#general-tab').text('Загальне (Перевернуте)');
+                    
+                    $('#modalCardMeaning').text(reversalmeaning || 'Інформація відсутня.');
+                    
+                    $('#modalCardRomance').text(romancemeaning + 
+                        ' (У перевернутому положенні: може вказувати на протилежне або більш складні обставини)' || 'Інформація відсутня.');
+                    
+                    $('#modalCardFinance').text(financemeaning + 
+                        ' (У перевернутому положенні: може вказувати на протилежне або більш складні обставини)' || 'Інформація відсутня.');
+                    
+                    $('#modalCardHealth').text(healthmeaning + 
+                        ' (У перевернутому положенні: може вказувати на протилежне або більш складні обставини)' || 'Інформація відсутня.');
+                } else {
+                    $('#general-tab').text('Загальне');
+                    $('#modalCardMeaning').text(meaning || 'Інформація відсутня.');
+                    $('#modalCardRomance').text(romancemeaning || 'Інформація відсутня.');
+                    $('#modalCardFinance').text(financemeaning || 'Інформація відсутня.');
+                    $('#modalCardHealth').text(healthmeaning || 'Інформація відсутня.');
+                }
+            }
         });
     </script>
 }

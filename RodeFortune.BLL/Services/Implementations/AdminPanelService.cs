@@ -122,7 +122,7 @@ namespace RodeFortune.BLL.Services.Implementations
         }
 
         public async Task<Result<TarotCard>> CreateTarotCardAsync(string name, string arcana, string motto,
-    string meaning, bool reversal, byte[]? imageUrl = null)
+    string meaning, string reversal_meaning, string romance_meaning, string finance_meaning, string health_meaning, byte[]? imageUrl = null)
         {
             if (string.IsNullOrWhiteSpace(name))
             {
@@ -155,9 +155,11 @@ namespace RodeFortune.BLL.Services.Implementations
                 {
                     Name = name,
                     Arcana = arcana,
-                    Reversal = reversal,
-                    Motto = motto,
                     Meaning = meaning,
+                    ReversalMeaning = reversal_meaning,
+                    RomanceMeaning = romance_meaning,
+                    FinanceMeaning = finance_meaning,
+                    HealthMeaning = health_meaning,
                     ImageUrl = imageUrl
                 };
 

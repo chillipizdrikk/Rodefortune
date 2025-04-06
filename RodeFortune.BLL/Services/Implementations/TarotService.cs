@@ -29,11 +29,8 @@ namespace RodeFortune.BLL.Services.Implementations
                 return await _tarotCards.Find(Builders<TarotCard>.Filter.Empty).FirstOrDefaultAsync();
             }
             int cardIndex = cardNumber % majorArcanaCards.Count;
-            var selectedCard = majorArcanaCards[cardIndex];
 
-            selectedCard.Reversal = ShouldCardBeReversed(birthDate);
-
-            return selectedCard;
+            return majorArcanaCards[cardIndex];
         }
 
         private int CalculateTarotNumber(DateTime birthDate)
@@ -63,11 +60,5 @@ namespace RodeFortune.BLL.Services.Implementations
             }
             return sum == 0 ? number : sum;
         }
-
-        private bool ShouldCardBeReversed(DateTime birthDate)
-        {
-            return birthDate.Day % 2 == 1;
-        }
-
     }
 }

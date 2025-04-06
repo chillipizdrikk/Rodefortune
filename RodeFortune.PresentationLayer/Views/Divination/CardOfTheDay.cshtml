@@ -51,7 +51,7 @@
                             <div class="card-meaning mt-3">
                                 <h4>Значення:</h4>
                                 <p>
-                                    @Model.Card.Meaning
+                                    @(Model.IsReversed ? Model.Card.ReversalMeaning : Model.Card.Meaning)
                                 </p>
                             </div>
 
@@ -67,9 +67,6 @@
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="card-footer text-center p-3">
-                    <a href="@Url.Action("Index", "Divination")" class="btn btn-outline-secondary btn-lg">Інші ворожіння</a>
                 </div>
             </div>
         </div>

@@ -23,11 +23,17 @@ namespace RodeFortune.BLL.Services.Implementations
             _dailyCards = new Dictionary<string, (string, bool)>();
         }
 
+        private bool ShouldCardBeReversed()
+        {
+            Random random = new Random();
+            return random.Next(0, 2) == 0;
+        }
+
         public async Task<(TarotCard Card, bool IsReversed)> GetYesNoReadingAsync()
         {
             _logger.LogDebug("Запит на Yes/No гадання");
             var card = await GetRandomCardAsync();
-            bool isReversed = _random.Next(2) == 1;
+            bool isReversed = ShouldCardBeReversed();
             return (card, isReversed);
         }
 
@@ -42,7 +48,7 @@ namespace RodeFortune.BLL.Services.Implementations
             for (int i = 0; i < NUMBER_OF_CARDS; i++)
             {
                 int index = _random.Next(availableCards.Count);
-                bool isReversed = _random.Next(2) == 1;
+                bool isReversed = ShouldCardBeReversed();
                 result.Add((availableCards[index], isReversed, positions[i]));
                 availableCards.RemoveAt(index);
             }
@@ -62,7 +68,7 @@ namespace RodeFortune.BLL.Services.Implementations
             for (int i = 0; i < cardsCount; i++)
             {
                 int index = _random.Next(availableCards.Count);
-                bool isReversed = _random.Next(2) == 1;
+                bool isReversed = ShouldCardBeReversed();
                 result.Add((availableCards[index], isReversed, positions[i]));
                 availableCards.RemoveAt(index);
             }
@@ -81,7 +87,7 @@ namespace RodeFortune.BLL.Services.Implementations
             for (int i = 0; i < NUMBER_OF_CARDS; i++)
             {
                 int index = _random.Next(availableCards.Count);
-                bool isReversed = _random.Next(2) == 1;
+                bool isReversed = ShouldCardBeReversed();
                 result.Add((availableCards[index], isReversed, positions[i]));
                 availableCards.RemoveAt(index);
             }
@@ -96,12 +102,12 @@ namespace RodeFortune.BLL.Services.Implementations
             var positions = new[] { "Проблема", "Вирішення" };
 
             var availableCards = allCards.ToList();
-            var cardsCount = 2;
+            const int cardsCount = 2;
 
             for (int i = 0; i < cardsCount; i++)
             {
                 int index = _random.Next(availableCards.Count);
-                bool isReversed = _random.Next(2) == 1;
+                bool isReversed = ShouldCardBeReversed();
                 result.Add((availableCards[index], isReversed, positions[i]));
                 availableCards.RemoveAt(index);
             }
@@ -152,7 +158,7 @@ namespace RodeFortune.BLL.Services.Implementations
                     return new Result<(TarotCard, bool, bool)>(false, "Failed to generate random card");
                 }
 
-                bool isReversed = _random.Next(2) == 1;
+                bool isReversed = ShouldCardBeReversed();
                 _dailyCards[key] = (newCard.Id.ToString(), isReversed);
 
                 _logger.LogInformation($"Successfully generated new daily card for user {userId}");

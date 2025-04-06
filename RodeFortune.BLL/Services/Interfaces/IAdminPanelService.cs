@@ -8,7 +8,7 @@ namespace RodeFortune.BLL.Services.Interfaces
     {
         public Task<Result<bool>> DeleteTarotCardByNameAsync(string tarotCardName);
         public Task<Result<TarotCard>> CreateTarotCardAsync(string name, string arcana, string motto,
-           string meaning, bool reversal, byte[]? imageUrl = null);
+           string meaning, string reversal_meaning, string romance_meaning, string finance_meaning, string health_meaning, byte[]? imageUrl = null);
 
         public Task<Result<Horoscope>> CreateHoroscopeAsync(string zodiacSign, string motto, string content, DateTime date);
 

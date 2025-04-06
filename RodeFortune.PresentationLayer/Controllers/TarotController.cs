@@ -64,9 +64,8 @@ namespace RodeFortune.PresentationLayer.Controllers
         private string GetZodiacSign(DateTime birthDate)
         {
             int day = birthDate.Day;
-            int month = birthDate.Month;
 
-            switch (month)
+            switch (birthDate.Month)
             {
                 case 1: return day <= 19 ? "Козеріг" : "Водолій";
                 case 2: return day <= 18 ? "Водолій" : "Риби";

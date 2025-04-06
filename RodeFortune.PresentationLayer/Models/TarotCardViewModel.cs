@@ -20,8 +20,12 @@ namespace RodeFortune.PresentationLayer.Models
         [Display(Name = "Значення")]
         public string Meaning { get; set; } = string.Empty;
 
-        public bool Reversal { get; set; }
+        public string ReversalMeaning { get; set; } = string.Empty;
+        
+        public string RomanceMeaning { get; set; } = string.Empty;
 
-    
+        public string FinanceMeaning { get; set; } = string.Empty;
+
+        public string HealthMeaning { get; set; } = string.Empty;
     }
 }

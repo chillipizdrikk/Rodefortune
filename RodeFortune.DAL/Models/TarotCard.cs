@@ -17,17 +17,29 @@ namespace RodeFortune.DAL.Models
         [BsonElement("arcana")]
         public string Arcana { get; set; }
 
-        [BsonRequired]
-        [BsonElement("reversal")]
-        public bool Reversal { get; set; }
-
         [BsonElement("motto")]
         public string Motto { get; set; }
 
         [BsonElement("meaning")]
         public string Meaning { get; set; }
 
+        [BsonRequired]
+        [BsonElement("reversal_meaning")]
+        public string ReversalMeaning { get; set; }
+
+        [BsonRequired]
+        [BsonElement("romance_meaning")]
+        public string RomanceMeaning { get; set; }
+
+        [BsonRequired]
+        [BsonElement("finance_meaning")]
+        public string FinanceMeaning { get; set; }
+
+        [BsonRequired]
+        [BsonElement("health_meaning")]
+        public string HealthMeaning { get; set; }
+
         [BsonElement("image_url")]
-        public byte[] ImageUrl { get; set; } = null;
+        public byte[] ImageUrl { get; set; }
     }
 }

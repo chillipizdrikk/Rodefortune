@@ -54,7 +54,7 @@
                             <div class="card-body p-0">
                                 <div class="row g-0">
                                     <div class="col-12 tarot-card-col">
-                                        <div class="tarot-card-container @(isReversed ? "reversed" : "")">
+                                        <div class="tarot-card-container @(isReversed ? "reversed" : "straight")">
                                             <div class="card-image-wrapper">
                                                 <img src="@GetImagePath(card)" class="tarot-card-image" alt="@card.Name">
                                             </div>
@@ -73,7 +73,7 @@
 
                                         <div class="card-meaning mt-3">
                                             <h4>Значення:</h4>
-                                            <p>@card.Meaning</p>
+                                            <p>@(isReversed? card.ReversalMeaning : card.Meaning)</p>
                                         </div>
 
                                         <div class="card-arcana mt-3">
@@ -88,7 +88,6 @@
             </div>
             <div class="card-footer text-center p-3 mt-4">
                 <a href="@Url.Action("DreamReview", "Divination")" class="btn btn-primary btn-lg">Нове ворожіння</a>
-                <a href="@Url.Action("Index", "Divination")" class="btn btn-outline-secondary btn-lg ms-2">Інші ворожіння</a>
             </div>
         </div>
     </div>

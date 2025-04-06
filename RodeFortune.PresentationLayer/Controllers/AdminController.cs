@@ -38,7 +38,10 @@ namespace RodeFortune.PresentationLayer.Controllers
                 Motto = tc.Motto,
                 Arcana = tc.Arcana,
                 Meaning = tc.Meaning,
-                Reversal = tc.Reversal,
+                ReversalMeaning = tc.ReversalMeaning,
+                RomanceMeaning = tc.RomanceMeaning,
+                FinanceMeaning = tc.FinanceMeaning,
+                HealthMeaning = tc.HealthMeaning,
             }).ToList();
 
             return View(divinationViewModels);
@@ -89,7 +92,10 @@ namespace RodeFortune.PresentationLayer.Controllers
                     model.Arcana,
                     model.Motto,
                     model.Meaning,
-                    model.Reversal,
+                    model.ReversalMeaning,
+                    model.RomanceMeaning,
+                    model.FinanceMeaning,
+                    model.HealthMeaning,
                     imageData
                 );
 
@@ -268,7 +274,10 @@ namespace RodeFortune.PresentationLayer.Controllers
                 Arcana = existingCard.Arcana,
                 Motto = existingCard.Motto,
                 Meaning = existingCard.Meaning,
-                Reversal = existingCard.Reversal
+                ReversalMeaning = existingCard.ReversalMeaning,
+                RomanceMeaning = existingCard.RomanceMeaning,
+                FinanceMeaning = existingCard.FinanceMeaning,
+                HealthMeaning = existingCard.HealthMeaning,
             };
 
             return View(model);
