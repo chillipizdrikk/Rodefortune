@@ -1,6 +1,7 @@
 using RodeFortune.BLL.Dto;
 using System.Threading.Tasks;
 
+
 namespace RodeFortune.BLL.Services.Interfaces
 {
     public interface IUserService
@@ -16,5 +17,6 @@ namespace RodeFortune.BLL.Services.Interfaces
         Task<bool> ValidatePasswordResetTokenAsync(string userId, string token);
         Task UpdateUserPasswordAsync(string userId, string newPasswordHash);
         Task InvalidatePasswordResetTokenAsync(string userId);
+        Task<UserResponseDto> UpdateUserAvatarAsync(string userId, byte[] avatarData);
     }
 }

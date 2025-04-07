@@ -84,27 +84,79 @@ namespace RodeFortune.BLL.Services
         {
             try
             {
+                _logger.LogInformation("Початок оновлення користувача: {Id}", id);
                 var objectId = new ObjectId(id);
                 var existingUser = await _userRepository.GetByIdAsync(objectId);
-                
+
                 if (existingUser == null)
                 {
+                    _logger.LogWarning("Користувача з ID {Id} не знайдено", id);
                     return null;
                 }
-                
-                // Оновлення полів
+
+               
+                var originalCreatedAt = existingUser.CreatedAt;
+                var originalPasswordHash = existingUser.PasswordHash;
+                var originalAvatar = existingUser.Avatar;
+
+                _logger.LogInformation("Поточні дані користувача: Avatar={HasAvatar}, Size={AvatarSize}",
+                    originalAvatar != null, originalAvatar?.Length ?? 0);
+
+              
                 existingUser.Username = userDto.Username;
                 existingUser.Email = userDto.Email;
+
+              
+                if (userDto.BirthDate != default)
+                {
+                    existingUser.BirthDate = DateTime.SpecifyKind(userDto.BirthDate, DateTimeKind.Utc);
+                }
+
+                existingUser.ZodiacSign = userDto.ZodiacSign;
+                existingUser.Role = userDto.Role;
+
+                
+                existingUser.CreatedAt = originalCreatedAt;
+
+                
                 if (!string.IsNullOrEmpty(userDto.PasswordHash))
                 {
                     existingUser.PasswordHash = userDto.PasswordHash;
                 }
-                existingUser.BirthDate = userDto.BirthDate;
-                existingUser.ZodiacSign = userDto.ZodiacSign;
-                existingUser.Role = userDto.Role;
-                
-                await _userRepository.UpdateAsync(objectId, existingUser);
-                return existingUser.ToDto();
+                else
+                {
+                    existingUser.PasswordHash = originalPasswordHash;
+                }
+
+               
+                if (userDto.Avatar != null && userDto.Avatar.Length > 0)
+                {
+                    _logger.LogInformation("Оновлюємо аватар. Новий розмір: {Size} байт", userDto.Avatar.Length);
+                    existingUser.Avatar = userDto.Avatar;
+                }
+                else
+                {
+                    _logger.LogInformation("Зберігаємо поточний аватар. Розмір: {Size} байт", originalAvatar?.Length ?? 0);
+                    existingUser.Avatar = originalAvatar;
+                }
+
+                _logger.LogInformation("Підготовлені дані для оновлення: Avatar={HasAvatar}, Size={AvatarSize}",
+                    existingUser.Avatar != null, existingUser.Avatar?.Length ?? 0);
+
+                var updateResult = await _userRepository.UpdateAsync(objectId, existingUser);
+                _logger.LogInformation("Результат оновлення: {Success}", updateResult);
+
+                if (updateResult)
+                {
+                   
+                    var updatedUser = await _userRepository.GetByIdAsync(objectId);
+                    _logger.LogInformation("Оновлений користувач: Avatar={HasAvatar}, Size={AvatarSize}",
+                        updatedUser.Avatar != null, updatedUser.Avatar?.Length ?? 0);
+                    return updatedUser.ToDto();
+                }
+
+                _logger.LogWarning("Оновлення не відбулося");
+                return null;
             }
             catch (Exception ex)
             {
@@ -112,6 +164,50 @@ namespace RodeFortune.BLL.Services
                 return null;
             }
         }
+
+        public async Task<UserResponseDto> UpdateUserAvatarAsync(string userId, byte[] avatarData)
+        {
+            try
+            {
+                if (avatarData == null || avatarData.Length == 0)
+                {
+                    _logger.LogWarning("Спроба оновити аватар порожніми даними");
+                    throw new ArgumentException("Дані аватару відсутні або порожні");
+                }
+
+                _logger.LogInformation("Оновлення аватару користувача {UserId}, розмір: {Size} байт",
+                    userId, avatarData.Length);
+
+                var objectId = new ObjectId(userId);
+                var user = await _userRepository.GetByIdAsync(objectId);
+                if (user == null)
+                {
+                    _logger.LogWarning("Користувача з ID {UserId} не знайдено", userId);
+                    return null;
+                }
+
+                user.Avatar = avatarData;
+
+                var updateResult = await _userRepository.UpdateAsync(objectId, user);
+                _logger.LogInformation("Результат оновлення аватару: {Success}", updateResult);
+
+                if (updateResult)
+                {
+                    var updatedUser = await _userRepository.GetByIdAsync(objectId);
+                    _logger.LogInformation("Оновлений аватар, розмір: {Size} байт",
+                        updatedUser.Avatar?.Length ?? 0);
+                    return updatedUser.ToDto();
+                }
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Помилка при оновленні аватару: {UserId}", userId);
+                return null;
+            }
+        }
+
 
         public async Task<bool> DeleteUserAsync(string id)
         {
@@ -147,16 +243,16 @@ namespace RodeFortune.BLL.Services
             {
                 var objectId = new ObjectId(userId);
                 var user = await _userRepository.GetByIdAsync(objectId);
-                
+
                 if (user == null)
                 {
                     _logger.LogWarning("Користувача з ID {UserId} не знайдено при збереженні токена скидання пароля", userId);
                     return;
                 }
-                
+
                 user.PasswordResetToken = token;
                 user.PasswordResetTokenExpiration = expirationDate;
-                
+
                 await _userRepository.UpdateAsync(objectId, user);
             }
             catch (Exception ex)
@@ -172,16 +268,16 @@ namespace RodeFortune.BLL.Services
             {
                 var objectId = new ObjectId(userId);
                 var user = await _userRepository.GetByIdAsync(objectId);
-                
+
                 if (user == null)
                     return false;
-                    
+
                 if (user.PasswordResetToken != token)
                     return false;
-                    
+
                 if (user.PasswordResetTokenExpiration < DateTime.UtcNow)
                     return false;
-                    
+
                 return true;
             }
             catch (Exception ex)
@@ -197,15 +293,15 @@ namespace RodeFortune.BLL.Services
             {
                 var objectId = new ObjectId(userId);
                 var user = await _userRepository.GetByIdAsync(objectId);
-                
+
                 if (user == null)
                 {
                     _logger.LogWarning("Користувача з ID {UserId} не знайдено при оновленні пароля", userId);
                     return;
                 }
-                
+
                 user.PasswordHash = newPasswordHash;
-                
+
                 await _userRepository.UpdateAsync(objectId, user);
             }
             catch (Exception ex)
@@ -221,16 +317,16 @@ namespace RodeFortune.BLL.Services
             {
                 var objectId = new ObjectId(userId);
                 var user = await _userRepository.GetByIdAsync(objectId);
-                
+
                 if (user == null)
                 {
                     _logger.LogWarning("Користувача з ID {UserId} не знайдено при видаленні токена скидання пароля", userId);
                     return;
                 }
-                
+
                 user.PasswordResetToken = null;
                 user.PasswordResetTokenExpiration = null;
-                
+
                 await _userRepository.UpdateAsync(objectId, user);
             }
             catch (Exception ex)
@@ -239,5 +335,7 @@ namespace RodeFortune.BLL.Services
                 throw;
             }
         }
+
+        
     }
 }

@@ -80,6 +80,7 @@ namespace RodeFortune.DAL.Repositories
             {
                 var filter = Builders<User>.Filter.Eq(u => u.Id, id);
                 var result = await _users.ReplaceOneAsync(filter, user);
+
                 return result.IsAcknowledged && result.ModifiedCount > 0;
             }
             catch (Exception ex)

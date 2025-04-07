@@ -4,7 +4,6 @@ namespace RodeFortune.PresentationLayer.Models
 {
     public class CreateHoroscopeViewModel
     {
-
         public string Id { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Знак зодіаку є обов'язковим")]

@@ -40,6 +40,7 @@ namespace RodeFortune.BLL.Mappers
                 ZodiacSign = userRequestDto.ZodiacSign,
                 Role = userRequestDto.Role,
                 CreatedAt = DateTime.UtcNow,
+                Avatar = userRequestDto.Avatar, //Додала
             };
         }
     }
