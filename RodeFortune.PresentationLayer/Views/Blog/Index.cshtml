@@ -1,4 +1,282 @@
-﻿@model List<RodeFortune.DAL.Models.Post>
-@{
-    ViewData["Title"] = "Блог";
-}
+﻿@model List<RodeFortune.PresentationLayer.Models.PostViewModel>
+@using System.Security.Claims
+
+
+<div class="blog-container">
+    <div class="blog-header">
+        <h1>Блог</h1>
+        @if (User.Identity.IsAuthenticated)
+        {
+            <div class="add-new-container">
+                <a asp-action="CreatePost" class="add-new-btn">Створити новий допис</a>
+            </div>
+        }
+    </div>
+
+    <div class="blog-posts">
+        @foreach (var post in Model)
+        {
+            <div class="blog-post-card">
+                <div class="post-image">
+                    @if (post.ImageData != null)
+                    {
+                        var base64 = Convert.ToBase64String(post.ImageData);
+                        var imgSrc = $"data:image/png;base64,{base64}";
+                        <img src="@imgSrc" alt="Post Image" style="max-width: 400px;" />
+                    }
+                </div>
+
+                <div class="post-content">
+                    <h2 class="post-title">@post.Name</h2>
+                    <div class="post-summary">
+                        @if (post.Content.Length > 150)
+                        {
+                            @(post.Content.Substring(0, 300) + "...")
+                        }
+                        else
+                        {
+                            @post.Content
+                        }
+                    </div>
+
+                    <div class="post-metadata">
+                        <span class="post-date">@post.CreatedAt.ToString()</span>
+
+                        @if (!string.IsNullOrEmpty(post.ReferencedReadingId))
+                        {
+                            <span class="post-tag">Розклад</span>
+                        }
+
+                        @if (!string.IsNullOrEmpty(post.ReferencedHoroscopeId))
+                        {
+                            <span class="post-tag">Гороскоп</span>
+                        }
+
+                        @if (!string.IsNullOrEmpty(post.ReferencedNatalChartId))
+                        {
+                            <span class="post-tag">Натальна карта</span>
+                        }
+
+                        @if (!string.IsNullOrEmpty(post.ReferencedDestinyMatrixId))
+                        {
+                            <span class="post-tag">Матриця долі</span>
+                        }
+                    </div>
+
+                    <div class="post-actions">
+                        @if (User.Identity.IsAuthenticated && post.Author.ToString() == User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier))
+                        {
+                            <form asp-action="Delete" asp-route-id="@post.Id" method="post" style="display: inline;">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="delete-btn" onclick="return confirm('Ви впевнені, що хочете видалити цей допис?');">Видалити</button>
+                            </form>
+                        }
+                        <a asp-action="Details" asp-route-id="@post.Name" class="details-btn">Детальніше</a>
+
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+</div>
+
+<style>
+    .blog-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .blog-header {
+        background-color: #f9f7fc;
+        padding: 15px;
+        border-bottom: 1px solid #eee;
+        margin-bottom: 30px;
+    }
+
+    .blog-header h1 {
+        margin-bottom: 10px;
+        font-size: 3rem;
+        color: #6f42c1;
+        text-align: center;
+    }
+
+    .blog-tabs {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .blog-menu-item {
+        background-color: #6f42c1;
+        color: white;
+        text-decoration: none;
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        border-radius: 3px;
+        display: inline-block;
+    }
+
+    .blog-menu-item:hover {
+        background-color: #5e35b1;
+        text-decoration: none;
+        color: white;
+    }
+
+    .blog-posts {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .blog-post-card {
+        background-color: #f8f5ff;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(111, 66, 193, 0.15);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .blog-post-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px rgba(111, 66, 193, 0.25);
+    }
+
+    .post-image {
+        height: 200px;
+        overflow: hidden;
+        background-color: #e9e3f5;
+    }
+
+    .post-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .placeholder-image {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        font-size: 3rem;
+        color: #6f42c1;
+    }
+
+    .post-content {
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+    }
+
+    .post-title {
+        color: #6f42c1;
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+    }
+
+    .post-summary {
+        color: #333;
+        margin-bottom: 15px;
+        flex-grow: 1;
+        line-height: 1.5;
+    }
+
+    .post-metadata {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 15px;
+    }
+
+    .post-date {
+        color: #666;
+        font-size: 0.9rem;
+    }
+
+    .post-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 110px;
+        margin-top: 10px;
+    }
+
+    .post-tag {
+        background-color: #e9e3f5;
+        color: #6f42c1;
+        padding: 3px 8px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+    }
+
+    .details-btn {
+        background-color: #9FA5ED;
+        color: white;
+        text-decoration: none;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        text-align: center;
+        display: inline-block;
+        align-self: flex-end;
+    }
+
+    .details-btn:hover {
+        background-color: #6D95AF;
+        color: white;
+        text-decoration: none;
+    }
+
+    .delete-btn {
+        background-color: #D15658;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+        .delete-btn:hover {
+            background-color: #C03B3E;
+        }
+
+
+    .add-new-container {
+        display: flex;
+        justify-content: center;
+        padding: 10px 0;
+    }
+
+    .add-new-btn {
+        background-color: #6f42c1;
+        color: white;
+        text-decoration: none;
+        padding: 12px 24px;
+        border-radius: 3px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    .add-new-btn:hover {
+        background-color: #6f42c1;
+        color: white;
+    }
+</style>

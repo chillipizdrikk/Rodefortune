@@ -68,28 +68,6 @@ namespace RodeFortune.UnitTests.Services
 
 
         [Test]
-        public async Task GetTarotCardByBirthDateAsync_OddDay_ReturnsReversedCard()
-        {
-            var birthDate = new DateTime(1990, 5, 13);
-
-            var result = await _tarotService.GetTarotCardByBirthDateAsync(birthDate);
-
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.Reversal, Is.True); //  Пояснення: дата 13.05.1990 - для непарного дня карта має бути перевернутою
-        }
-
-        [Test]
-        public async Task GetTarotCardByBirthDateAsync_EvenDay_ReturnsNotReversedCard()
-        {
-            var birthDate = new DateTime(1990, 5, 14);
-
-            var result = await _tarotService.GetTarotCardByBirthDateAsync(birthDate);
-
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.Reversal, Is.False); // Те саме, але 14 - парна дата, отже карта не повинна бути перевернутою
-        }
-
-        [Test]
         public void CalculateTarotNumber_ReturnsCorrectNumber()
         {
             var birthDate = new DateTime(1988, 12, 25);  // 2+5+1+2+1+9+8+8 = 36, 3+6 = 9

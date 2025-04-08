@@ -15,20 +15,20 @@ namespace RodeFortune.DAL.Models
 
         [BsonRequired]
         [BsonElement("content")]
-        public string Content { get; set; }
+        public string Content { get; set; } = string.Empty;
 
         [BsonRequired]
         [BsonElement("created_at")]
         public DateTime CreatedAt { get; set; }
 
         [BsonElement("name")]
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
         [BsonElement("updated_at")]
         public DateTime? UpdatedAt { get; set; } = null;
 
         [BsonElement("image_url")]
-        public byte[] ImageUrl { get; set; } = null;
+        public byte[] ImageData { get; set; } = null;
 
         [BsonElement("referenced_reading")]
         public ObjectId? ReferencedReading { get; set; } = null;

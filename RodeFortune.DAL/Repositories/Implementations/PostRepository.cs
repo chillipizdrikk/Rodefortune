@@ -11,7 +11,7 @@ namespace RodeFortune.DAL.Repositories.Implementations
 
         public PostRepository(IMongoDatabase database)
         {
-            _posts = database.GetCollection<Post>("posts");
+            _posts = database.GetCollection<Post>("Posts");
         }
 
         public async Task<List<Post>> GetAllPostsAsync()

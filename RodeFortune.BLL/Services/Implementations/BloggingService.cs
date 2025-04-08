@@ -3,6 +3,7 @@ using MongoDB.Bson;
 using RodeFortune.BLL.Models;
 using RodeFortune.DAL.Models;
 using RodeFortune.DAL.Repositories.Interfaces;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace RodeFortune.BLL.Services.Implementations
 {
@@ -32,15 +33,16 @@ namespace RodeFortune.BLL.Services.Implementations
                 return new Result<Post>(false, "User was not found", null);
             }
 
+            var dataTime = DateTime.Now;
             try
             {
                 var post = new Post
                 {
                     Author = authorId,
                     Content = content,
-                    CreatedAt = DateTime.UtcNow,
+                    CreatedAt = DateTime.SpecifyKind(dataTime, DateTimeKind.Utc),
                     Name = name,
-                    ImageUrl = imageUrl,
+                    ImageData = imageUrl,
                     ReferencedReading = Reading,
                     ReferencedHoroscope = Horoscope,
                     ReferencedNatalChart = NatalChart,
@@ -55,6 +57,35 @@ namespace RodeFortune.BLL.Services.Implementations
             {
                 _logger.LogError(ex, $"Error creating post '{name}' by author {authorId}");
                 return new Result<Post>(false, $"Error while creating a post: {ex.Message}", null);
+            }
+        }
+
+
+        public async Task<Result<bool>> DeletePostAsync(ObjectId authorId, ObjectId postId)
+        {
+            try
+            {
+                var existingPost = await _postRepository.GetByIdAsync(postId);
+                if (existingPost == null)
+                {
+                    _logger.LogWarning($"Post with ID {postId} not found for deletion");
+                    return new Result<bool>(false, "Post not found", false);
+                }
+
+                if (existingPost.Author != authorId)
+                {
+                    _logger.LogWarning($"User {authorId} attempted to delete post {postId} owned by {existingPost.Author}");
+                    return new Result<bool>(false, "You can only delete your own posts", false);
+                }
+
+                await _postRepository.DeleteAsync(postId);
+                _logger.LogInformation($"Post {postId} deleted successfully");
+                return new Result<bool>(true, "Post deleted successfully", true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error while deleting post {postId}");
+                return new Result<bool>(false, $"Error while deleting post: {ex.Message}", false);
             }
         }
     }

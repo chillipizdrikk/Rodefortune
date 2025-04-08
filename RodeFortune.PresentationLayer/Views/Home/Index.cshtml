@@ -34,7 +34,12 @@
     }
 </style>
 
+
 <div class="content-container">
     <div class="centered-logo">RodeFortune</div>
-    <a asp-controller="Admin" asp-action="Index" class="admin-panel-btn">Адмін-панель</a>
+
+    @if (User.IsInRole("Admin"))
+    {
+        <a asp-controller="Admin" asp-action="Index" class="admin-panel-btn">Адмін-панель</a>
+    }
 </div>

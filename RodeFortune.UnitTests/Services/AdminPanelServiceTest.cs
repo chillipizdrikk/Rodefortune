@@ -35,7 +35,17 @@ namespace RodeFortune.UnitTests.Services
         [Test]
         public async Task CreateTarotCardAsync_ShouldReturnError_WhenNameIsEmpty()
         {
-            var result = await _adminPanelService.CreateTarotCardAsync("", "Major", "Motto", "Meaning", false);
+            var result = await _adminPanelService.CreateTarotCardAsync(
+                    "", 
+                    "Major",
+                    "Motto",
+                    "Meaning",
+                    "Reversal Meaning",
+                    "Romance Meaning",
+                    "Finance Meaning",
+                    "Health Meaning",
+                    null 
+                );
 
             Assert.That(result.Success, Is.False, "Створення карти повинно завершитись помилкою");
             Assert.That(result.Message, Is.EqualTo("Tarot card name  was empty or null"), "Повідомлення про помилку повинно відповідати");
@@ -45,10 +55,20 @@ namespace RodeFortune.UnitTests.Services
         public async Task CreateTarotCardAsync_ShouldReturnSuccess_WhenValidInput()
         {
             _mockTarotCardRepository
-                .Setup(repo => repo.CreateAsync(It.IsAny<TarotCard>()))
-                .Returns(Task.CompletedTask);
+              .Setup(repo => repo.CreateAsync(It.IsAny<TarotCard>()))
+              .Returns(Task.CompletedTask);
 
-            var result = await _adminPanelService.CreateTarotCardAsync("The Fool", "Major", "New Beginnings", "Represents a new journey", false);
+            var result = await _adminPanelService.CreateTarotCardAsync(
+                "The Fool",
+                "Major",
+                "New Beginnings",
+                "Represents a new journey",
+                "Confusion",
+                "New Love",
+                "Unexpected income",
+                "Healthy state",
+                null
+            );
 
             Assert.That(result.Success, Is.True, "Створення карти повинно бути успішним");
             Assert.That(result.Data, Is.Not.Null, "Повинна повертатись створена карта");
