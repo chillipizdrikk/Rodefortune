@@ -10,6 +10,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 
 [Authorize]
@@ -245,5 +246,65 @@ public class ProfileController : Controller
             return RedirectToAction(nameof(Index));
         }
     }
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            TempData["ErrorMessage"] = "Сталася помилка при зміні паролю. Перевірте введені дані.";
+            return RedirectToAction(nameof(Index));
+        }
 
+        try
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+            {
+                TempData["ErrorMessage"] = "Користувача не знайдено.";
+                return RedirectToAction("Login", "Account");
+            }
+
+            var user = await _userService.GetUserByIdAsync(userId);
+            if (user == null)
+            {
+                TempData["ErrorMessage"] = "Користувача не знайдено.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            // Хешуйте введений поточний пароль
+            string hashedCurrentPassword = HashPassword(model.CurrentPassword);
+
+            // Перевірка поточного пароля
+            if (!await _userService.ValidateUserCredentialsAsync(user.Email, hashedCurrentPassword))
+            {
+                TempData["ErrorMessage"] = "Поточний пароль введено невірно.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            // Хешування нового пароля
+            string hashedNewPassword = HashPassword(model.NewPassword);
+
+            // Оновлення пароля
+            await _userService.UpdateUserPasswordAsync(userId, hashedNewPassword);
+
+            TempData["SuccessMessage"] = "Ваш пароль успішно змінено.";
+            return RedirectToAction(nameof(Index));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Помилка при зміні паролю для користувача: {Message}", ex.Message);
+            TempData["ErrorMessage"] = $"Сталася помилка: {ex.Message}";
+            return RedirectToAction(nameof(Index));
+        }
+    }
+
+    private string HashPassword(string password)
+    {
+        using (var sha256 = System.Security.Cryptography.SHA256.Create())
+        {
+            byte[] hashedBytes = sha256.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+            return BitConverter.ToString(hashedBytes).Replace("-", "").ToLower();
+        }
+    }
 }

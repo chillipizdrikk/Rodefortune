@@ -5,6 +5,7 @@ using RodeFortune.BLL.Dto;
 using RodeFortune.BLL.Mappers;
 using RodeFortune.BLL.Services.Interfaces;
 using RodeFortune.DAL.Models;
+using RodeFortune.DAL.Repositories;
 using RodeFortune.DAL.Repositories.Interfaces;
 using System;
 using System.Threading.Tasks;
@@ -228,7 +229,15 @@ namespace RodeFortune.BLL.Services
             try
             {
                 var user = await _userRepository.GetByEmailAsync(email);
-                return user != null && user.PasswordHash == passwordHash;
+                if (user == null)
+                {
+                    _logger.LogWarning("Користувача з email {Email} не знайдено", email);
+                    return false;
+                }
+
+                _logger.LogInformation("Очікуваний хеш: {ExpectedHash}, Введений хеш: {ProvidedHash}", user.PasswordHash, passwordHash);
+
+                return user.PasswordHash == passwordHash;
             }
             catch (Exception ex)
             {
