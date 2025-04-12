@@ -206,4 +206,44 @@ public class ProfileController : Controller
             _logger.LogError(ex, "Помилка при оновленні claims користувача");
         }
     }
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteAccount()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+        {
+            _logger.LogWarning("UserId не знайдено в клеймах");
+            return RedirectToAction("Login", "Account");
+        }
+
+        try
+        {
+            // Виклик методу сервісу для видалення користувача
+            var deleteResult = await _userService.DeleteUserAsync(userId);
+
+            if (deleteResult)
+            {
+                _logger.LogInformation("Акаунт користувача {UserId} успішно видалено", userId);
+
+                // Логаут після видалення акаунту
+                await HttpContext.SignOutAsync();
+                TempData["SuccessMessage"] = "Ваш акаунт було успішно видалено.";
+                return RedirectToAction("Index", "Home");
+            }
+            else
+            {
+                _logger.LogWarning("Не вдалося видалити акаунт користувача {UserId}", userId);
+                TempData["ErrorMessage"] = "Сталася помилка при видаленні акаунту. Спробуйте ще раз.";
+                return RedirectToAction(nameof(Index));
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Помилка при видаленні акаунту для користувача {UserId}: {Message}", userId, ex.Message);
+            TempData["ErrorMessage"] = $"Сталася помилка: {ex.Message}";
+            return RedirectToAction(nameof(Index));
+        }
+    }
+
 }

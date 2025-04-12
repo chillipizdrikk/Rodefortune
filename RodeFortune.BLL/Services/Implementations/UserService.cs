@@ -335,7 +335,5 @@ namespace RodeFortune.BLL.Services
                 throw;
             }
         }
-
-        
     }
 }
