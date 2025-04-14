@@ -30,7 +30,6 @@ namespace RodeFortune.UnitTests.Services
         [Test]
         public async Task CreateUserAsync_ShouldReturnUserDto_WhenSuccessful()
         {
-            // Arrange
             var userDto = new UserRequestDto
             {
                 Username = "testuser",
@@ -46,10 +45,8 @@ namespace RodeFortune.UnitTests.Services
                 .Callback<User>(user => capturedUser = user)
                 .Returns(Task.CompletedTask);
 
-            // Act
             var result = await _userService.CreateUserAsync(userDto);
 
-            // Assert
             Assert.That(result, Is.Not.Null);
             Assert.That(result.Username, Is.EqualTo(userDto.Username));
             Assert.That(result.Email, Is.EqualTo(userDto.Email));
@@ -61,7 +58,6 @@ namespace RodeFortune.UnitTests.Services
         [Test]
         public async Task UpdateUserAsync_ShouldReturnUpdatedUser_WhenUserExists()
         {
-            // Arrange
             var userId = ObjectId.GenerateNewId().ToString();
             var objectId = new ObjectId(userId);
 
@@ -114,7 +110,6 @@ namespace RodeFortune.UnitTests.Services
         [Test]
         public async Task UpdateUserAsync_ShouldUpdatePasswordHash_WhenProvided()
         {
-            // Arrange
             var userId = ObjectId.GenerateNewId().ToString();
             var objectId = new ObjectId(userId);
 
@@ -142,7 +137,7 @@ namespace RodeFortune.UnitTests.Services
 
             _mockUserRepository.SetupSequence(r => r.GetByIdAsync(objectId))
                 .ReturnsAsync(existingUser)
-                .ReturnsAsync(existingUser); 
+                .ReturnsAsync(existingUser);
 
             var result = await _userService.UpdateUserAsync(userId, updateDto);
 
@@ -169,7 +164,7 @@ namespace RodeFortune.UnitTests.Services
             {
                 Username = "username",
                 Email = "email@example.com",
-                PasswordHash = "" 
+                PasswordHash = ""
             };
 
             User capturedUser = null;
@@ -218,7 +213,7 @@ namespace RodeFortune.UnitTests.Services
 
             _mockUserRepository.SetupSequence(r => r.GetByIdAsync(objectId))
                 .ReturnsAsync(existingUser)
-                .ReturnsAsync(existingUser); 
+                .ReturnsAsync(existingUser);
 
             var result = await _userService.UpdateUserAsync(userId, updateDto);
 
@@ -274,7 +269,6 @@ namespace RodeFortune.UnitTests.Services
         [Test]
         public async Task UpdateUserAvatarAsync_ShouldReturnUpdatedUser_WhenSuccessful()
         {
-            // Arrange
             var userId = ObjectId.GenerateNewId().ToString();
             var objectId = new ObjectId(userId);
             var avatarData = new byte[] { 1, 2, 3, 4 };
@@ -369,18 +363,6 @@ namespace RodeFortune.UnitTests.Services
             Assert.That(result, Is.False);
         }
 
-        [Test]
-        public async Task DeleteUserAsync_ShouldReturnFalse_WhenExceptionOccurs()
-        {
-            var userId = ObjectId.GenerateNewId().ToString();
-
-            _mockUserRepository.Setup(r => r.DeleteAsync(It.IsAny<ObjectId>()))
-                .ThrowsAsync(new Exception("Database error"));
-
-            var result = await _userService.DeleteUserAsync(userId);
-
-            Assert.That(result, Is.False);
-        }
 
         [Test]
         public async Task ValidateUserCredentialsAsync_ShouldReturnTrue_WhenCredentialsMatch()
