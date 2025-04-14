@@ -22,8 +22,5 @@ namespace RodeFortune.PresentationLayer.Models
         public string ZodiacSign { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; }
         public string Base64Avatar { get; set; } = string.Empty;
-        public string CurrentPassword { get; set; }
-        public string NewPassword { get; set; }
-        public string ConfirmPassword { get; set; }
     }
 }

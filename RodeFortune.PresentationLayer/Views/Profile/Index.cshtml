@@ -114,12 +114,13 @@
                                 </div>
                             </div>
                             <div class="text-center mt-4">
-                                <!-- Кнопка для відкриття модального вікна -->
-                                <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
-                                    Змінити пароль
-                                </button>
-                                <button type="submit" class="btn btn-success btn-lg">Зберегти зміни</button>
-                            </div>
+                                <div class="text-center mt-4">
+                                    <!-- Кнопка для відкриття модального вікна -->
+                                    <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
+                                        Змінити пароль
+                                    </button>
+                                    <button type="submit" class="btn btn-success btn-lg">Зберегти зміни</button>
+                                </div>
                         </form>
                     </div>
                 </div>
@@ -134,22 +135,20 @@
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
+                            <!-- Форма для зміни пароля. Замість asp-for використовуємо name -->
                             <form asp-action="ChangePassword" method="post">
                                 @Html.AntiForgeryToken()
                                 <div class="mb-3">
-                                    <label asp-for="CurrentPassword" class="form-label">Поточний пароль</label>
-                                    <input asp-for="CurrentPassword" type="password" class="form-control" />
-                                    <span asp-validation-for="CurrentPassword" class="text-danger"></span>
+                                    <label for="CurrentPassword" class="form-label">Поточний пароль</label>
+                                    <input name="CurrentPassword" type="password" class="form-control" />
                                 </div>
                                 <div class="mb-3">
-                                    <label asp-for="NewPassword" class="form-label">Новий пароль</label>
-                                    <input asp-for="NewPassword" type="password" class="form-control" />
-                                    <span asp-validation-for="NewPassword" class="text-danger"></span>
+                                    <label for="NewPassword" class="form-label">Новий пароль</label>
+                                    <input name="NewPassword" type="password" class="form-control" />
                                 </div>
                                 <div class="mb-3">
-                                    <label asp-for="ConfirmPassword" class="form-label">Підтвердження паролю</label>
-                                    <input asp-for="ConfirmPassword" type="password" class="form-control" />
-                                    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                                    <label for="ConfirmPassword" class="form-label">Підтвердження паролю</label>
+                                    <input name="ConfirmPassword" type="password" class="form-control" />
                                 </div>
                                 <div class="text-center">
                                     <button type="submit" class="btn btn-success">Змінити пароль</button>
