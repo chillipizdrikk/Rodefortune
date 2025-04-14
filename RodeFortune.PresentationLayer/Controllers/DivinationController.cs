@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using RodeFortune.BLL.Services.Implementations;
 using RodeFortune.DAL.Repositories.Interfaces;
 using RodeFortune.PresentationLayer.Models;
 using System.Diagnostics;
-using Microsoft.AspNetCore.Authorization;
 
 namespace RodeFortune.PresentationLayer.Controllers
 {
@@ -164,7 +164,7 @@ namespace RodeFortune.PresentationLayer.Controllers
         public async Task<IActionResult> CaseActionResult()
         {
             _logger.LogInformation("Запит на ворожіння Case/Action/Result");
-            
+
             var result = await _divinationService.GetCaseActionResultReadingAsync();
             var model = (
                 CaseCard: result.First(x => x.Position == "Ситуація").Card,
@@ -177,14 +177,14 @@ namespace RodeFortune.PresentationLayer.Controllers
 
             _logger.LogInformation("Ворожіння Case/Action/Result виконано: {CaseCardName}, {ActionCardName}, {ResultCardName}",
                 model.CaseCard.Name, model.ActionCard.Name, model.ResultCard.Name);
-            
+
             return View(model);
         }
         [Authorize]
         public async Task<IActionResult> DreamReview()
         {
             _logger.LogInformation("Запит на ворожіння Аналіз Сновидіння");
-            
+
             var result = await _divinationService.GetDreamReviewReadingAsync();
             var model = (
                 SymbolCard: result.First(x => x.Position == "Символ").Card,
@@ -194,10 +194,10 @@ namespace RodeFortune.PresentationLayer.Controllers
                 AdviceCard: result.First(x => x.Position == "Порада").Card,
                 AdviceIsReversed: result.First(x => x.Position == "Порада").IsReversed
             );
-            
+
             _logger.LogInformation("Ворожіння Аналіз Сновидіння виконано: {SymbolCardName}, {MeaningCardName}, {AdviceCardName}",
                 model.SymbolCard.Name, model.MeaningCard.Name, model.AdviceCard.Name);
-            
+
             return View(model);
         }
         [Authorize]

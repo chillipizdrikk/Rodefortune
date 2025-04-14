@@ -1,17 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using RodeFortune.BLL.Dto;
 using RodeFortune.BLL.Services.Interfaces;
 using RodeFortune.PresentationLayer.Models;
-using System;
-using System.IO;
-using System.Linq;
 using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
 
 [Authorize]
 public class ProfileController : Controller
@@ -60,13 +53,13 @@ public class ProfileController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> UpdateProfile(UserProfileViewModel model,IFormFile? avatarFile = null)
+    public async Task<IActionResult> UpdateProfile(UserProfileViewModel model, IFormFile? avatarFile = null)
     {
 
         ModelState.Remove("Base64Avatar");
         ModelState.Remove("UserId");
         ModelState.Remove("CreatedAt");
-      
+
         if (!ModelState.IsValid)
         {
             _logger.LogWarning("Невалідна модель при оновленні профілю:");

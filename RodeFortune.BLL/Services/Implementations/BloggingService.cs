@@ -20,7 +20,6 @@ namespace RodeFortune.BLL.Services.Implementations
             _userRepository = userRepository;
         }
 
-        //Клас Result в моделях
         public async Task<Result<Post>> CreatePostAsync(ObjectId authorId, string content, string name,
              byte[]? imageUrl = null, ObjectId? Reading = null,
              ObjectId? Horoscope = null, ObjectId? NatalChart = null,

@@ -1,16 +1,11 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using RodeFortune.BLL.Dto;
-using RodeFortune.BLL.Services.Interfaces;
-using System;
-using System.Threading.Tasks;
-using System.Security.Cryptography;
-using System.Text;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc;
+using RodeFortune.BLL.Dto;
+using RodeFortune.BLL.Services.Interfaces;
 using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace RodeFortune.PresentationLayer.Controllers
 {
@@ -44,7 +39,7 @@ namespace RodeFortune.PresentationLayer.Controllers
             }
 
             _logger.LogInformation("Спроба реєстрації користувача: {Username}", registerDto.Username);
-            
+
             try
             {
                 var existingUser = await _userService.GetUserByEmailAsync(registerDto.Email);
@@ -68,9 +63,9 @@ namespace RodeFortune.PresentationLayer.Controllers
                 };
 
                 var user = await _userService.CreateUserAsync(userDto);
-                
+
                 _logger.LogInformation("Користувач успішно зареєстрований: {Username}", registerDto.Username);
-                
+
                 var claims = new List<Claim>
                 {
                     new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
@@ -78,24 +73,24 @@ namespace RodeFortune.PresentationLayer.Controllers
                     new Claim(ClaimTypes.Email, user.Email),
                     new Claim(ClaimTypes.Role, user.Role)
                 };
-                
+
                 var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                 var authProperties = new AuthenticationProperties
                 {
                     IsPersistent = true,
                     ExpiresUtc = DateTimeOffset.UtcNow.AddDays(7)
                 };
-                
+
                 await HttpContext.SignInAsync(
                     CookieAuthenticationDefaults.AuthenticationScheme,
                     new ClaimsPrincipal(claimsIdentity),
                     authProperties);
-                
+
                 HttpContext.Session.SetString("UserId", user.Id.ToString());
                 HttpContext.Session.SetString("Username", user.Username);
                 HttpContext.Session.SetString("UserEmail", user.Email);
                 HttpContext.Session.SetString("UserRole", user.Role);
-                
+
                 return RedirectToAction("Index", "Blog"); // Will be changed to profile after the addition of profile usecase
             }
             catch (Exception ex)
@@ -165,22 +160,22 @@ namespace RodeFortune.PresentationLayer.Controllers
             }
 
             _logger.LogInformation("Спроба входу користувача: {Email}", loginDto.Email);
-            
+
             try
             {
                 string hashedPassword = HashPassword(loginDto.Password);
-                
+
                 bool isValid = await _userService.ValidateUserCredentialsAsync(loginDto.Email, hashedPassword);
-                
+
                 if (!isValid)
                 {
                     _logger.LogWarning("Невдала спроба входу: {Email}", loginDto.Email);
                     ModelState.AddModelError("", "Неправильна електронна пошта або пароль");
                     return View(loginDto);
                 }
-            
+
                 var user = await _userService.GetUserByEmailAsync(loginDto.Email);
-                
+
                 var claims = new List<Claim>
                 {
                     new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
@@ -188,26 +183,26 @@ namespace RodeFortune.PresentationLayer.Controllers
                     new Claim(ClaimTypes.Email, user.Email),
                     new Claim(ClaimTypes.Role, user.Role)
                 };
-                
+
                 var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                 var authProperties = new AuthenticationProperties
                 {
                     IsPersistent = loginDto.RememberMe,
                     ExpiresUtc = DateTimeOffset.UtcNow.AddDays(7)
                 };
-                
+
                 await HttpContext.SignInAsync(
                     CookieAuthenticationDefaults.AuthenticationScheme,
                     new ClaimsPrincipal(claimsIdentity),
                     authProperties);
-                
+
                 HttpContext.Session.SetString("UserId", user.Id.ToString());
                 HttpContext.Session.SetString("Username", user.Username);
                 HttpContext.Session.SetString("UserEmail", user.Email);
                 HttpContext.Session.SetString("UserRole", user.Role);
-                
+
                 _logger.LogInformation("Користувач успішно увійшов: {Email}", loginDto.Email);
-                
+
                 return RedirectToAction("Index", "Blog"); // Will be changed to profile after the addition of profile usecase
             }
             catch (Exception ex)
@@ -222,10 +217,10 @@ namespace RodeFortune.PresentationLayer.Controllers
         public async Task<IActionResult> Logout()
         {
             _logger.LogInformation("Користувач виходить із системи: {Username}", HttpContext.Session.GetString("Username"));
-            
+
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             HttpContext.Session.Clear();
-            
+
             return RedirectToAction("Login", "Account");
         }
         [HttpPost]
@@ -251,7 +246,7 @@ namespace RodeFortune.PresentationLayer.Controllers
 
                 // Generate password reset token
                 var token = GenerateResetToken();
-                
+
                 // Store the token in database with expiration date
                 await _userService.SavePasswordResetTokenAsync(user.Id.ToString(), token, DateTime.UtcNow.AddHours(24));
 
@@ -264,9 +259,9 @@ namespace RodeFortune.PresentationLayer.Controllers
 
                 // Send email
                 await _emailService.SendPasswordResetEmailAsync(model.Email, callbackUrl);
-                
+
                 _logger.LogInformation("Посилання для відновлення пароля надіслано: {Email}", model.Email);
-                
+
                 return RedirectToAction(nameof(ForgotPasswordConfirmation));
             }
             catch (Exception ex)
@@ -315,7 +310,7 @@ namespace RodeFortune.PresentationLayer.Controllers
                     UserId = userId,
                     Token = token
                 };
-                
+
                 return View(model);
             }
             catch (Exception ex)
@@ -347,9 +342,9 @@ namespace RodeFortune.PresentationLayer.Controllers
                 string hashedPassword = HashPassword(model.Password);
                 await _userService.UpdateUserPasswordAsync(model.UserId, hashedPassword);
                 await _userService.InvalidatePasswordResetTokenAsync(model.UserId);
-                
+
                 _logger.LogInformation("Пароль успішно скинуто: {UserId}", model.UserId);
-                
+
                 return RedirectToAction(nameof(ResetPasswordConfirmation));
             }
             catch (Exception ex)

@@ -122,7 +122,6 @@ namespace RodeFortune.UnitTests.Services
         [Test]
         public async Task CreateHoroscopeAsync_ShouldReturnSuccess_WhenValidInput()
         {
-            // Arrange
             string zodiacSign = "Aries";
             string motto = "Daily Motto";
             string content = "Your daily horoscope content";
@@ -132,10 +131,8 @@ namespace RodeFortune.UnitTests.Services
                 .Setup(repo => repo.CreateAsync(It.IsAny<Horoscope>()))
                 .Returns(Task.CompletedTask);
 
-            // Act
             var result = await _adminPanelService.CreateHoroscopeAsync(zodiacSign, motto, content, date);
 
-            // Assert
             Assert.That(result.Success, Is.True, "Створення гороскопу повинно бути успішним");
             Assert.That(result.Data, Is.Not.Null, "Повинен повертатись створений гороскоп");
             Assert.That(result.Data.ZodiacSign, Is.EqualTo(zodiacSign), "Знак зодіаку повинен співпадати");
@@ -148,7 +145,6 @@ namespace RodeFortune.UnitTests.Services
         [Test]
         public async Task UpdateHoroscopeAsync_ShouldUpdateOnlyProvidedFields()
         {
-            // Arrange
             var id = ObjectId.GenerateNewId();
             var existingHoroscope = new Horoscope
             {
@@ -166,10 +162,8 @@ namespace RodeFortune.UnitTests.Services
                 .Setup(repo => repo.UpdateAsync(id, It.IsAny<Horoscope>()))
                 .Returns(Task.CompletedTask);
 
-            // Act - only update the motto
             var result = await _adminPanelService.UpdateHoroscopeAsync(id, null, "Updated Motto", null, null);
 
-            // Assert
             Assert.That(result.Success, Is.True, "Оновлення гороскопу повинно бути успішним");
             Assert.That(result.Data, Is.Not.Null, "Повинен повертатись оновлений гороскоп");
             Assert.That(result.Data.ZodiacSign, Is.EqualTo("Aries"), "Знак зодіаку не повинен змінюватись");
@@ -229,7 +223,6 @@ namespace RodeFortune.UnitTests.Services
 
             var result = await _adminPanelService.DeleteHoroscopeAsync(id);
 
-            // Assert
             Assert.That(result.Success, Is.True, "Видалення гороскопу повинно бути успішним");
             Assert.That(result.Message, Is.EqualTo("Horoscope deleted successfully"), "Повідомлення повинно бути про успішне видалення");
             Assert.That(result.Data, Is.True, "Дані повинні показувати успішне видалення");

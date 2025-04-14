@@ -1,12 +1,10 @@
-﻿using MongoDB.Bson;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
+using MongoDB.Bson;
 using RodeFortune.BLL.Services.Implementations;
-using RodeFortune.BLL.Services.Interfaces;
-using RodeFortune.DAL.Models;
 using RodeFortune.DAL.Repositories.Interfaces;
 using RodeFortune.PresentationLayer.Models;
+using System.Diagnostics;
 
 namespace RodeFortune.PresentationLayer.Controllers
 {
@@ -52,11 +50,11 @@ namespace RodeFortune.PresentationLayer.Controllers
             var horoscopes = await _horoscopeRepository.GetAllAsync();
             var horoscopeViewModels = horoscopes.Select(hr => new CreateHoroscopeViewModel
             {
-               Id = hr.Id.ToString(),
-               ZodiacSign = hr.ZodiacSign,
-               Motto = hr.Motto,
-               Content = hr.Content,
-               Date = hr.Date
+                Id = hr.Id.ToString(),
+                ZodiacSign = hr.ZodiacSign,
+                Motto = hr.Motto,
+                Content = hr.Content,
+                Date = hr.Date
             }).ToList();
 
             return View(horoscopeViewModels);
@@ -260,7 +258,7 @@ namespace RodeFortune.PresentationLayer.Controllers
             {
                 return RedirectToAction("TarotCards");
             }
-            
+
             var existingCard = await _tarotRepository.GetCardByNameAsync(id);
 
             if (existingCard == null)

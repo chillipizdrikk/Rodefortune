@@ -1,12 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson;
 using RodeFortune.BLL.Services.Implementations;
 using RodeFortune.DAL.Repositories.Interfaces;
-using Microsoft.AspNetCore.Authorization;
 using RodeFortune.PresentationLayer.Models;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using MongoDB.Bson;
 using System.Security.Claims;
-using RodeFortune.DAL.Models;
 
 namespace RodeFortune.PresentationLayer.Controllers;
 

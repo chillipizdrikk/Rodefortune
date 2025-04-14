@@ -1,10 +1,7 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using RodeFortune.BLL.Dto;
 using RodeFortune.BLL.Services.Interfaces;
-using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
 
 namespace RodeFortune.PresentationLayer.Controllers
 {
@@ -22,12 +19,12 @@ namespace RodeFortune.PresentationLayer.Controllers
         public async Task<IActionResult> Index(DateTime? date = null)
         {
             _logger.LogInformation("Відображення сторінки гороскопів за датою: {Date}", date?.ToShortDateString() ?? "поточна дата");
-            
+
             try
             {
                 var targetDate = date ?? DateTime.Today;
                 ViewBag.SelectedDate = targetDate;
-                
+
                 var horoscopes = await _horoscopeService.GetHoroscopesByDateAsync(targetDate);
                 return View(horoscopes);
             }
@@ -46,7 +43,7 @@ namespace RodeFortune.PresentationLayer.Controllers
             }
 
             _logger.LogInformation("Відображення гороскопів для знаку: {ZodiacSign}", zodiacSign);
-            
+
             try
             {
                 var horoscopes = await _horoscopeService.GetHoroscopesByZodiacSignAsync(zodiacSign);
@@ -87,7 +84,7 @@ namespace RodeFortune.PresentationLayer.Controllers
             }
 
             _logger.LogInformation("Створення нового гороскопу для знаку: {ZodiacSign}", horoscopeDto.ZodiacSign);
-            
+
             try
             {
                 await _horoscopeService.CreateHoroscopeAsync(horoscopeDto);
@@ -115,7 +112,7 @@ namespace RodeFortune.PresentationLayer.Controllers
             }
 
             _logger.LogInformation("Редагування гороскопу з ID: {Id}", id);
-            
+
             try
             {
                 var horoscope = await _horoscopeService.GetHoroscopeByIdAsync(id);
@@ -169,7 +166,7 @@ namespace RodeFortune.PresentationLayer.Controllers
             }
 
             _logger.LogInformation("Оновлення гороскопу з ID: {Id}", id);
-            
+
             try
             {
                 var result = await _horoscopeService.UpdateHoroscopeAsync(id, horoscopeDto);
@@ -201,7 +198,7 @@ namespace RodeFortune.PresentationLayer.Controllers
             try
             {
                 _logger.LogInformation("Запит на деталі гороскопу з ID: {Id}", id);
-                
+
                 var horoscope = await _horoscopeService.GetHoroscopeByIdAsync(id);
                 if (horoscope == null)
                 {
@@ -236,7 +233,7 @@ namespace RodeFortune.PresentationLayer.Controllers
             }
 
             _logger.LogInformation("Видалення гороскопу з ID: {Id}", id);
-            
+
             try
             {
                 await _horoscopeService.DeleteHoroscopeAsync(id);

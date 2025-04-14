@@ -1,10 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using RodeFortune.BLL.Services.Interfaces;
 using RodeFortune.DAL.Models;
-using RodeFortune.DAL.Repositories.Interfaces;
-using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
 
 namespace RodeFortune.PresentationLayer.Controllers
 {
@@ -24,8 +21,8 @@ namespace RodeFortune.PresentationLayer.Controllers
             return RedirectToAction("BirthDateTarot");
         }
 
-       [HttpGet]
-       [Authorize]
+        [HttpGet]
+        [Authorize]
         public IActionResult BirthDateTarot()
         {
             ViewBag.ShowResult = false;

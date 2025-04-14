@@ -1,14 +1,9 @@
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
-using MongoDB.Driver;
 using RodeFortune.BLL.Dto;
 using RodeFortune.BLL.Mappers;
 using RodeFortune.BLL.Services.Interfaces;
-using RodeFortune.DAL.Models;
-using RodeFortune.DAL.Repositories;
 using RodeFortune.DAL.Repositories.Interfaces;
-using System;
-using System.Threading.Tasks;
 
 namespace RodeFortune.BLL.Services
 {
@@ -95,7 +90,7 @@ namespace RodeFortune.BLL.Services
                     return null;
                 }
 
-               
+
                 var originalCreatedAt = existingUser.CreatedAt;
                 var originalPasswordHash = existingUser.PasswordHash;
                 var originalAvatar = existingUser.Avatar;
@@ -103,11 +98,11 @@ namespace RodeFortune.BLL.Services
                 _logger.LogInformation("Поточні дані користувача: Avatar={HasAvatar}, Size={AvatarSize}",
                     originalAvatar != null, originalAvatar?.Length ?? 0);
 
-              
+
                 existingUser.Username = userDto.Username;
                 existingUser.Email = userDto.Email;
 
-              
+
                 if (userDto.BirthDate != default)
                 {
                     existingUser.BirthDate = DateTime.SpecifyKind(userDto.BirthDate, DateTimeKind.Utc);
@@ -116,10 +111,10 @@ namespace RodeFortune.BLL.Services
                 existingUser.ZodiacSign = userDto.ZodiacSign;
                 existingUser.Role = userDto.Role;
 
-                
+
                 existingUser.CreatedAt = originalCreatedAt;
 
-                
+
                 if (!string.IsNullOrEmpty(userDto.PasswordHash))
                 {
                     existingUser.PasswordHash = userDto.PasswordHash;
@@ -129,7 +124,7 @@ namespace RodeFortune.BLL.Services
                     existingUser.PasswordHash = originalPasswordHash;
                 }
 
-               
+
                 if (userDto.Avatar != null && userDto.Avatar.Length > 0)
                 {
                     _logger.LogInformation("Оновлюємо аватар. Новий розмір: {Size} байт", userDto.Avatar.Length);
@@ -149,7 +144,7 @@ namespace RodeFortune.BLL.Services
 
                 if (updateResult)
                 {
-                   
+
                     var updatedUser = await _userRepository.GetByIdAsync(objectId);
                     _logger.LogInformation("Оновлений користувач: Avatar={HasAvatar}, Size={AvatarSize}",
                         updatedUser.Avatar != null, updatedUser.Avatar?.Length ?? 0);
