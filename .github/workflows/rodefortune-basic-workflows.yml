@@ -66,10 +66,6 @@ jobs:
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
-
-      - name: Restore dependencies
-        run: dotnet restore
-
       - name: Run tests
         run: dotnet test --no-build --verbosity normal
 
