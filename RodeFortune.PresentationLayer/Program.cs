@@ -13,9 +13,14 @@ using RodeFortune.DAL.Repositories.Interfaces;
 using RodeFortune.BLL.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
-Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
+
+if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
+{
+    Env.Load();
+}
+
 
 builder.Host.UseSerilog((context, services, configuration) => configuration
     .ReadFrom.Configuration(context.Configuration)

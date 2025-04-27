@@ -139,4 +139,10 @@ public class BlogController : Controller
             return RedirectToAction(nameof(Index));
         }
     }
+
+    [HttpGet]
+    public IActionResult PostDetails()
+    {
+        return View();
+    }
 }

@@ -11,5 +11,6 @@
     <WebStackScaffolding_IsPartialViewSelected>False</WebStackScaffolding_IsPartialViewSelected>
     <WebStackScaffolding_IsReferencingScriptLibrariesSelected>False</WebStackScaffolding_IsReferencingScriptLibrariesSelected>
     <WebStackScaffolding_LayoutPageFile>BlogPage</WebStackScaffolding_LayoutPageFile>
+    <NameOfLastUsedPublishProfile>E:\Rodefortune\RodeFortuneCICD\Rodefortune\RodeFortune.PresentationLayer\Properties\PublishProfiles\rodefortune - Zip Deploy.pubxml</NameOfLastUsedPublishProfile>
   </PropertyGroup>
 </Project>
