@@ -58,7 +58,7 @@ namespace RodeFortune.PresentationLayer.Controllers
                    $"{(string.IsNullOrEmpty(card.Motto) ? "" : $"'{card.Motto}' - це принцип, який супроводжує вас у житті.")} ";
         }
         [Authorize]
-        private string GetZodiacSign(DateTime birthDate)
+        private static string GetZodiacSign(DateTime birthDate)
         {
             int day = birthDate.Day;
 

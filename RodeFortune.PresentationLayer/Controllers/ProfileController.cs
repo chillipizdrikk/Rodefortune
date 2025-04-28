@@ -292,7 +292,7 @@ public class ProfileController : Controller
         }
     }
 
-    private string HashPassword(string password)
+    private static string HashPassword(string password)
     {
         using (var sha256 = System.Security.Cryptography.SHA256.Create())
         {

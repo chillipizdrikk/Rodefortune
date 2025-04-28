@@ -101,7 +101,7 @@ namespace RodeFortune.PresentationLayer.Controllers
             }
         }
 
-        private string HashPassword(string password)
+        private static string HashPassword(string password)
         {
             using (var sha256 = SHA256.Create())
             {
@@ -110,7 +110,7 @@ namespace RodeFortune.PresentationLayer.Controllers
             }
         }
 
-        private string DetermineZodiacSign(DateTime birthDate)
+        private static string DetermineZodiacSign(DateTime birthDate)
         {
             int day = birthDate.Day;
             int month = birthDate.Month;
@@ -239,25 +239,20 @@ namespace RodeFortune.PresentationLayer.Controllers
                 var user = await _userService.GetUserByEmailAsync(model.Email);
                 if (user == null)
                 {
-                    // Don't reveal that the user does not exist
                     _logger.LogWarning("Запит на відновлення пароля для неіснуючого користувача: {Email}", model.Email);
                     return RedirectToAction(nameof(ForgotPasswordConfirmation));
                 }
 
-                // Generate password reset token
                 var token = GenerateResetToken();
 
-                // Store the token in database with expiration date
                 await _userService.SavePasswordResetTokenAsync(user.Id.ToString(), token, DateTime.UtcNow.AddHours(24));
 
-                // Generate callback URL
                 var callbackUrl = Url.Action(
                     "ResetPassword",
                     "Account",
                     new { userId = user.Id, token = token },
                     protocol: HttpContext.Request.Scheme);
 
-                // Send email
                 await _emailService.SendPasswordResetEmailAsync(model.Email, callbackUrl);
 
                 _logger.LogInformation("Посилання для відновлення пароля надіслано: {Email}", model.Email);
@@ -272,7 +267,7 @@ namespace RodeFortune.PresentationLayer.Controllers
             }
         }
 
-        private string GenerateResetToken()
+        private static string GenerateResetToken()
         {
             var randomNumber = new byte[32];
             using (var rng = RandomNumberGenerator.Create())
