@@ -12,22 +12,43 @@ using RodeFortune.DAL.Repositories.Implementations;
 using RodeFortune.DAL.Repositories.Interfaces;
 using RodeFortune.BLL.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.Cookies;
-
+using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
 
 var builder = WebApplication.CreateBuilder(args);
 
-if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
+bool isDevelopment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development";
+
+if (isDevelopment)
 {
     Env.Load();
 }
-
 
 builder.Host.UseSerilog((context, services, configuration) => configuration
     .ReadFrom.Configuration(context.Configuration)
     .ReadFrom.Services(services));
 
-var connectionString = Environment.GetEnvironmentVariable("MONGODB_CONNECTION_STRING");
-var databaseName = Environment.GetEnvironmentVariable("MONGODB_DATABASE_NAME");
+string connectionString;
+string databaseName;
+
+if (isDevelopment)
+{
+    connectionString = Environment.GetEnvironmentVariable("MONGODB_CONNECTION_STRING");
+    databaseName = Environment.GetEnvironmentVariable("MONGODB_DATABASE_NAME");
+}
+else
+{
+        string keyVaultUrl = builder.Configuration["KeyVault:Url"] ??
+                             Environment.GetEnvironmentVariable("KEY_VAULT_URL");
+
+        var keyVaultClient = new SecretClient(
+            new Uri(keyVaultUrl),
+            new ManagedIdentityCredential());
+
+        connectionString = keyVaultClient.GetSecret("MONGODBCONNECTIONSTRING").Value.Value;
+        databaseName = keyVaultClient.GetSecret("MONGODBDATABASENAME").Value.Value;
+
+}
 
 builder.Services.Configure<MongoDbSettings>(options =>
 {
