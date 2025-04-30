@@ -1,0 +1,114 @@
+﻿@model RodeFortune.PresentationLayer.Models.UpdateHoroscopeViewModel
+@{
+    ViewData["Title"] = "Редагування гороскопу";
+}
+<div class="admin-container">
+    <h1>Редагування гороскопу</h1>
+    <form asp-action="UpdateHoroscope" method="post">
+        <input type="hidden" asp-for="Id" />
+
+        <div class="form-group">
+            <label asp-for="ZodiacSign">Знак зодіаку</label>
+            <input asp-for="ZodiacSign" class="form-control" />
+            <span asp-validation-for="ZodiacSign" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Motto">Девіз</label>
+            <textarea asp-for="Motto" class="form-control"></textarea>
+            <span asp-validation-for="Motto" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Content">Зміст гороскопу</label>
+            <textarea asp-for="Content" class="form-control"></textarea>
+            <span asp-validation-for="Content" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Date">Дата</label>
+            <input asp-for="Date" type="date" class="form-control" />
+            <span asp-validation-for="Date" class="text-danger"></span>
+        </div>
+
+        <div class="form-buttons">
+            <button type="submit" class="save-btn">Зберегти</button>
+            <a asp-action="Horoscopes" class="cancel-btn">Скасувати</a>
+        </div>
+    </form>
+</div>
+
+<style>
+    .form-control {
+        margin-bottom: 20px;
+     
+    }
+    .admin-container {
+        max-width: 800px;
+        margin: 0 auto; 
+        padding: 30px;
+        background-color: #f9f7fc;
+        border-radius: 15px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+    .admin-container h1 {
+        margin-bottom: 20px;
+        font-size: 4rem;
+        color: #6f42c1;
+        text-align: center;
+    }
+    .save-btn {
+        background-color: #6f42c1;
+        color: white;
+        text-decoration: none;
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        border-radius: 3px;
+        border: none;
+    }
+    .save-btn:hover {
+        background-color: #5e35b1;
+        text-decoration: none;
+        color: white;
+    }
+    .cancel-btn {
+        background-color: #D15658;
+        color: white;
+        text-decoration: none;
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        border-radius: 3px;
+        margin-left: 10px;
+    }
+    .cancel-btn:hover {
+        background-color: #C03B3E;
+        text-decoration: none;
+        color: white;
+    }
+    .form-buttons {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+    }
+    .form-group {
+        margin-bottom: 15px;
+    }
+    .text-danger {
+        color: #D15658;
+        font-size: 0.9em;
+    }
+</style>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

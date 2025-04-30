@@ -1,0 +1,13 @@
+
+.env
+
+
+# Ignore build results and temporary files
+**/bin/
+**/obj/
+
+
+.vs/
+
+
+

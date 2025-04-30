@@ -1,0 +1,175 @@
+﻿@model IEnumerable<RodeFortune.PresentationLayer.Models.TarotCardViewModel>
+@{
+    ViewData["Title"] = "Карти Таро";
+}
+<div class="admin-container">
+    <div class="admin-header">
+        <h1>Карти Таро</h1>
+        <div class="admin-tabs">
+            <a asp-action="Index" class="admin-menu-item">Адмін-панель</a>
+        </div>
+    </div>
+
+    <div class="tarot-list">
+        @foreach (var item in Model)
+        {
+            <div class="tarot-item">
+                <div class="tarot-name">@item.Name</div>
+                <div class="tarot-actions">
+                    <a asp-action="UpdateTarotCard" asp-route-id="@item.Name" class="edit-btn">Редагувати</a>
+                    <form asp-action="DeleteTarotCard" asp-route-id="@item.Name" method="post" class="delete-form">
+                        @Html.AntiForgeryToken()
+                        <form asp-controller="Admin" asp-action="DeleteTarotCard" method="post">
+                            <input type="hidden" name="tarotCardName" value="@item.Name" />
+                            <button type="submit" class="delete-btn" onclick="return confirm('Ви впевнені, що хочете видалити цю карту?');">
+                                Видалити
+                            </button>
+                        </form>
+                    </form>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="add-new-container">
+        <a asp-action="CreateTarotCard" class="add-new-btn">Додати нову карту</a>
+    </div>
+
+
+</div>
+<style>
+    .admin-menu-item {
+        background-color: #6f42c1;
+        color: white;
+        text-decoration: none;
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        border-radius: 3px;
+        display: inline-block;
+    }
+
+        .admin-menu-item:hover {
+            background-color: #5e35b1;
+            text-decoration: none;
+            color: white;
+        }
+
+    .admin-header {
+        background-color: #f9f7fc;
+        padding: 15px;
+        border-bottom: 1px solid #eee;
+    }
+
+        .admin-header h1 {
+            margin-bottom: 20px;
+            font-size: 4rem;
+            color: #6f42c1;
+            text-align: center;
+        }
+
+    .tarot-list {
+        margin-bottom: 20px;
+    }
+
+    .tarot-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #f0ebf7;
+        margin-bottom: 10px;
+        padding: 15px;
+        border-radius: 5px;
+    }
+
+    .tarot-details {
+        flex-grow: 1;
+    }
+
+    .tarot-id {
+        font-weight: bold;
+        color: #6a3cb5;
+        margin-bottom: 5px;
+    }
+
+    .tarot-name {
+        color: #333;
+        margin-bottom: 5px;
+    }
+
+    .tarot-date {
+        color: #666;
+        font-size: 0.9em;
+    }
+
+    .tarot-actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    .edit-btn {
+        background-color: #9FA5ED;
+        color: white;
+        text-decoration: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+        .edit-btn:hover {
+            background-color: #6D95AF;
+            color: white;
+            text-decoration: none;
+        }
+
+    .delete-btn {
+        background-color: #D15658;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+        .delete-btn:hover {
+            background-color: #C03B3E;
+        }
+
+    .add-new-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 15px;
+        background-color: #f5f2f8;
+    }
+
+    .add-new-btn {
+        background-color: #2E6F40;
+        color: white;
+        text-decoration: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        display: inline-block;
+        border: none;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        max-width: 100%;
+    }
+
+        .add-new-btn:hover {
+            background-color: #257A36;
+            color: white;
+        }
+
+</style>

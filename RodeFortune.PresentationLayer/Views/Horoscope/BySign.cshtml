@@ -1,0 +1,315 @@
+@model List<RodeFortune.BLL.Dto.HoroscopeResponseDto>
+
+@{
+    ViewData["Title"] = "Гороскоп для " + ViewBag.ZodiacSign;
+}
+
+<div class="container-fluid horoscope-container">
+    <div class="row">
+        <div class="col-12 text-center mb-4">
+            <div class="zodiac-header">
+                @{
+                    string zodiacImagePath = $"/images/zodiac/{ViewBag.ZodiacSign.ToLower()}.jpg";
+                }
+                <div class="zodiac-icon-xl">
+                    <img src="@zodiacImagePath" alt="@ViewBag.ZodiacSign" />
+                </div>
+                <h1 class="display-4">@ViewBag.ZodiacSign</h1>
+                <p class="lead">Історія гороскопів для вашого знаку</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center mb-4">
+        <div class="col-lg-8 col-md-10">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <a href="@Url.Action("Index", "Horoscope")" class="btn btn-outline-primary w-100">
+                                <i class="bi bi-arrow-left"></i> Всі гороскопи
+                            </a>
+                        </div>
+                        <div class="col-md-8">
+                            <form method="get" action="@Url.Action("BySign", "Horoscope")" class="row g-2">
+                                <div class="col-md-8">
+                                    <select class="form-select" id="zodiacSign" name="zodiacSign">
+                                        <option value="Овен" selected="@(ViewBag.ZodiacSign == "Овен")">Овен</option>
+                                        <option value="Телець" selected="@(ViewBag.ZodiacSign == "Телець")">Телець</option>
+                                        <option value="Близнюки" selected="@(ViewBag.ZodiacSign == "Близнюки")">Близнюки</option>
+                                        <option value="Рак" selected="@(ViewBag.ZodiacSign == "Рак")">Рак</option>
+                                        <option value="Лев" selected="@(ViewBag.ZodiacSign == "Лев")">Лев</option>
+                                        <option value="Діва" selected="@(ViewBag.ZodiacSign == "Діва")">Діва</option>
+                                        <option value="Терези" selected="@(ViewBag.ZodiacSign == "Терези")">Терези</option>
+                                        <option value="Скорпіон" selected="@(ViewBag.ZodiacSign == "Скорпіон")">Скорпіон</option>
+                                        <option value="Стрілець" selected="@(ViewBag.ZodiacSign == "Стрілець")">Стрілець</option>
+                                        <option value="Козеріг" selected="@(ViewBag.ZodiacSign == "Козеріг")">Козеріг</option>
+                                        <option value="Водолій" selected="@(ViewBag.ZodiacSign == "Водолій")">Водолій</option>
+                                        <option value="Риби" selected="@(ViewBag.ZodiacSign == "Риби")">Риби</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <button type="submit" class="btn btn-primary w-100">Змінити</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            @if (Model == null || Model.Count == 0)
+            {
+                <div class="alert alert-info text-center">
+                    <h4>Гороскопів для знаку @ViewBag.ZodiacSign не знайдено</h4>
+                    <p>Спробуйте обрати інший знак зодіаку або перевірте пізніше</p>
+                    <a href="@Url.Action("Create", "Horoscope")" class="btn btn-primary mt-2">Створити новий гороскоп</a>
+                </div>
+            }
+            else
+            {
+                <div class="horoscope-timeline">
+                    @foreach (var horoscope in Model.OrderByDescending(h => h.Date))
+                    {
+                        <div class="horoscope-timeline-item">
+                            <div class="timeline-date">
+                                <span class="badge bg-primary rounded-pill">@horoscope.Date.ToString("dd.MM.yyyy")</span>
+                            </div>
+                            <div class="card">
+                                <div class="card-body">
+                                    @if (!string.IsNullOrEmpty(horoscope.Motto))
+                                    {
+                                        <div class="card-motto">
+                                            <i>@horoscope.Motto</i>
+                                        </div>
+                                    }
+                                    <div class="card-text">
+                                        @horoscope.Content
+                                    </div>
+                                    <div class="d-flex justify-content-end mt-3">
+                                        <button class="btn btn-outline-primary btn-sm share-horoscope"
+                                                data-horoscope-id="@horoscope.Id"
+                                                data-share-date="@horoscope.Date.ToString("dd.MM.yyyy")">
+                                            <i class="bi bi-share"></i> Поділитися
+                                        </button>
+                                        @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+                                        {
+                                            <a href="@Url.Action("Edit", "Horoscope", new { id = horoscope.Id })" class="btn btn-outline-secondary btn-sm ms-2">
+                                                <i class="bi bi-pencil"></i> Редагувати
+                                            </a>
+                                            <button class="btn btn-outline-danger btn-sm ms-2 delete-horoscope" data-horoscope-id="@horoscope.Id">
+                                                <i class="bi bi-trash"></i> Видалити
+                                            </button>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Delete confirmation modal (Same as in Index) -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Підтвердження видалення</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Ви дійсно бажаєте видалити цей гороскоп?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
+                <form id="deleteHoroscopeForm" method="post">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger">Видалити</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Share Modal (Same as in Index) -->
+<div class="modal fade" id="shareModal" tabindex="-1" aria-labelledby="shareModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="shareModalLabel">Поділитися гороскопом</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <div class="input-group">
+                        <input type="text" id="shareUrl" class="form-control" readonly>
+                        <button class="btn btn-outline-primary" id="copyShareUrlBtn">Копіювати</button>
+                    </div>
+                </div>
+                <div class="social-share-buttons text-center">
+                    <button class="btn btn-facebook mx-1"><i class="bi bi-facebook"></i></button>
+                    <button class="btn btn-telegram mx-1"><i class="bi bi-telegram"></i></button>
+                    <button class="btn btn-viber mx-1"><i class="bi bi-phone"></i></button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрити</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .horoscope-container {
+        background-color: #f5f2f8;
+        min-height: 100vh;
+        padding: 2rem 0;
+    }
+
+    .zodiac-header {
+        padding: 2rem 0;
+    }
+
+    .zodiac-icon-xl {
+        width: 120px;
+        height: 120px;
+        margin: 0 auto 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .zodiac-icon-xl img {
+        max-width: 100%;
+        max-height: 100%;
+    }
+
+    .card-motto {
+        color: #6a3cb5;
+        font-size: 1rem;
+        margin-bottom: 1rem;
+        font-style: italic;
+    }
+
+    .horoscope-timeline {
+        position: relative;
+        padding: 2rem 0;
+    }
+
+    .horoscope-timeline:before {
+        content: '';
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background-color: #6a3cb5;
+    }
+
+    .horoscope-timeline-item {
+        position: relative;
+        margin-bottom: 2rem;
+    }
+
+    .timeline-date {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        top: -15px;
+        z-index: 1;
+    }
+
+    .horoscope-timeline-item .card {
+        margin-top: 15px;
+        box-shadow: 0 4px 12px rgba(106, 60, 181, 0.1);
+        border-radius: 10px;
+    }
+
+    .btn-primary {
+        background-color: #6a3cb5;
+        border-color: #6a3cb5;
+    }
+
+    .btn-primary:hover {
+        background-color: #542e91;
+        border-color: #542e91;
+    }
+
+    .btn-outline-primary {
+        color: #6a3cb5;
+        border-color: #6a3cb5;
+    }
+
+    .btn-outline-primary:hover {
+        background-color: #6a3cb5;
+        border-color: #6a3cb5;
+    }
+
+    .bg-primary {
+        background-color: #6a3cb5 !important;
+    }
+
+    /* Social button styles from Index */
+    .btn-facebook {
+        background-color: #3b5998;
+        color: white;
+    }
+
+    .btn-telegram {
+        background-color: #0088cc;
+        color: white;
+    }
+
+    .btn-viber {
+        background-color: #7360f2;
+        color: white;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Handle delete button click
+            $('.delete-horoscope').click(function() {
+                var horoscopeId = $(this).data('horoscope-id');
+                $('#deleteHoroscopeForm').attr('action', '/Horoscope/Delete/' + horoscopeId);
+                $('#deleteConfirmModal').modal('show');
+            });
+            
+            // Handle share button click
+            $('.share-horoscope').click(function() {
+                var horoscopeId = $(this).data('horoscope-id');
+                var shareDate = $(this).data('share-date');
+                
+                // Set share URL
+                var shareUrl = window.location.origin + '/Horoscope/BySign?zodiacSign=' + encodeURIComponent('@ViewBag.ZodiacSign');
+                $('#shareUrl').val(shareUrl);
+                $('#shareModalLabel').text('Поділитися гороскопом від ' + shareDate);
+                
+                $('#shareModal').modal('show');
+            });
+            
+            // Handle copy URL button
+            $('#copyShareUrlBtn').click(function() {
+                var copyText = document.getElementById("shareUrl");
+                copyText.select();
+                copyText.setSelectionRange(0, 99999); // For mobile devices
+                navigator.clipboard.writeText(copyText.value);
+                
+                // Provide feedback
+                var originalText = $(this).text();
+                $(this).text('Скопійовано!');
+                setTimeout(function() {
+                    $('#copyShareUrlBtn').text(originalText);
+                }, 2000);
+            });
+        });
+    </script>
+}

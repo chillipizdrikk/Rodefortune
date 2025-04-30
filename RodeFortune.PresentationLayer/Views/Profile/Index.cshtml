@@ -1,0 +1,235 @@
+﻿@model RodeFortune.PresentationLayer.Models.UserProfileViewModel
+@{
+    ViewData["Title"] = "Профіль користувача";
+}
+
+<div class="container mt-4">
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="text-center">Профіль користувача</h3>
+                </div>
+                <div class="card-body text-center">
+                    <div class="mb-4">
+                        @if (!string.IsNullOrEmpty(Model.Base64Avatar))
+                        {
+                            <img src="@Model.Base64Avatar" alt="Аватар користувача"
+                                 class="img-fluid rounded-circle"
+                                 style="width: 200px; height: 200px; object-fit: cover;">
+                        }
+                        else
+                        {
+                            <img src="/images/default-user.png" alt="Аватар за замовчуванням"
+                                 class="img-fluid rounded-circle"
+                                 style="width: 200px; height: 200px; object-fit: cover;">
+                        }
+                    </div>
+
+                    <div class="mb-3">
+                        <h4>@Model.Username</h4>
+                        <p>@Model.Email</p>
+                        <p>@Model.BirthDate.ToString("dd-MM-yyyy")</p>
+                    </div>
+
+                    <button type="button" class="btn btn-lg" id="showDetailsBtn" style="background-color: #8A2BE2; color: white;">Детальніше</button>
+
+                    <form asp-action="DeleteAccount" method="post" class="mt-4">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-danger btn-lg"
+                                onclick="return confirm('Ви впевнені, що хочете назавжди видалити акаунт? Цю дію не можна скасувати!');">
+                            Видалити акаунт
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div id="userDetailsSection" style="display:none;" class="mt-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="text-center">Особисті дані</h3>
+                    </div>
+                    <div class="card-body">
+                        <form asp-action="UpdateProfile" method="post" enctype="multipart/form-data" id="profileForm">
+                            @Html.AntiForgeryToken()
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="Username" class="form-label">Ім'я користувача:</label>
+                                        <input asp-for="Username" class="form-control" />
+                                        <span asp-validation-for="Username" class="text-danger"></span>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label asp-for="Email" class="form-label">Email:</label>
+                                        <input asp-for="Email" class="form-control" />
+                                        <span asp-validation-for="Email" class="text-danger"></span>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label asp-for="BirthDate" class="form-label">Дата народження:</label>
+                                        <input asp-for="BirthDate" type="date" class="form-control" />
+                                        <span asp-validation-for="BirthDate" class="text-danger"></span>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label asp-for="ZodiacSign" class="form-label">Знак зодіаку:</label>
+                                        <input asp-for="ZodiacSign" class="form-control" readonly />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="avatarFile" class="form-label">Завантажити новий аватар</label>
+                                        <input type="file" id="avatarFile" name="avatarFile" class="form-control" accept="image/*">
+                                        <small class="form-text text-muted">Виберіть зображення для вашого профілю</small>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Поточний аватар:</label>
+                                        <div class="text-center">
+                                            @if (!string.IsNullOrEmpty(Model.Base64Avatar))
+                                            {
+                                                <img src="@Model.Base64Avatar" alt="Поточний аватар"
+                                                     class="img-fluid rounded-circle"
+                                                     style="width: 100px; height: 100px; object-fit: cover;">
+                                            }
+                                            else
+                                            {
+                                                <img src="/images/default-user.png" alt="Аватар за замовчуванням"
+                                                     class="img-fluid rounded-circle"
+                                                     style="width: 100px; height: 100px; object-fit: cover;">
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-center mt-4">
+                                <div class="text-center mt-4">
+                                    <!-- Кнопка для відкриття модального вікна -->
+                                    <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
+                                        Змінити пароль
+                                    </button>
+                                    <button type="submit" class="btn btn-success btn-lg">Зберегти зміни</button>
+                                </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Модальне вікно -->
+            <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="changePasswordModalLabel">Зміна паролю</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <!-- Форма для зміни пароля. Замість asp-for використовуємо name -->
+                            <form asp-action="ChangePassword" method="post">
+                                @Html.AntiForgeryToken()
+                                <div class="mb-3">
+                                    <label for="CurrentPassword" class="form-label">Поточний пароль</label>
+                                    <input name="CurrentPassword" type="password" class="form-control" />
+                                </div>
+                                <div class="mb-3">
+                                    <label for="NewPassword" class="form-label">Новий пароль</label>
+                                    <input name="NewPassword" type="password" class="form-control" />
+                                </div>
+                                <div class="mb-3">
+                                    <label for="ConfirmPassword" class="form-label">Підтвердження паролю</label>
+                                    <input name="ConfirmPassword" type="password" class="form-control" />
+                                </div>
+                                <div class="text-center">
+                                    <button type="submit" class="btn btn-success">Змінити пароль</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $("#showDetailsBtn").click(function () {
+                $("#userDetailsSection").toggle();
+                $(this).text(
+                    $("#userDetailsSection").is(":visible")
+                        ? "Згорнути деталі"
+                        : "Детальніше"
+                );
+            });
+
+            function getZodiacSign(date) {
+                const day = date.getDate();
+                const month = date.getMonth() + 1;
+
+                const zodiacSigns = [
+                    { name: "Козеріг", start: [12, 22], end: [1, 19] },
+                    { name: "Водолій", start: [1, 20], end: [2, 18] },
+                    { name: "Риби", start: [2, 19], end: [3, 20] },
+                    { name: "Овен", start: [3, 21], end: [4, 19] },
+                    { name: "Телець", start: [4, 20], end: [5, 20] },
+                    { name: "Близнюки", start: [5, 21], end: [6, 20] },
+                    { name: "Рак", start: [6, 21], end: [7, 22] },
+                    { name: "Лев", start: [7, 23], end: [8, 22] },
+                    { name: "Діва", start: [8, 23], end: [9, 22] },
+                    { name: "Терези", start: [9, 23], end: [10, 22] },
+                    { name: "Скорпіон", start: [10, 23], end: [11, 21] },
+                    { name: "Стрілець", start: [11, 22], end: [12, 21] }
+                ];
+
+                for (let sign of zodiacSigns) {
+                    const startDate = new Date(date.getFullYear(), sign.start[0] - 1, sign.start[1]);
+                    const endDate = new Date(date.getFullYear(), sign.end[0] - 1, sign.end[1]);
+
+                    if (sign.name === "Козеріг" && date.getMonth() + 1 <= 1) {
+                        startDate.setFullYear(date.getFullYear() - 1);
+                        endDate.setFullYear(date.getFullYear());
+                    }
+
+                    if (date >= startDate && date <= endDate) {
+                        return sign.name;
+                    }
+                }
+
+                return "Невідомо";
+            }
+
+            $("input[name='BirthDate']").on('change', function () {
+                var birthDate = new Date($(this).val());
+                var zodiacSign = getZodiacSign(birthDate);
+                $("input[name='ZodiacSign']").val(zodiacSign);
+            });
+
+            $("#profileForm").submit(function (e) {
+                var birthDate = new Date($("input[name='BirthDate']").val());
+
+                if (birthDate > new Date()) {
+                    alert("Дата народження не може бути у майбутньому");
+                    e.preventDefault();
+                    return false;
+                }
+
+                var zodiacSign = getZodiacSign(birthDate);
+                $("input[name='ZodiacSign']").val(zodiacSign);
+
+                return true;
+            });
+        });
+    </script>
+}
