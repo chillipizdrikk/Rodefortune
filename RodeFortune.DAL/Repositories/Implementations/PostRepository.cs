@@ -2,12 +2,14 @@
 using MongoDB.Driver;
 using RodeFortune.DAL.Models;
 using RodeFortune.DAL.Repositories.Interfaces;
+using System.Xml.Linq;
 
 namespace RodeFortune.DAL.Repositories.Implementations
 {
     public class PostRepository : IPostRepository
     {
         private readonly IMongoCollection<Post> _posts;
+        private readonly IMongoCollection<Comment> _comments;
 
         public PostRepository(IMongoDatabase database)
         {
@@ -27,6 +29,7 @@ namespace RodeFortune.DAL.Repositories.Implementations
         {
             await _posts.InsertOneAsync(post);
         }
+
 
         public async Task<bool> UpdateAsync(Post post)
         {

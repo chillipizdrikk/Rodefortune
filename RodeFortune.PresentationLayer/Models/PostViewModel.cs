@@ -35,5 +35,7 @@ namespace RodeFortune.PresentationLayer.Models
         [Display(Name = "Пов'язана матриця долі")]
         public string? ReferencedDestinyMatrixId { get; set; }
 
+        public List<CommentViewModel> Comments { get; set; } = new();
+
     }
 }

@@ -18,16 +18,17 @@ public class BlogController : Controller
     private readonly IHoroscopeRepository _horoscopeRepository;
     private readonly INatalChartRepository _natalChartRepository;
     private readonly IDestinyMatrixRepository _destinyMatrixRepository;
-
+    private readonly ICommentRepository _commentRepository;
     public BlogController(
         IPostRepository postRepository,
         IUserRepository userRepository,
         ILogger<BlogController> logger,
         BloggingService bloggingService,
         IReadingRepository readingRepository,
-    IHoroscopeRepository horoscopeRepository,
+        IHoroscopeRepository horoscopeRepository,
         INatalChartRepository natalChartRepository,
-        IDestinyMatrixRepository destinyMatrixRepository)
+        IDestinyMatrixRepository destinyMatrixRepository,
+        ICommentRepository commentRepository)
     {
         _postRepository = postRepository;
         _userRepository = userRepository;
@@ -37,6 +38,7 @@ public class BlogController : Controller
         _horoscopeRepository = horoscopeRepository;
         _natalChartRepository = natalChartRepository;
         _destinyMatrixRepository = destinyMatrixRepository;
+        _commentRepository = commentRepository;
     }
 
     public async Task<IActionResult> Index()
@@ -140,9 +142,148 @@ public class BlogController : Controller
         }
     }
 
+
+
     [HttpGet]
-    public IActionResult PostDetails()
+    public async Task<IActionResult> PostDetails(string id)
     {
-        return View();
+        if (string.IsNullOrEmpty(id))
+        {
+            return RedirectToAction(nameof(Index));
+        }
+
+        try
+        {
+            var post = await _postRepository.GetByIdAsync(ObjectId.Parse(id));
+
+            if (post == null)
+            {
+                return NotFound();
+            }
+
+            var author = await _userRepository.GetByIdAsync(post.Author);
+            var comments = await _commentRepository.GetByPostIdAsync(post.Id);
+
+            var viewModel = new PostViewModel
+            {
+                Id = post.Id.ToString(),
+                Name = post.Name,
+                Content = post.Content,
+                CreatedAt = post.CreatedAt,
+                Author = post.Author,
+                UpdatedAt = post.UpdatedAt,
+                ImageData = post.ImageData,
+                ReferencedReadingId = post.ReferencedReading?.ToString(),
+                ReferencedHoroscopeId = post.ReferencedHoroscope?.ToString(),
+                ReferencedNatalChartId = post.ReferencedNatalChart?.ToString(),
+                ReferencedDestinyMatrixId = post.ReferencedDestinyMatrix?.ToString()
+            };
+
+
+            var commentsResult = await _bloggingService.GetPostCommentsAsync(post.Id);
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var commentViewModels = new List<CommentViewModel>();
+            if (commentsResult.Success && commentsResult.Data != null)
+            {
+                foreach (var comment in commentsResult.Data)
+                {
+                    var commentAuthor = await _userRepository.GetByIdAsync(comment.AuthorId);
+                    commentViewModels.Add(new CommentViewModel
+                    {
+                        Id = comment.Id.ToString(),
+                        Content = comment.Content,
+                        AuthorName = commentAuthor?.Username ?? "Невідомий користувач",
+                        CreatedAt = comment.CreatedAt,
+                        IsAuthor = currentUserId == comment.AuthorId.ToString(),
+                        PostId = post.Id.ToString()
+                    });
+                }
+            }
+
+            ViewBag.AuthorName = author?.Username ?? "Невідомий автор";
+            ViewBag.Comments = commentViewModels;
+            ViewBag.IsAuthenticated = User.Identity.IsAuthenticated;
+
+            return View(viewModel);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occurred while getting post details for ID: {PostId}", id);
+            return RedirectToAction(nameof(Index));
+        }
+    }
+
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize]
+    public async Task<IActionResult> AddComment(string postId, string content)
+    {
+        if (string.IsNullOrWhiteSpace(content))
+        {
+            TempData["Error"] = "Коментар не може бути порожнім";
+            return RedirectToAction(nameof(PostDetails), new { id = postId });
+        }
+
+        try
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var result = await _bloggingService.AddCommentAsync(
+                ObjectId.Parse(postId),
+                ObjectId.Parse(userId),
+                content);
+
+            if (result.Success)
+            {
+                TempData["Success"] = "Коментар додано успішно";
+            }
+            else
+            {
+                TempData["Error"] = result.Message;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error adding comment");
+            TempData["Error"] = "Помилка при додаванні коментаря";
+        }
+
+        return RedirectToAction(nameof(PostDetails), new { id = postId });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize]
+    public async Task<IActionResult> DeleteComment(string commentId, string postId)
+    {
+        try
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var result = await _bloggingService.DeleteCommentAsync(
+                ObjectId.Parse(commentId),
+                ObjectId.Parse(userId));
+
+            if (result.Success)
+            {
+                TempData["Success"] = "Коментар видалено успішно";
+            }
+            else
+            {
+                TempData["Error"] = result.Message;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error deleting comment");
+            TempData["Error"] = "Помилка при видаленні коментаря";
+        }
+
+        return RedirectToAction(nameof(PostDetails), new { id = postId });
     }
 }

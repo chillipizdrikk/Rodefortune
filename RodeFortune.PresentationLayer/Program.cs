@@ -107,6 +107,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<BloggingService>();
 builder.Services.AddScoped<AdminPanelService>();
+builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 
 builder.Services.AddControllersWithViews();
 var app = builder.Build();
