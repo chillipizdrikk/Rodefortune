@@ -14,7 +14,8 @@ namespace RodeFortune.BLL.Services.Implementations
         private readonly ICommentRepository _commentRepository;
         private readonly ILogger<BloggingService> _logger;
 
-        public BloggingService(IPostRepository postRepository, ILogger<BloggingService> logger, IUserRepository userRepository, ICommentRepository commentRepository)
+        public BloggingService(IPostRepository postRepository, ILogger<BloggingService> logger, IUserRepository userRepository,
+            ICommentRepository commentRepository)
         {
             _postRepository = postRepository;
             _logger = logger;

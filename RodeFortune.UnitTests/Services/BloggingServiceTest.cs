@@ -14,6 +14,7 @@ namespace RodeFortune.UnitTests.Services
         private BloggingService _bloggingService;
         private Mock<IPostRepository> _mockPostRepository;
         private Mock<IUserRepository> _mockUserRepository;
+        private Mock<ICommentRepository> _mockCommentRepository;
         private Mock<ILogger<BloggingService>> _mockLogger;
 
         [SetUp]
@@ -22,10 +23,12 @@ namespace RodeFortune.UnitTests.Services
             _mockPostRepository = new Mock<IPostRepository>();
             _mockUserRepository = new Mock<IUserRepository>();
             _mockLogger = new Mock<ILogger<BloggingService>>();
+            _mockCommentRepository = new Mock<ICommentRepository>();
             _bloggingService = new BloggingService(
                 _mockPostRepository.Object,
                 _mockLogger.Object,
-                _mockUserRepository.Object
+                _mockUserRepository.Object,
+                _mockCommentRepository.Object
             );
         }
 
@@ -132,6 +135,173 @@ namespace RodeFortune.UnitTests.Services
             _mockPostRepository.Verify(r => r.DeleteAsync(postId), Times.Once);
         }
 
-      
+
+        [Test]
+        public async Task AddCommentAsync_ShouldReturnError_WhenContentIsEmpty()
+        {
+            var postId = ObjectId.GenerateNewId();
+            var userId = ObjectId.GenerateNewId();
+            string content = "";
+
+            var result = await _bloggingService.AddCommentAsync(postId, userId, content);
+
+            Assert.That(result.Success, Is.False);
+            Assert.That(result.Data, Is.Null);
+            Assert.That(result.Message, Is.EqualTo("Content cannot be empty"));
+        }
+        [Test]
+        public async Task AddCommentAsync_ShouldReturnError_WhenUserNotFound()
+        {
+            var postId = ObjectId.GenerateNewId();
+            var userId = ObjectId.GenerateNewId();
+            string content = "Test comment";
+
+            var post = new Post { Id = postId };
+            _mockPostRepository.Setup(r => r.GetByIdAsync(postId)).ReturnsAsync(post);
+            _mockUserRepository.Setup(r => r.GetByIdAsync(userId)).ReturnsAsync((User)null);
+
+            var result = await _bloggingService.AddCommentAsync(postId, userId, content);
+
+            Assert.That(result.Success, Is.False);
+            Assert.That(result.Data, Is.Null);
+            Assert.That(result.Message, Is.EqualTo("User not found"));
+        }
+
+        [Test]
+        public async Task AddCommentAsync_ShouldReturnSuccess_WhenValidDataProvided()
+        {
+            var postId = ObjectId.GenerateNewId();
+            var userId = ObjectId.GenerateNewId();
+            string content = "Test comment";
+
+            var post = new Post { Id = postId, Comments = new List<ObjectId>() };
+            var user = new User { Id = userId };
+
+            _mockPostRepository.Setup(r => r.GetByIdAsync(postId)).ReturnsAsync(post);
+            _mockUserRepository.Setup(r => r.GetByIdAsync(userId)).ReturnsAsync(user);
+
+            Comment capturedComment = null;
+            _mockCommentRepository.Setup(r => r.CreateAsync(It.IsAny<Comment>()))
+                .Callback<Comment>(comment => capturedComment = comment)
+                .Returns(Task.CompletedTask);
+
+            var result = await _bloggingService.AddCommentAsync(postId, userId, content);
+
+            Assert.That(result.Success, Is.True);
+            Assert.That(result.Data, Is.Not.Null);
+            Assert.That(result.Message, Is.EqualTo("Comment created successfully"));
+
+            Assert.That(capturedComment, Is.Not.Null);
+            Assert.That(capturedComment.PostId, Is.EqualTo(postId));
+            Assert.That(capturedComment.AuthorId, Is.EqualTo(userId));
+            Assert.That(capturedComment.Content, Is.EqualTo(content));
+            Assert.That(capturedComment.CreatedAt.Date, Is.EqualTo(DateTime.UtcNow.Date));
+
+            _mockPostRepository.Verify(r => r.UpdateAsync(post), Times.Once);
+            Assert.That(post.Comments.Contains(capturedComment.Id), Is.True);
+        }
+
+        [Test]
+        public async Task GetPostCommentsAsync_ShouldReturnSuccess_WhenCommentsExist()
+        {
+            var postId = ObjectId.GenerateNewId();
+            var comments = new List<Comment>
+            {
+                new Comment { Id = ObjectId.GenerateNewId(), PostId = postId },
+                new Comment { Id = ObjectId.GenerateNewId(), PostId = postId }
+            };
+
+            _mockCommentRepository.Setup(r => r.GetByPostIdAsync(postId)).ReturnsAsync(comments);
+
+            var result = await _bloggingService.GetPostCommentsAsync(postId);
+
+            Assert.That(result.Success, Is.True);
+            Assert.That(result.Data, Is.Not.Null);
+            Assert.That(result.Data.Count, Is.EqualTo(2));
+            Assert.That(result.Message, Is.EqualTo("Comments retrieved successfully"));
+        }
+
+        [Test]
+        public async Task GetPostCommentsAsync_ShouldReturnEmptyList_WhenNoComments()
+        {
+            var postId = ObjectId.GenerateNewId();
+
+            _mockCommentRepository.Setup(r => r.GetByPostIdAsync(postId))
+                .ReturnsAsync(new List<Comment>());
+
+            var result = await _bloggingService.GetPostCommentsAsync(postId);
+
+            Assert.That(result.Success, Is.True);
+            Assert.That(result.Data, Is.Not.Null);
+            Assert.That(result.Data.Count, Is.EqualTo(0));
+            Assert.That(result.Message, Is.EqualTo("Comments retrieved successfully"));
+        }
+
+        [Test]
+        public async Task DeleteCommentAsync_ShouldReturnError_WhenCommentNotFound()
+        {
+            var commentId = ObjectId.GenerateNewId();
+            var userId = ObjectId.GenerateNewId();
+
+            _mockCommentRepository.Setup(r => r.GetByIdAsync(commentId)).ReturnsAsync((Comment)null);
+
+            var result = await _bloggingService.DeleteCommentAsync(commentId, userId);
+
+            Assert.That(result.Success, Is.False);
+            Assert.That(result.Data, Is.False);
+            Assert.That(result.Message, Is.EqualTo("Comment not found"));
+        }
+
+        [Test]
+        public async Task DeleteCommentAsync_ShouldReturnError_WhenUserNotAuthor()
+        {
+            var commentId = ObjectId.GenerateNewId();
+            var userId = ObjectId.GenerateNewId();
+            var authorId = ObjectId.GenerateNewId();
+
+            var comment = new Comment { Id = commentId, AuthorId = authorId };
+            _mockCommentRepository.Setup(r => r.GetByIdAsync(commentId)).ReturnsAsync(comment);
+
+            var result = await _bloggingService.DeleteCommentAsync(commentId, userId);
+
+            Assert.That(result.Success, Is.False);
+            Assert.That(result.Data, Is.False);
+            Assert.That(result.Message, Is.EqualTo("You can only delete your own comments"));
+        }
+
+        [Test]
+        public async Task DeleteCommentAsync_ShouldReturnSuccess_WhenUserIsAuthor()
+        {
+            var commentId = ObjectId.GenerateNewId();
+            var userId = ObjectId.GenerateNewId();
+
+            var comment = new Comment { Id = commentId, AuthorId = userId };
+            _mockCommentRepository.Setup(r => r.GetByIdAsync(commentId)).ReturnsAsync(comment);
+            _mockCommentRepository.Setup(r => r.DeleteAsync(commentId)).ReturnsAsync(true);
+
+            var result = await _bloggingService.DeleteCommentAsync(commentId, userId);
+
+            Assert.That(result.Success, Is.True);
+            Assert.That(result.Data, Is.True);
+            Assert.That(result.Message, Is.EqualTo("Comment deleted successfully"));
+            _mockCommentRepository.Verify(r => r.DeleteAsync(commentId), Times.Once);
+        }
+
+        [Test]
+        public async Task DeleteCommentAsync_ShouldReturnError_WhenDeletionFails()
+        {
+            var commentId = ObjectId.GenerateNewId();
+            var userId = ObjectId.GenerateNewId();
+
+            var comment = new Comment { Id = commentId, AuthorId = userId };
+            _mockCommentRepository.Setup(r => r.GetByIdAsync(commentId)).ReturnsAsync(comment);
+            _mockCommentRepository.Setup(r => r.DeleteAsync(commentId)).ReturnsAsync(false);
+
+            var result = await _bloggingService.DeleteCommentAsync(commentId, userId);
+
+            Assert.That(result.Success, Is.False);
+            Assert.That(result.Data, Is.False);
+            Assert.That(result.Message, Is.EqualTo("Failed to delete comment"));
+        }
     }
 }
