@@ -81,6 +81,17 @@ namespace RodeFortune.BLL.Services.Implementations
                     return new Result<bool>(false, "You can only delete your own posts", false);
                 }
 
+                if (existingPost.Comments != null && existingPost.Comments.Any())
+                {
+                    foreach (var commentId in existingPost.Comments)
+                    {
+                        await _commentRepository.DeleteAsync(commentId);
+                    }
+                    _logger.LogInformation($"Deleted {existingPost.Comments.Count} comments associated with post {postId}");
+                }
+
+
+
                 await _postRepository.DeleteAsync(postId);
                 _logger.LogInformation($"Post {postId} deleted successfully");
                 return new Result<bool>(true, "Post deleted successfully", true);
@@ -91,7 +102,6 @@ namespace RodeFortune.BLL.Services.Implementations
                 return new Result<bool>(false, $"Error while deleting post: {ex.Message}", false);
             }
         }
-
 
         public async Task<Result<Comment>> AddCommentAsync(ObjectId postId, ObjectId authorId, string content)
         {
@@ -108,15 +118,14 @@ namespace RodeFortune.BLL.Services.Implementations
                     _logger.LogWarning($"Failed to add comment: Post with ID {postId} not found");
                     return new Result<Comment>(false, "Post not found", null);
                 }
-        
-                
+
                 var user = await _userRepository.GetByIdAsync(authorId);
                 if (user == null)
                 {
                     _logger.LogWarning($"Failed to add comment: User with ID {authorId} not found");
                     return new Result<Comment>(false, "User not found", null);
                 }
-        
+
                 var comment = new Comment
                 {
                     PostId = postId,
@@ -125,10 +134,14 @@ namespace RodeFortune.BLL.Services.Implementations
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
                 };
-        
+
                 await _commentRepository.CreateAsync(comment);
-                _logger.LogInformation($"Created comment by author {authorId} on post {postId}");
-        
+
+                post.Comments.Add(comment.Id);
+                await _postRepository.UpdateAsync(post);
+
+                _logger.LogInformation($"Created comment by author {authorId} on post {postId} and updated post");
+
                 return new Result<Comment>(true, "Comment created successfully", comment);
             }
             catch (Exception ex)
@@ -138,7 +151,6 @@ namespace RodeFortune.BLL.Services.Implementations
             }
         }
 
-      
         public async Task<Result<List<Comment>>> GetPostCommentsAsync(ObjectId postId)
         {
             try
