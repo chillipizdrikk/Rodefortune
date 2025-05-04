@@ -195,6 +195,7 @@ public class BlogController : Controller
                         Content = comment.Content,
                         AuthorName = commentAuthor?.Username ?? "Невідомий користувач",
                         CreatedAt = comment.CreatedAt,
+                        UpdatedAt = comment.UpdatedAt,
                         IsAuthor = currentUserId == comment.AuthorId.ToString(),
                         PostId = post.Id.ToString()
                     });
@@ -285,5 +286,87 @@ public class BlogController : Controller
         }
 
         return RedirectToAction(nameof(PostDetails), new { id = postId });
+    }
+    [HttpGet]
+    [Authorize]
+    public async Task<IActionResult> EditComment(string commentId, string postId)
+    {
+        if (string.IsNullOrEmpty(commentId) || string.IsNullOrEmpty(postId))
+        {
+            return RedirectToAction(nameof(PostDetails), new { id = postId });
+        }
+
+        try
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var comment = await _commentRepository.GetByIdAsync(ObjectId.Parse(commentId));
+            if (comment == null)
+            {
+                TempData["Error"] = "Коментар не знайдено";
+                return RedirectToAction(nameof(PostDetails), new { id = postId });
+            }
+
+            if (comment.AuthorId != ObjectId.Parse(userId))
+            {
+                TempData["Error"] = "Ви можете редагувати лише власні коментарі";
+                return RedirectToAction(nameof(PostDetails), new { id = postId });
+            }
+
+            var viewModel = new EditCommentViewModel
+            {
+                CommentId = commentId,
+                PostId = postId,
+                Content = comment.Content
+            };
+
+            return View(viewModel);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting comment for editing");
+            TempData["Error"] = "Помилка при отриманні коментаря для редагування";
+            return RedirectToAction(nameof(PostDetails), new { id = postId });
+        }
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize]
+    public async Task<IActionResult> EditComment(EditCommentViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        try
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var result = await _bloggingService.UpdateCommentAsync(
+                ObjectId.Parse(model.CommentId),
+                ObjectId.Parse(userId),
+                model.Content);
+
+            if (result.Success)
+            {
+                TempData["Success"] = "Коментар оновлено успішно";
+            }
+            else
+            {
+                TempData["Error"] = result.Message;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating comment");
+            TempData["Error"] = "Помилка при оновленні коментаря";
+        }
+
+        return RedirectToAction(nameof(PostDetails), new { id = model.PostId });
     }
 }

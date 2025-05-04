@@ -110,7 +110,13 @@
                         <div class="comment-header">
                             <div class="comment-info">
                                 <strong>@comment.AuthorName</strong>
-                                <span class="comment-date">@TimeZoneInfo.ConvertTimeFromUtc(comment.CreatedAt, TimeZoneInfo.FindSystemTimeZoneById("FLE Standard Time")).ToString("dd.MM.yyyy HH:mm")</span>
+                                <span class="comment-date">
+                                    @TimeZoneInfo.ConvertTimeFromUtc(comment.CreatedAt, TimeZoneInfo.FindSystemTimeZoneById("FLE Standard Time")).ToString("dd.MM.yyyy HH:mm")
+                                    @if (comment.IsEdited)
+                                    {
+                                        <span class="comment-edited">(Відредаговано @TimeZoneInfo.ConvertTimeFromUtc(comment.UpdatedAt.Value, TimeZoneInfo.FindSystemTimeZoneById("FLE Standard Time")).ToString("dd.MM.yyyy HH:mm"))</span>
+                                    }
+                                </span>
                             </div>
                         </div>
                         <div class="comment-content">
@@ -119,12 +125,15 @@
                         @if (comment.IsAuthor)
                         {
                             <div class="comment-actions">
+                                <a href="@Url.Action("EditComment", "Blog", new { commentId = comment.Id, postId = Model.Id })" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-edit"></i> Редагувати
+                                </a>
                                 <form asp-action="DeleteComment" asp-controller="Blog" method="post" class="d-inline">
                                     <input type="hidden" name="commentId" value="@comment.Id" />
                                     <input type="hidden" name="postId" value="@Model.Id" />
                                     <button type="submit" class="btn btn-sm btn-danger"
                                             onclick="return confirm('Видалити коментар?')">
-                                        Видалити
+                                        <i class="fas fa-trash"></i> Видалити
                                     </button>
                                 </form>
                             </div>
@@ -448,5 +457,26 @@
             flex-direction: column;
             gap: 0.5rem;
         }
+    }
+    .comment-edited {
+        font-size: 0.8rem;
+        color: #6c757d;
+        font-style: italic;
+        margin-left: 0.5rem;
+    }
+
+    .comment-actions {
+        margin-top: 0.5rem;
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.5rem;
+    }
+
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
     }
 </style>

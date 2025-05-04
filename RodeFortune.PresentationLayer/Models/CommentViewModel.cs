@@ -13,7 +13,9 @@ namespace RodeFortune.PresentationLayer.Models
 
             public string AuthorName { get; set; }
             public DateTime CreatedAt { get; set; }
+            public DateTime? UpdatedAt { get; set; }
             public bool IsAuthor { get; set; }
             public string PostId { get; set; }
+            public bool IsEdited => UpdatedAt.HasValue && UpdatedAt.Value != CreatedAt;
         }
 }
