@@ -303,5 +303,97 @@ namespace RodeFortune.UnitTests.Services
             Assert.That(result.Data, Is.False);
             Assert.That(result.Message, Is.EqualTo("Failed to delete comment"));
         }
+        [Test]
+        public async Task UpdateCommentAsync_ShouldReturnError_WhenCommentNotFound()
+        {
+            var commentId = ObjectId.GenerateNewId();
+            var userId = ObjectId.GenerateNewId();
+            string content = "Updated content";
+
+            _mockCommentRepository.Setup(r => r.GetByIdAsync(commentId)).ReturnsAsync((Comment)null);
+
+            var result = await _bloggingService.UpdateCommentAsync(commentId, userId, content);
+
+            Assert.That(result.Success, Is.False);
+            Assert.That(result.Data, Is.False);
+            Assert.That(result.Message, Is.EqualTo("Comment not found"));
+        }
+
+        [Test]
+        public async Task UpdateCommentAsync_ShouldReturnError_WhenUserNotAuthor()
+        {
+            var commentId = ObjectId.GenerateNewId();
+            var userId = ObjectId.GenerateNewId();
+            var authorId = ObjectId.GenerateNewId();
+            string content = "Updated content";
+
+            var comment = new Comment { Id = commentId, AuthorId = authorId };
+            _mockCommentRepository.Setup(r => r.GetByIdAsync(commentId)).ReturnsAsync(comment);
+
+            var result = await _bloggingService.UpdateCommentAsync(commentId, userId, content);
+
+            Assert.That(result.Success, Is.False);
+            Assert.That(result.Data, Is.False);
+            Assert.That(result.Message, Is.EqualTo("You can only update your own comments"));
+        }
+
+        [Test]
+        public async Task UpdateCommentAsync_ShouldReturnSuccess_WhenUserIsAuthor()
+        {
+            var commentId = ObjectId.GenerateNewId();
+            var userId = ObjectId.GenerateNewId();
+            string oldContent = "Original content";
+            string newContent = "Updated content";
+            DateTime originalUpdatedAt = DateTime.UtcNow.AddHours(-1);
+
+            var comment = new Comment 
+            { 
+                Id = commentId, 
+                AuthorId = userId, 
+                Content = oldContent,
+                UpdatedAt = originalUpdatedAt
+            };
+            
+            _mockCommentRepository.Setup(r => r.GetByIdAsync(commentId)).ReturnsAsync(comment);
+            _mockCommentRepository.Setup(r => r.UpdateAsync(It.IsAny<Comment>())).ReturnsAsync(true);
+
+            var result = await _bloggingService.UpdateCommentAsync(commentId, userId, newContent);
+
+            Assert.That(result.Success, Is.True);
+            Assert.That(result.Data, Is.True);
+            Assert.That(result.Message, Is.EqualTo("Comment updated successfully"));
+            
+            Assert.That(comment.Content, Is.EqualTo(newContent));
+            Assert.That(comment.UpdatedAt, Is.GreaterThan(originalUpdatedAt));
+            
+            _mockCommentRepository.Verify(r => r.UpdateAsync(comment), Times.Once);
+        }
+
+        [Test]
+        public async Task UpdateCommentAsync_ShouldReturnError_WhenUpdateFails()
+        {
+            var commentId = ObjectId.GenerateNewId();
+            var userId = ObjectId.GenerateNewId();
+            string oldContent = "Original content";
+            string newContent = "Updated content";
+
+            var comment = new Comment 
+            { 
+                Id = commentId, 
+                AuthorId = userId, 
+                Content = oldContent 
+            };
+            
+            _mockCommentRepository.Setup(r => r.GetByIdAsync(commentId)).ReturnsAsync(comment);
+            _mockCommentRepository.Setup(r => r.UpdateAsync(It.IsAny<Comment>())).ReturnsAsync(false);
+
+            var result = await _bloggingService.UpdateCommentAsync(commentId, userId, newContent);
+
+            Assert.That(result.Success, Is.False);
+            Assert.That(result.Data, Is.False);
+            Assert.That(result.Message, Is.EqualTo("Failed to update comment"));
+            
+            _mockCommentRepository.Verify(r => r.UpdateAsync(comment), Times.Once);
+        }
     }
 }
