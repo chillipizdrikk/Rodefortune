@@ -219,7 +219,7 @@ namespace RodeFortune.BLL.Services.Implementations
                 }
 
                 comment.Content = content;
-                comment.UpdatedAt = DateTime.UtcNow; // Make sure to update the timestamp
+                comment.UpdatedAt = DateTime.UtcNow; 
                 var updated = await _commentRepository.UpdateAsync(comment);
 
                 if (updated)
@@ -237,7 +237,6 @@ namespace RodeFortune.BLL.Services.Implementations
                 _logger.LogError(ex, $"Error while updating comment {commentId}");
                 return new Result<bool>(false, $"Error while updating comment: {ex.Message}", false);
             }
-        
+        }
     }
 }
-
