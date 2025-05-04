@@ -11,5 +11,6 @@ namespace RodeFortune.DAL.Repositories.Interfaces
         public Task CreateAsync(Post post);
         public Task<bool> UpdateAsync(Post post);
         public Task<bool> DeleteAsync(ObjectId id);
+
     }
 }

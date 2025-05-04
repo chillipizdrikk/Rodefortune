@@ -9,11 +9,11 @@ on:
   push:
       branches:
         - main
-        - sprint-9-upd
+        - sprint-10
   pull_request:
       branches: 
         - main
-        - sprint-9-upd
+        - sprint-10
   workflow_dispatch:
 
 jobs:

@@ -1,17 +1,482 @@
 ﻿@model RodeFortune.PresentationLayer.Models.PostViewModel
-
 @{
-    ViewData["Title"] = "Перегляд поста";
+    ViewData["Title"] = Model.Name;
+    var comments = ViewBag.Comments as List<RodeFortune.PresentationLayer.Models.CommentViewModel>;
+    var isAuthenticated = ViewBag.IsAuthenticated as bool? ?? false;
 }
 
-<div class="admin-container">
-    <h2>Згодом з'явиться можливість перегляду поста...</h2>
+<div class="post-container">
+    <article class="post-detail">
+        <header class="post-header">
+            <h1 class="post-title">@Model.Name</h1>
+            <div class="post-meta">
+                <span class="post-author">
+                    <i class="fas fa-user"></i> @ViewBag.AuthorName
+                </span>
+                <span class="post-date">
+                    <i class="fas fa-calendar"></i> @Model.CreatedAt?.ToString("dd.MM.yyyy HH:mm")
+                </span>
+                @if (Model.UpdatedAt.HasValue && Model.UpdatedAt != Model.CreatedAt)
+                {
+                    <span class="post-updated">
+                        <i class="fas fa-edit"></i> Оновлено: @Model.UpdatedAt?.ToString("dd.MM.yyyy HH:mm")
+                    </span>
+                }
+            </div>
+        </header>
+
+        @if (Model.ImageData != null && Model.ImageData.Length > 0)
+        {
+            <div class="post-image">
+                <img src="data:image/jpeg;base64,@Convert.ToBase64String(Model.ImageData)" alt="@Model.Name" />
+            </div>
+        }
+
+        <div class="post-content">
+            @Html.Raw(Model.Content)
+        </div>
+
+        @if (!string.IsNullOrEmpty(Model.ReferencedReadingId) ||
+        !string.IsNullOrEmpty(Model.ReferencedHoroscopeId) ||
+        !string.IsNullOrEmpty(Model.ReferencedNatalChartId) ||
+        !string.IsNullOrEmpty(Model.ReferencedDestinyMatrixId))
+        {
+            <div class="post-references">
+                <h3>Пов'язані матеріали:</h3>
+                <ul>
+                    @if (!string.IsNullOrEmpty(Model.ReferencedReadingId))
+                    {
+                        <li>Розклад Таро</li>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.ReferencedHoroscopeId))
+                    {
+                        <li>Гороскоп</li>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.ReferencedNatalChartId))
+                    {
+                        <li>Натальна карта</li>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.ReferencedDestinyMatrixId))
+                    {
+                        <li>Матриця долі</li>
+                    }
+                </ul>
+            </div>
+        }
+
+        <div class="post-actions">
+            <a href="@Url.Action("Index", "Blog")" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Назад до дописів
+            </a>
+            @if (User.Identity.IsAuthenticated &&
+            User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value == Model.Author?.ToString())
+            {
+                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                    <i class="fas fa-trash"></i> Видалити
+                </button>
+            }
+        </div>
+    </article>
+
+    <!-- Секція коментарів -->
+    <div class="comments-section">
+        <h3 class="comments-title">Коментарі (@(comments?.Count ?? 0))</h3>
+
+        @if (isAuthenticated)
+        {
+            <div class="comment-form">
+                <form asp-action="AddComment" asp-controller="Blog" method="post">
+                    <input type="hidden" name="postId" value="@Model.Id" />
+                    <div class="form-group">
+                        <textarea name="content" class="form-control" placeholder="Напишіть коментар..." rows="3" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Додати коментар</button>
+                </form>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info">
+                <a href="@Url.Action("Login", "Account")">Увійдіть</a>, щоб залишити коментар.
+            </div>
+        }
+
+        <div class="comments-list">
+            @if (comments != null && comments.Any())
+            {
+                foreach (var comment in comments)
+                {
+                    <div class="comment">
+                        <div class="comment-header">
+                            <div class="comment-info">
+                                <strong>@comment.AuthorName</strong>
+                                <span class="comment-date">
+                                    @TimeZoneInfo.ConvertTimeFromUtc(comment.CreatedAt, TimeZoneInfo.FindSystemTimeZoneById("FLE Standard Time")).ToString("dd.MM.yyyy HH:mm")
+                                    @if (comment.IsEdited)
+                                    {
+                                        <span class="comment-edited">(Відредаговано @TimeZoneInfo.ConvertTimeFromUtc(comment.UpdatedAt.Value, TimeZoneInfo.FindSystemTimeZoneById("FLE Standard Time")).ToString("dd.MM.yyyy HH:mm"))</span>
+                                    }
+                                </span>
+                            </div>
+                        </div>
+                        <div class="comment-content">
+                            @comment.Content
+                        </div>
+                        @if (comment.IsAuthor)
+                        {
+                            <div class="comment-actions">
+                                <a href="@Url.Action("EditComment", "Blog", new { commentId = comment.Id, postId = Model.Id })" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-edit"></i> Редагувати
+                                </a>
+                                <form asp-action="DeleteComment" asp-controller="Blog" method="post" class="d-inline">
+                                    <input type="hidden" name="commentId" value="@comment.Id" />
+                                    <input type="hidden" name="postId" value="@Model.Id" />
+                                    <button type="submit" class="btn btn-sm btn-danger"
+                                            onclick="return confirm('Видалити коментар?')">
+                                        <i class="fas fa-trash"></i> Видалити
+                                    </button>
+                                </form>
+                            </div>
+                        }
+                    </div>
+                }
+            }
+            else
+            {
+                <p class="no-comments">Поки що немає коментарів. Будьте першим!</p>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Підтвердження видалення</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Ви дійсно хочете видалити цей пост?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
+                <form asp-action="Delete" method="post" style="display: inline;">
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <button type="submit" class="btn btn-danger">Видалити</button>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 
 <style>
-    .admin-container h2 {
-    margin-bottom: 20px;
-    font-size: 50px;
-    color: #6f42c1;
+    .post-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .post-detail {
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        padding: 2rem;
+    }
+
+    .post-header {
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+
+    .post-title {
+        font-size: 2.5rem;
+        color: #2c3e50;
+        margin-bottom: 1rem;
+    }
+
+    .post-meta {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        color: #7f8c8d;
+        font-size: 0.9rem;
+    }
+
+        .post-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .post-meta i {
+            color: #6f42c1;
+        }
+
+    .post-image {
+        margin: 2rem 0;
+        text-align: center;
+    }
+
+        .post-image img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            max-height: 500px;
+            object-fit: contain;
+        }
+
+    .post-content {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        color: #34495e;
+        margin-bottom: 2rem;
+    }
+
+    .post-references {
+        margin: 2rem 0;
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+
+        .post-references h3 {
+            color: #6f42c1;
+            margin-bottom: 1rem;
+        }
+
+        .post-references ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .post-references li {
+            margin-bottom: 0.5rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+            .post-references li:before {
+                content: "•";
+                color: #6f42c1;
+                font-weight: bold;
+                position: absolute;
+                left: 0;
+            }
+
+    .post-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 1px solid #e9ecef;
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+    }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            color: white;
+        }
+
+    .btn-danger {
+        background: #dc3545;
+        color: white;
+    }
+
+        .btn-danger:hover {
+            background: #c82333;
+            color: white;
+        }
+
+    /* Стилі для коментарів */
+    .comments-section {
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .comments-title {
+        color: #2c3e50;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #6f42c1;
+    }
+
+    .comment-form {
+        margin-bottom: 2rem;
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 8px;
+    }
+
+        .comment-form textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            resize: vertical;
+            min-height: 100px;
+            margin-bottom: 1rem;
+        }
+
+            .comment-form textarea:focus {
+                border-color: #6f42c1;
+                box-shadow: 0 0 0 0.2rem rgba(111, 66, 193, 0.25);
+                outline: none;
+            }
+
+    .comments-list {
+        margin-top: 2rem;
+    }
+
+    .comment {
+        background: #fff;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .comment-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #f8f9fa;
+    }
+
+    .comment-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+        .comment-header strong {
+            color: #6f42c1;
+        }
+
+    .comment-date {
+        color: #6c757d;
+        font-size: 0.875rem;
+    }
+
+    .comment-content {
+        margin-bottom: 0.5rem;
+        line-height: 1.6;
+    }
+
+    .comment-actions {
+        margin-top: 0.5rem;
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .no-comments {
+        text-align: center;
+        color: #6c757d;
+        padding: 2rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+
+    .alert {
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border: 1px solid transparent;
+        border-radius: 8px;
+    }
+
+    .alert-info {
+        background-color: #e8f4f8;
+        border-color: #bee5eb;
+        color: #0c5460;
+        text-align: center;
+    }
+
+        .alert-info a {
+            color: #0c5460;
+            font-weight: bold;
+            text-decoration: underline;
+        }
+
+    .btn-primary {
+        background: #6f42c1;
+        color: white;
+        border: none;
+    }
+
+        .btn-primary:hover {
+            background: #5a32a3;
+            color: white;
+        }
+
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+    }
+
+    @@media (max-width: 768px) {
+        .post-title {
+            font-size: 2rem;
+        }
+
+        .post-content {
+            font-size: 1rem;
+        }
+
+        .post-actions {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .comment-header {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+    }
+    .comment-edited {
+        font-size: 0.8rem;
+        color: #6c757d;
+        font-style: italic;
+        margin-left: 0.5rem;
+    }
+
+    .comment-actions {
+        margin-top: 0.5rem;
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.5rem;
+    }
+
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
     }
 </style>

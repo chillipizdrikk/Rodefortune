@@ -1,0 +1,113 @@
+@model RodeFortune.PresentationLayer.Models.EditCommentViewModel
+@{
+    ViewData["Title"] = "Редагувати коментар";
+}
+
+<div class="edit-comment-container">
+    <h2>Редагувати коментар</h2>
+    
+    <form asp-action="EditComment" asp-controller="Blog" method="post">
+        <input type="hidden" asp-for="CommentId" />
+        <input type="hidden" asp-for="PostId" />
+        
+        <div class="form-group">
+            <label asp-for="Content">Коментар</label>
+            <textarea asp-for="Content" class="form-control" rows="5"></textarea>
+            <span asp-validation-for="Content" class="text-danger"></span>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Зберегти</button>
+            <a href="@Url.Action("PostDetails", "Blog", new { id = Model.PostId })" class="btn btn-secondary">Скасувати</a>
+        </div>
+    </form>
+</div>
+
+<style>
+    .edit-comment-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    h2 {
+        color: #2c3e50;
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: #34495e;
+    }
+    
+    textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #ced4da;
+        border-radius: 8px;
+        resize: vertical;
+    }
+    
+    textarea:focus {
+        border-color: #6f42c1;
+        box-shadow: 0 0 0 0.2rem rgba(111, 66, 193, 0.25);
+        outline: none;
+    }
+    
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+    
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1.5rem;
+        border-radius: 5px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+    }
+    
+    .btn-primary {
+        background: #6f42c1;
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        background: #5a32a3;
+        color: white;
+    }
+    
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+    }
+    
+    .btn-secondary:hover {
+        background: #5a6268;
+        color: white;
+    }
+    
+    .text-danger {
+        color: #dc3545;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+        display: block;
+    }
+</style>

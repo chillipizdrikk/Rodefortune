@@ -11,7 +11,7 @@ namespace RodeFortune.DAL.Repositories.Implementations
 
         public CommentRepository(IMongoDatabase database)
         {
-            _comments = database.GetCollection<Comment>("comments");
+            _comments = database.GetCollection<Comment>("Comments");
         }
 
         public async Task<List<Comment>> GetAllAsync()
