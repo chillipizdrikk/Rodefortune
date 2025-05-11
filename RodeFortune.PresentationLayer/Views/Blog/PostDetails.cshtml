@@ -65,20 +65,21 @@
         }
 
         <div class="post-actions">
-            <a href="@Url.Action("Index", "Blog")" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> Назад до дописів
-            </a>
-            @if (User.Identity.IsAuthenticated &&
-            User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value == Model.Author?.ToString())
-            {
-                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
-                    <i class="fas fa-trash"></i> Видалити
-                </button>
-            }
+            <div class="d-flex justify-content-between">
+                <a href="@Url.Action("Index", "Blog")" class="btn btn-outline-primary btn-sm">
+                    <i class="fas fa-arrow-left"></i> Назад до дописів
+                </a>
+                @if (User.Identity.IsAuthenticated &&
+                User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value == Model.Author?.ToString())
+                {
+                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                        <i class="fas fa-trash"></i> Видалити
+                    </button>
+                }
+            </div>
         </div>
     </article>
 
-    <!-- Секція коментарів -->
     <div class="comments-section">
         <h3 class="comments-title">Коментарі (@(comments?.Count ?? 0))</h3>
 
@@ -125,15 +126,15 @@
                         @if (comment.IsAuthor)
                         {
                             <div class="comment-actions">
-                                <a href="@Url.Action("EditComment", "Blog", new { commentId = comment.Id, postId = Model.Id })" class="btn btn-sm btn-primary">
-                                    <i class="fas fa-edit"></i> Редагувати
+                                <a href="@Url.Action("EditComment", "Blog", new { commentId = comment.Id, postId = Model.Id })" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-edit"></i>Редагувати
                                 </a>
                                 <form asp-action="DeleteComment" asp-controller="Blog" method="post" class="d-inline">
                                     <input type="hidden" name="commentId" value="@comment.Id" />
                                     <input type="hidden" name="postId" value="@Model.Id" />
                                     <button type="submit" class="btn btn-sm btn-danger"
                                             onclick="return confirm('Видалити коментар?')">
-                                        <i class="fas fa-trash"></i> Видалити
+                                        <i class="fas fa-trash"></i>Видалити
                                     </button>
                                 </form>
                             </div>
@@ -307,7 +308,19 @@
             color: white;
         }
 
-    /* Стилі для коментарів */
+    .btn-outline-primary {
+        color: #6a3cb5;
+        border-color: #6a3cb5;
+        background: transparent;
+        border: 1px solid;
+    }
+
+        .btn-outline-primary:hover {
+            background-color: #6a3cb5;
+            border-color: #6a3cb5;
+            color: white;
+        }
+
     .comments-section {
         max-width: 800px;
         margin: 2rem auto;
@@ -389,6 +402,7 @@
         margin-top: 0.5rem;
         display: flex;
         justify-content: flex-end;
+        gap: 0.5rem;
     }
 
     .no-comments {
@@ -425,14 +439,26 @@
         border: none;
     }
 
-        .btn-primary:hover {
-            background: #5a32a3;
-            color: white;
-        }
+    .btn-primary:hover {
+        background: #5a32a3;
+        сolor: white;
+    }
 
     .btn-sm {
         padding: 0.25rem 0.5rem;
         font-size: 0.875rem;
+    }
+
+    .d-flex {
+        display: flex;
+    }
+
+    .justify-content-between {
+        justify-content: space-between;
+    }
+
+    .d-inline {
+        display: inline;
     }
 
     @@media (max-width: 768px) {
@@ -458,6 +484,7 @@
             gap: 0.5rem;
         }
     }
+    
     .comment-edited {
         font-size: 0.8rem;
         color: #6c757d;
