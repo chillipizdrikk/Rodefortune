@@ -20,84 +20,82 @@
                 background-color: #5e35b1;
                 border-color: #5e35b1;
             }
+
+        .btn-red {
+            color: #fff;
+            background-color: #dc3545;
+            border-color: #dc3545;
+        }
+
+            .btn-red:hover {
+                color: #fff;
+                background-color: #c82333;
+                border-color: #c82333;
+            }
+
+        .navbar-nav {
+            margin-left: auto; /* Вирівнювання всіх елементів по правому краю */
+        }
     </style>
 </head>
 <body>
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
-                @if (User.IsInRole("Admin"))
-                {
-                    <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">RodeFortune</a>
-                }
-                else
-                {
-                    <span class="navbar-brand">RodeFortune</span>
-                }
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">RodeFortune</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-end">
                     <ul class="navbar-nav flex-grow-1">
-                        @if (!User.Identity.IsAuthenticated)
+                        <!-- Гороскоп дня -->
+                        <li class="nav-item">
+                            <a class="nav-link btn btn-purple text-white mx-1" asp-controller="Horoscope" asp-action="Index">Гороскоп дня</a>
+                        </li>
+
+                        <!-- Карти Таро -->
+                        <li class="nav-item">
+                            <a class="nav-link btn btn-purple text-white mx-1" asp-controller="Divination" asp-action="Cards">Карти Таро</a>
+                        </li>
+
+                        <!-- Ворожіння -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle btn btn-purple text-white mx-1" href="#" id="divinationDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Ворожіння
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="divinationDropdown">
+                                <li><a class="dropdown-item" asp-controller="Divination" asp-action="YesNo">Так/Ні</a></li>
+                                <li><a class="dropdown-item" asp-controller="Divination" asp-action="PresentPastFuture">Минуле, Теперішнє, Майбутнє</a></li>
+                                <li><a class="dropdown-item" asp-controller="Divination" asp-action="CaseActionResult">Ситуація, Дія, Результат</a></li>
+                                <li><a class="dropdown-item" asp-controller="Divination" asp-action="DreamReview">Аналіз Сновидіння</a></li>
+                                <li><a class="dropdown-item" asp-controller="Divination" asp-action="ProblemSolution">Проблема та Вирішення</a></li>
+                                <li><a class="dropdown-item" asp-controller="Divination" asp-action="CardOfTheDay">Карта дня</a></li>
+                                <li><a class="dropdown-item" asp-controller="Tarot" asp-action="Index">Яка ви карта Таро?</a></li>
+                            </ul>
+                        </li>
+
+                        <!-- Блог -->
+                        <li class="nav-item">
+                            <a class="nav-link btn btn-purple text-white mx-1" asp-controller="Blog" asp-action="Index">Блог</a>
+                        </li>
+
+                        <!-- Профіль -->
+                        @if (User.Identity.IsAuthenticated)
                         {
                             <li class="nav-item">
-                                <a class="nav-link btn btn-purple text-white mx-1" asp-controller="Account" asp-action="Login">Увійти в акаунт</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link btn btn-purple text-white mx-1" asp-controller="Divination" asp-action="YesNo">Ворожіння Так/Ні</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link btn btn-purple text-white mx-1" asp-controller="Divination" asp-action="PresentPastFuture">Ворожіння Минуле, Теперішнє, Майбутнє</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link btn btn-purple text-white mx-1" asp-controller="Divination" asp-action="Cards">Карти Таро</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link btn btn-purple text-white mx-1" asp-controller="Blog" asp-action="Index">Блог</a>
+                                <a class="nav-link btn btn-purple text-white mx-1" asp-controller="Profile" asp-action="Index">Профіль</a>
                             </li>
                         }
-                        else
+
+                        <!-- Вийти -->
+                        @if (User.Identity.IsAuthenticated)
                         {
                             <li class="nav-item">
                                 <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
-                                    <button type="submit" class="nav-link btn btn-purple text-white mx-1 border-0">Вийти з акаунту</button>
+                                    <button type="submit" class="nav-link btn btn-red text-white mx-1 border-0">Вийти</button>
                                 </form>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link btn btn-purple text-white mx-1" asp-controller="Divination" asp-action="YesNo">Ворожіння Так/Ні</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link btn btn-purple text-white mx-1" asp-controller="Divination" asp-action="PresentPastFuture">Ворожіння Минуле, Теперішнє, Майбутнє</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link btn btn-purple text-white mx-1" asp-controller="Divination" asp-action="CaseActionResult">Ворожіння Ситуація, Дія, Результат</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link btn btn-purple text-white mx-1" asp-controller="Divination" asp-action="DreamReview">Ворожіння на Сновидіння</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link btn btn-purple text-white mx-1" asp-controller="Divination" asp-action="ProblemSolution">Ворожіння Проблема та Вирішення</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link btn btn-purple text-white mx-1" asp-controller="Divination" asp-action="CardOfTheDay">Карта дня</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link btn btn-purple text-white mx-1" asp-controller="Divination" asp-action="Cards">Карти Таро</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link btn btn-purple text-white mx-1" asp-controller="Horoscope" asp-action="Index">Гороскоп дня</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link btn btn-purple text-white mx-1" asp-controller="Tarot" asp-action="Index">Яка ви карта Таро?</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link btn btn-purple text-white mx-1" asp-controller="Blog" asp-action="Index">Блог</a>
-                            </li>
-                             <li class="nav-item">
-                                <a class="nav-link btn btn-purple text-white mx-1" asp-controller="Profile" asp-action="Index">Профіль </a>
-                             </li>
                         }
                     </ul>
                 </div>
