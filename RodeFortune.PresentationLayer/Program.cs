@@ -1,19 +1,16 @@
-using RodeFortune.DAL;
-using RodeFortune.DAL.Repositories;
+using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
 using DotNetEnv;
-using Serilog;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using RodeFortune.BLL.Services;
 using RodeFortune.BLL.Services.Implementations;
+using RodeFortune.BLL.Services.Interfaces;
+using RodeFortune.DAL.Repositories;
 using RodeFortune.DAL.Repositories.Implementations;
 using RodeFortune.DAL.Repositories.Interfaces;
-using RodeFortune.BLL.Services.Interfaces;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Azure.Identity;
-using Azure.Security.KeyVault.Secrets;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,15 +35,15 @@ if (isDevelopment)
 }
 else
 {
-        string keyVaultUrl = builder.Configuration["KeyVault:Url"] ??
-                             Environment.GetEnvironmentVariable("KEY_VAULT_URL");
+    string keyVaultUrl = builder.Configuration["KeyVault:Url"] ??
+                         Environment.GetEnvironmentVariable("KEY_VAULT_URL");
 
-        var keyVaultClient = new SecretClient(
-            new Uri(keyVaultUrl),
-            new ManagedIdentityCredential());
+    var keyVaultClient = new SecretClient(
+        new Uri(keyVaultUrl),
+        new ManagedIdentityCredential());
 
-        connectionString = keyVaultClient.GetSecret("MONGODBCONNECTIONSTRING").Value.Value;
-        databaseName = keyVaultClient.GetSecret("MONGODBDATABASENAME").Value.Value;
+    connectionString = keyVaultClient.GetSecret("MONGODBCONNECTIONSTRING").Value.Value;
+    databaseName = keyVaultClient.GetSecret("MONGODBDATABASENAME").Value.Value;
 
 }
 
@@ -59,7 +56,7 @@ builder.Services.Configure<MongoDbSettings>(options =>
 builder.Services.AddSingleton<IMongoClient>(sp =>
 {
     var settings = sp.GetRequiredService<IOptions<MongoDbSettings>>();
-     return new MongoClient(settings.Value.ConnectionString);
+    return new MongoClient(settings.Value.ConnectionString);
 });
 
 builder.Services.AddSingleton<IMongoDatabase>(sp =>
@@ -94,7 +91,7 @@ builder.Services.AddSession(options =>
 builder.Services.AddScoped<ITarotCardRepository, TarotCardRepository>();
 builder.Services.AddScoped<IConstantDivinationService, TarotService>();
 builder.Services.AddScoped<DivinationService>();
-builder.Services.AddScoped<IHoroscopeRepository,HoroscopeRepository>();
+builder.Services.AddScoped<IHoroscopeRepository, HoroscopeRepository>();
 builder.Services.AddScoped<IHoroscopeService, HoroscopeService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<HoroscopeRepository>();
