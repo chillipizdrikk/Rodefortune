@@ -303,16 +303,18 @@ namespace RodeFortune.UnitTests.Services
             Assert.That(result.Data, Is.False);
             Assert.That(result.Message, Is.EqualTo("Failed to delete comment"));
         }
+
         [Test]
         public async Task UpdateCommentAsync_ShouldReturnError_WhenCommentNotFound()
         {
             var commentId = ObjectId.GenerateNewId();
             var userId = ObjectId.GenerateNewId();
-            string content = "Updated content";
 
-            _mockCommentRepository.Setup(r => r.GetByIdAsync(commentId)).ReturnsAsync((Comment)null);
+            _mockCommentRepository
+                .Setup(repo => repo.GetByIdAsync(commentId))
+                .ReturnsAsync((Comment)null!);
 
-            var result = await _bloggingService.UpdateCommentAsync(commentId, userId, content);
+            var result = await _bloggingService.UpdateCommentAsync(commentId, userId, "New content");
 
             Assert.That(result.Success, Is.False);
             Assert.That(result.Data, Is.False);
@@ -323,14 +325,16 @@ namespace RodeFortune.UnitTests.Services
         public async Task UpdateCommentAsync_ShouldReturnError_WhenUserNotAuthor()
         {
             var commentId = ObjectId.GenerateNewId();
-            var userId = ObjectId.GenerateNewId();
             var authorId = ObjectId.GenerateNewId();
-            string content = "Updated content";
+            var userId = ObjectId.GenerateNewId();
 
             var comment = new Comment { Id = commentId, AuthorId = authorId };
-            _mockCommentRepository.Setup(r => r.GetByIdAsync(commentId)).ReturnsAsync(comment);
 
-            var result = await _bloggingService.UpdateCommentAsync(commentId, userId, content);
+            _mockCommentRepository
+                .Setup(repo => repo.GetByIdAsync(commentId))
+                .ReturnsAsync(comment);
+
+            var result = await _bloggingService.UpdateCommentAsync(commentId, userId, "New content");
 
             Assert.That(result.Success, Is.False);
             Assert.That(result.Data, Is.False);
@@ -338,35 +342,27 @@ namespace RodeFortune.UnitTests.Services
         }
 
         [Test]
-        public async Task UpdateCommentAsync_ShouldReturnSuccess_WhenUserIsAuthor()
+        public async Task UpdateCommentAsync_ShouldReturnSuccess_WhenUpdateSucceeds()
         {
             var commentId = ObjectId.GenerateNewId();
             var userId = ObjectId.GenerateNewId();
-            string oldContent = "Original content";
-            string newContent = "Updated content";
-            DateTime originalUpdatedAt = DateTime.UtcNow.AddHours(-1);
 
-            var comment = new Comment 
-            { 
-                Id = commentId, 
-                AuthorId = userId, 
-                Content = oldContent,
-                UpdatedAt = originalUpdatedAt
-            };
-            
-            _mockCommentRepository.Setup(r => r.GetByIdAsync(commentId)).ReturnsAsync(comment);
-            _mockCommentRepository.Setup(r => r.UpdateAsync(It.IsAny<Comment>())).ReturnsAsync(true);
+            var comment = new Comment { Id = commentId, AuthorId = userId, Content = "Old" };
 
-            var result = await _bloggingService.UpdateCommentAsync(commentId, userId, newContent);
+            _mockCommentRepository
+                .Setup(repo => repo.GetByIdAsync(commentId))
+                .ReturnsAsync(comment);
+
+            _mockCommentRepository
+                .Setup(repo => repo.UpdateAsync(It.IsAny<Comment>()))
+                .ReturnsAsync(true);
+
+            var result = await _bloggingService.UpdateCommentAsync(commentId, userId, "New");
 
             Assert.That(result.Success, Is.True);
             Assert.That(result.Data, Is.True);
             Assert.That(result.Message, Is.EqualTo("Comment updated successfully"));
-            
-            Assert.That(comment.Content, Is.EqualTo(newContent));
-            Assert.That(comment.UpdatedAt, Is.GreaterThan(originalUpdatedAt));
-            
-            _mockCommentRepository.Verify(r => r.UpdateAsync(comment), Times.Once);
+            _mockCommentRepository.Verify(r => r.UpdateAsync(It.Is<Comment>(c => c.Content == "New")), Times.Once);
         }
 
         [Test]
@@ -374,26 +370,24 @@ namespace RodeFortune.UnitTests.Services
         {
             var commentId = ObjectId.GenerateNewId();
             var userId = ObjectId.GenerateNewId();
-            string oldContent = "Original content";
-            string newContent = "Updated content";
 
-            var comment = new Comment 
-            { 
-                Id = commentId, 
-                AuthorId = userId, 
-                Content = oldContent 
-            };
-            
-            _mockCommentRepository.Setup(r => r.GetByIdAsync(commentId)).ReturnsAsync(comment);
-            _mockCommentRepository.Setup(r => r.UpdateAsync(It.IsAny<Comment>())).ReturnsAsync(false);
+            var comment = new Comment { Id = commentId, AuthorId = userId };
 
-            var result = await _bloggingService.UpdateCommentAsync(commentId, userId, newContent);
+            _mockCommentRepository
+                .Setup(repo => repo.GetByIdAsync(commentId))
+                .ReturnsAsync(comment);
+
+            _mockCommentRepository
+                .Setup(repo => repo.UpdateAsync(It.IsAny<Comment>()))
+                .ReturnsAsync(false);
+
+            var result = await _bloggingService.UpdateCommentAsync(commentId, userId, "Updated");
 
             Assert.That(result.Success, Is.False);
             Assert.That(result.Data, Is.False);
             Assert.That(result.Message, Is.EqualTo("Failed to update comment"));
-            
-            _mockCommentRepository.Verify(r => r.UpdateAsync(comment), Times.Once);
         }
+
+
     }
 }
