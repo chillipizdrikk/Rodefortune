@@ -11,7 +11,7 @@
             <div class="col-md-8 col-lg-6">
                 <div class="card shadow">
                     <div class="card-header" style="background-color: #6f42c1; color: white;">
-                        <h2 class="card-title text-center mb-0">Ваша карта Таро за датою народження</h2>
+                        <h2 class="card-title text-center mb-0">Ваша карта Таро</h2>
                     </div>
                     <div class="card-body">
                         <p class="lead text-center mb-4">
@@ -41,9 +41,8 @@
     else
     {
         <div class="tarot-result-container">
-            <!-- Заголовок -->
             <div class="tarot-header">
-                <h2>Ваша карта Таро за датою народження</h2>
+                <h2>Ваша карта Таро</h2>
             </div>
 
             <div class="tarot-content">
@@ -109,8 +108,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Футер -->
             <div class="tarot-footer">
                 <div class="d-flex justify-content-between align-items-center">
                     <span class="birthdate-text">Дата народження: @(ViewBag.BirthDate != null ? ((DateTime)ViewBag.BirthDate).ToString("dd.MM.yyyy") : "")</span>
@@ -167,7 +164,7 @@
         width: auto;
         max-width: 100%;
         height: auto;
-        max-height: 550px; /* Збільшена висота */
+        max-height: 550px;
         border-radius: 8px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         margin: 0 auto;
@@ -246,7 +243,6 @@
         text-align: center;
     }
 
-    /* Адаптивні стилі */
     @@media (max-width: 991px) {
         .order-lg-1
 

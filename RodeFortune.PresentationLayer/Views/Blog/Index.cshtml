@@ -71,8 +71,7 @@
                                 <button type="submit" class="delete-btn" onclick="return confirm('Ви впевнені, що хочете видалити цей допис?');">Видалити</button>
                             </form>
                         }
-                        <a asp-action="PostDetails" asp-route-id="@post.Id" class="details-btn">Детальніше</a>
-
+                        <a asp-action="PostDetails" asp-route-id="@post.Id" class="btn btn-outline-primary btn-sm">Детальніше</a>
                     </div>
                 </div>
             </div>
@@ -278,5 +277,15 @@
     .add-new-btn:hover {
         background-color: #6f42c1;
         color: white;
+    }
+    
+    .btn-outline-primary {
+        color: #6a3cb5;
+        border-color: #6a3cb5;
+    }
+
+    .btn-outline-primary:hover {
+        background-color: #6a3cb5;
+        border-color: #6a3cb5;
     }
 </style>

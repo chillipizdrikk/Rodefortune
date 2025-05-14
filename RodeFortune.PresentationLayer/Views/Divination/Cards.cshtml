@@ -22,7 +22,10 @@
                     <form method="get" action="@Url.Action("Cards", "Divination")" class="row g-3">
                         <div class="col-md-6">
                             <label for="searchTerm" class="form-label">Пошук за назвою або значенням</label>
-                            <input type="text" class="form-control" id="searchTerm" name="searchTerm" value="@ViewBag.SearchTerm">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                <input type="text" class="form-control" id="searchTerm" name="searchTerm" value="@ViewBag.SearchTerm">
+                            </div>
                         </div>
                         <div class="col-md-4">
                             <label for="arcana" class="form-label">Аркана</label>
@@ -99,7 +102,7 @@
                                             <strong>Аркана:</strong> @(card.Arcana == "Major" ? "Старші Аркани" : "Молодші Аркани")
                                         </p>
                                         <div class="d-flex justify-content-between">
-                                            <a href="#" class="btn btn-outline-primary btn-sm view-card-details" data-card-id="@card.Id">Детальніше</a>
+                                            <a href="#" class="btn btn btn-outline-primary btn-sm view-card-details" data-card-id="@card.Id">Детальніше</a>
                                         </div>
                                     </div>
                                 </div>
@@ -115,9 +118,9 @@
 <div class="modal fade" id="cardDetailsModal" tabindex="-1" aria-labelledby="cardDetailsModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="cardDetailsModalLabel">Деталі карти</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-header position-relative justify-content-center">
+                <h5 class="modal-title m-0" id="cardDetailsModalLabel">Деталі карти</h5>
+                <button type="button" class="btn-close position-absolute end-0 top-50 translate-middle-y me-3" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="row">
@@ -127,7 +130,7 @@
                         <div id="modalCardArcana" class="text-muted"></div>
                         <div id="modalCardMotto" class="fst-italic mt-2"></div>
                         <div class="mt-3">
-                            <button id="cardReverseBtn" class="btn btn-secondary">Перевернути</button>
+                            <button id="cardReverseBtn" class="btn btn-outline-primary">Перевернути</button>
                         </div>
                     </div>
                     <div class="col-md-7">
@@ -165,7 +168,6 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрити</button>
                 <a id="modalAllCards" href="@Url.Action("Cards", "Divination")" class="btn btn-outline-primary">Всі карти</a>
             </div>
         </div>
@@ -209,7 +211,7 @@
 
     .card-arcana {
         font-size: 0.9rem;
-        color: #666;
+        color: #6a3cb5;
     }
 
     .btn-primary {

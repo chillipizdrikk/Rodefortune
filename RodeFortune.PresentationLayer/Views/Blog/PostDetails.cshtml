@@ -65,20 +65,21 @@
         }
 
         <div class="post-actions">
-            <a href="@Url.Action("Index", "Blog")" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> Назад до дописів
-            </a>
-            @if (User.Identity.IsAuthenticated &&
-            User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value == Model.Author?.ToString())
-            {
-                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
-                    <i class="fas fa-trash"></i> Видалити
-                </button>
-            }
+            <div class="d-flex justify-content-between">
+                <a href="@Url.Action("Index", "Blog")" class="btn btn-outline-primary btn-sm">
+                    <i class="fas fa-arrow-left"></i> Назад до дописів
+                </a>
+                @if (User.Identity.IsAuthenticated &&
+                User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value == Model.Author?.ToString())
+                {
+                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                        <i class="fas fa-trash"></i> Видалити
+                    </button>
+                }
+            </div>
         </div>
     </article>
 
-    <!-- Секція коментарів -->
     <div class="comments-section">
         <h3 class="comments-title">Коментарі (@(comments?.Count ?? 0))</h3>
 
@@ -125,7 +126,7 @@
                         @if (comment.IsAuthor)
                         {
                             <div class="comment-actions">
-                                <a href="@Url.Action("EditComment", "Blog", new { commentId = comment.Id, postId = Model.Id })" class="btn btn-sm btn-primary">
+                                <a href="@Url.Action("EditComment", "Blog", new { commentId = comment.Id, postId = Model.Id })" class="btn btn-sm btn-outline-primary">
                                     <i class="fas fa-edit"></i> Редагувати
                                 </a>
                                 <form asp-action="DeleteComment" asp-controller="Blog" method="post" class="d-inline">
@@ -277,14 +278,9 @@
     .btn {
         display: inline-flex;
         align-items: center;
+        justify-content: center;
+        text-align: center;
         gap: 0.5rem;
-        padding: 0.5rem 1rem;
-        border-radius: 5px;
-        text-decoration: none;
-        font-weight: 500;
-        transition: all 0.3s ease;
-        border: none;
-        cursor: pointer;
     }
 
     .btn-secondary {
@@ -307,7 +303,19 @@
             color: white;
         }
 
-    /* Стилі для коментарів */
+    .btn-outline-primary {
+        color: #6a3cb5;
+        border-color: #6a3cb5;
+        background: transparent;
+        border: 1px solid;
+    }
+
+        .btn-outline-primary:hover {
+            background-color: #6a3cb5;
+            border-color: #6a3cb5;
+            color: white;
+        }
+
     .comments-section {
         max-width: 800px;
         margin: 2rem auto;
@@ -371,9 +379,9 @@
         gap: 1rem;
     }
 
-        .comment-header strong {
-            color: #6f42c1;
-        }
+    .comment-header strong {
+        color: #6f42c1;
+    }
 
     .comment-date {
         color: #6c757d;
@@ -389,7 +397,24 @@
         margin-top: 0.5rem;
         display: flex;
         justify-content: flex-end;
+        gap: 0.5rem;
     }
+
+        .comment-actions .btn {
+            display: flex; /* Використовуємо flexbox */
+            align-items: center; /* Центрування по вертикалі */
+            justify-content: center; /* Центрування по горизонталі */
+            text-align: center; /* Центрування тексту */
+            padding: 0.4rem 1rem; /* Відступи всередині кнопки */
+            gap: 0.1rem; /* Відстань між текстом та іконкою */
+            height: auto; /* Прибираємо фіксовану висоту, якщо вона є */
+            line-height: 1.2; /* Встановлюємо лінійну висоту для центрування тексту */
+        }
+
+            .comment-actions .btn i {
+                display: inline-block; /* Забезпечує коректний розмір іконки */
+                vertical-align: middle; /* Вирівнює іконку по центру тексту */
+            }
 
     .no-comments {
         text-align: center;
@@ -427,12 +452,24 @@
 
         .btn-primary:hover {
             background: #5a32a3;
-            color: white;
+            сolor: white;
         }
 
     .btn-sm {
         padding: 0.25rem 0.5rem;
         font-size: 0.875rem;
+    }
+
+    .d-flex {
+        display: flex;
+    }
+
+    .justify-content-between {
+        justify-content: space-between;
+    }
+
+    .d-inline {
+        display: inline;
     }
 
     @@media (max-width: 768px) {
@@ -458,6 +495,7 @@
             gap: 0.5rem;
         }
     }
+
     .comment-edited {
         font-size: 0.8rem;
         color: #6c757d;
