@@ -13,7 +13,7 @@
     </div>
 
     <div class="row justify-content-center mb-4">
-        <div class="col-lg-8 col-md-10">
+        <div class="col-lg-10">
             <div class="card">
                 <div class="card-header bg-light">
                     <h3 class="mb-0">Вибір дати</h3>
@@ -67,13 +67,15 @@
                                             </div>
                                         }
                                         <p class="card-text preview-content">
-                                            @(horoscope.Content.Length > 150 
-                                                ? horoscope.Content.Substring(0, 150) + "..." 
+                                            @(horoscope.Content.Length > 150
+                                                ? horoscope.Content.Substring(0, 150) + "..."
                                                 : horoscope.Content)
                                         </p>
                                         <div class="d-flex justify-content-between">
-                                            <button class="btn btn-outline-primary btn-sm view-horoscope-details" 
-                                                    data-horoscope-id="@horoscope.Id">Детальніше</button>
+                                            <button class="btn btn-outline-primary btn-sm view-horoscope-details"
+                                                    data-horoscope-id="@horoscope.Id">
+                                                Детальніше
+                                            </button>
                                             @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
                                             {
                                                 <div>
@@ -126,7 +128,6 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрити</button>
                 <div id="modalActionButtons" class="d-none">
                     <a id="modalEditLink" href="#" class="btn btn-outline-primary">Редагувати</a>
                     <button id="modalDeleteBtn" class="btn btn-outline-danger">Видалити</button>
@@ -198,9 +199,9 @@
         transition: transform 0.3s ease;
     }
 
-    .horoscope-card-item:hover {
-        transform: translateY(-5px);
-    }
+        .horoscope-card-item:hover {
+            transform: translateY(-5px);
+        }
 
     .zodiac-sign-header {
         background-color: #f0ebf7;
@@ -217,10 +218,10 @@
         justify-content: center;
     }
 
-    .zodiac-icon img {
-        max-width: 100%;
-        max-height: 100%;
-    }
+        .zodiac-icon img {
+            max-width: 100%;
+            max-height: 100%;
+        }
 
     .zodiac-icon-large {
         width: 100px;
@@ -231,10 +232,10 @@
         justify-content: center;
     }
 
-    .zodiac-icon-large img {
-        max-width: 100%;
-        max-height: 100%;
-    }
+        .zodiac-icon-large img {
+            max-width: 100%;
+            max-height: 100%;
+        }
 
     .card-motto {
         color: #6a3cb5;
@@ -251,20 +252,20 @@
         border-color: #6a3cb5;
     }
 
-    .btn-primary:hover {
-        background-color: #542e91;
-        border-color: #542e91;
-    }
+        .btn-primary:hover {
+            background-color: #542e91;
+            border-color: #542e91;
+        }
 
     .btn-outline-primary {
         color: #6a3cb5;
         border-color: #6a3cb5;
     }
 
-    .btn-outline-primary:hover {
-        background-color: #6a3cb5;
-        border-color: #6a3cb5;
-    }
+        .btn-outline-primary:hover {
+            background-color: #6a3cb5;
+            border-color: #6a3cb5;
+        }
 
     .btn-facebook {
         background-color: #3b5998;
@@ -284,34 +285,34 @@
 
 @section Scripts {
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             // Handle click on "Details" button for horoscope
-            $('.view-horoscope-details').click(function(e) {
+            $('.view-horoscope-details').click(function (e) {
                 e.preventDefault();
                 var horoscopeId = $(this).data('horoscope-id');
-                
+
                 // Make AJAX request to get horoscope details
                 $.ajax({
                     url: '/Horoscope/GetHoroscopeDetails/' + horoscopeId,
                     type: 'GET',
-                    success: function(response) {
+                    success: function (response) {
                         // Fill modal with horoscope details
                         $('#modalZodiacSign').text(response.zodiacSign);
                         $('#modalDate').text(new Date(response.date).toLocaleDateString('uk-UA'));
-                        
+
                         if (response.motto) {
                             $('#modalMotto').text(response.motto).show();
                         } else {
                             $('#modalMotto').hide();
                         }
-                        
+
                         $('#modalContent').html(response.content);
-                        
+
                         // Set zodiac icon
                         var zodiacImagePath = '/images/zodiac/' + response.zodiacSign.toLowerCase() + '.jpg';
-                        
+
                         $('#modalZodiacIcon').html('<img src="' + zodiacImagePath + '" alt="' + response.zodiacSign + '" class="img-fluid">');
-                        
+
                         // Set edit and delete links/buttons for admins
                         if (@(User.Identity.IsAuthenticated && User.IsInRole("Admin") ? "true" : "false")) {
                             $('#modalActionButtons').removeClass('d-none');
@@ -320,45 +321,45 @@
                         } else {
                             $('#modalActionButtons').addClass('d-none');
                         }
-                        
+
                         // Set share URL
                         var shareUrl = window.location.origin + '/Horoscope/BySign?zodiacSign=' + encodeURIComponent(response.zodiacSign);
                         $('#shareUrl').val(shareUrl);
-                        
+
                         // Show modal
                         $('#horoscopeDetailsModal').modal('show');
                     },
-                    error: function() {
+                    error: function () {
                         alert('Помилка отримання даних гороскопу');
                     }
                 });
             });
-            
+
             // Handle delete button click
-            $('.delete-horoscope, #modalDeleteBtn').click(function() {
+            $('.delete-horoscope, #modalDeleteBtn').click(function () {
                 var horoscopeId = $(this).data('horoscope-id');
                 $('#deleteHoroscopeForm').attr('action', '/Horoscope/Delete/' + horoscopeId);
                 $('#horoscopeDetailsModal').modal('hide');
                 $('#deleteConfirmModal').modal('show');
             });
-            
+
             // Handle share button click
-            $('#modalShareBtn').click(function() {
+            $('#modalShareBtn').click(function () {
                 $('#horoscopeDetailsModal').modal('hide');
                 $('#shareModal').modal('show');
             });
-            
+
             // Handle copy URL button
-            $('#copyShareUrlBtn').click(function() {
+            $('#copyShareUrlBtn').click(function () {
                 var copyText = document.getElementById("shareUrl");
                 copyText.select();
                 copyText.setSelectionRange(0, 99999); // For mobile devices
                 navigator.clipboard.writeText(copyText.value);
-                
+
                 // Provide feedback
                 var originalText = $(this).text();
                 $(this).text('Скопійовано!');
-                setTimeout(function() {
+                setTimeout(function () {
                     $('#copyShareUrlBtn').text(originalText);
                 }, 2000);
             });
